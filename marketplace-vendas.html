@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>SISLOT — Vendas Marketplace</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-deep:   #0a1628;
+      --blue-mid:    #0f2244;
+      --blue-panel:  #132952;
+      --blue-border: #1e3a6e;
+      --accent:      #f5a623;   /* âmbar — cor do marketplace */
+      --text-bright: #e8eef8;
+      --text-mid:    #8fa3c8;
+      --text-dim:    #4a6491;
+      --error:       #ff5252;
+      --input-bg:    #0d1e3a;
+      --input-border:#1e3a6e;
+    }
+
+    body {
+      background: var(--blue-deep);
+      font-family: 'IBM Plex Sans', sans-serif;
+      color: var(--text-bright);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      background-image:
+        radial-gradient(ellipse 80% 40% at 50% 0%, rgba(245,166,35,0.07) 0%, transparent 60%),
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(30,58,110,0.3) 39px, rgba(30,58,110,0.3) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(30,58,110,0.15) 39px, rgba(30,58,110,0.15) 40px);
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 56px;
+      background: rgba(15,34,68,0.95); border-bottom: 1px solid var(--blue-border);
+      backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon {
+      width: 32px; height: 32px; background: var(--accent); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .brand-icon svg { width: 17px; height: 17px; stroke: white; fill: none; }
+    .brand-name { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+    .brand-sub  { font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .clock { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-mid); }
+    .btn-topbar {
+      display: flex; align-items: center; gap: 6px; background: transparent;
+      border: 1px solid var(--blue-border); border-radius: 6px; padding: 6px 12px;
+      font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; color: var(--text-mid); white-space: nowrap;
+    }
+    .btn-topbar svg { width: 13px; height: 13px; }
+    .btn-topbar:hover { color: var(--accent); border-color: rgba(245,166,35,0.4); background: rgba(245,166,35,0.05); }
+    .btn-topbar-sair:hover { color: var(--error); border-color: rgba(255,82,82,0.4); background: rgba(255,82,82,0.05); }
+
+    /* ── Layout ── */
+    .main { flex: 1; max-width: 1100px; width: 100%; margin: 0 auto; padding: 32px 32px 80px; }
+    .page-header {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--blue-border);
+      animation: fadeIn 0.4s ease both; flex-wrap: wrap; gap: 12px;
+    }
+    .page-title    { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+    .page-subtitle { font-size: 13px; color: var(--text-mid); margin-top: 4px; font-weight: 300; }
+
+    /* ── Date stepper ── */
+    .date-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; animation: fadeIn 0.4s 0.05s ease both; }
+    .date-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); }
+    .date-stepper { display: flex; align-items: center; background: var(--blue-panel); border: 1px solid var(--blue-border); border-radius: 8px; overflow: hidden; }
+    .btn-date { width: 36px; height: 36px; background: transparent; border: none; color: var(--text-mid); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .btn-date:hover { background: rgba(245,166,35,0.08); color: var(--accent); }
+    .btn-date svg { width: 14px; height: 14px; }
+    .date-display {
+      font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600;
+      color: var(--text-bright); padding: 0 16px; border-left: 1px solid var(--blue-border);
+      border-right: 1px solid var(--blue-border); height: 36px;
+      display: flex; align-items: center; white-space: nowrap; min-width: 130px; justify-content: center;
+    }
+    .btn-hoje {
+      background: transparent; border: 1px solid rgba(245,166,35,0.25); border-radius: 6px;
+      padding: 6px 12px; cursor: pointer; font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); transition: all 0.2s;
+    }
+    .btn-hoje:hover { background: rgba(245,166,35,0.08); border-color: var(--accent); }
+    .boloes-count { margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-dim); }
+    .boloes-count span { color: var(--accent); font-weight: 600; }
+
+    /* ── States ── */
+    .state-box {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 10px; padding: 56px 24px; text-align: center;
+      background: var(--blue-panel); border: 1px dashed var(--blue-border); border-radius: 10px;
+    }
+    .state-box svg { width: 36px; height: 36px; opacity: 0.3; }
+    .state-title { font-size: 14px; font-weight: 600; color: var(--text-mid); }
+    .state-sub   { font-size: 12px; color: var(--text-dim); max-width: 340px; }
+    .spinner { width: 32px; height: 32px; border-radius: 50%; border: 3px solid rgba(245,166,35,0.15); border-top-color: var(--accent); animation: spin 0.8s linear infinite; }
+
+    /* ── Section sep ── */
+    .section-sep { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .section-sep-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); white-space: nowrap; }
+    .section-sep-line { flex: 1; height: 1px; background: var(--blue-border); }
+    .section-sep-count { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--accent); background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.2); border-radius: 4px; padding: 2px 8px; }
+
+    /* ── Bolão cards ── */
+    .boloes-grid { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .bolao-card {
+      background: var(--blue-panel); border: 1px solid var(--blue-border);
+      border-radius: 8px; padding: 12px 14px;
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 12px; align-items: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; animation: cardIn 0.3s ease both;
+      border-left: 3px solid transparent;
+    }
+    .bolao-card:hover { border-color: rgba(245,166,35,0.35); background: rgba(245,166,35,0.02); }
+    .bolao-card.selected { border-color: var(--accent) !important; background: rgba(245,166,35,0.05) !important; border-left-color: var(--accent) !important; }
+    .bolao-main { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .bolao-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .bolao-modal { font-size: 13px; font-weight: 600; color: var(--text-bright); }
+    .bolao-concurso { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.2); border-radius: 4px; padding: 1px 7px; }
+    .bolao-origem { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #38bdf8; background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.2); border-radius: 4px; padding: 1px 7px; }
+    .bolao-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btag { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 4px; background: rgba(255,255,255,0.04); border: 1px solid var(--blue-border); color: var(--text-mid); white-space: nowrap; }
+    .bolao-select-ind { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--blue-border); display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+    .bolao-card.selected .bolao-select-ind { background: var(--accent); border-color: var(--accent); }
+    .bolao-select-ind svg { display: none; width: 10px; height: 10px; stroke: var(--blue-deep); }
+    .bolao-card.selected .bolao-select-ind svg { display: block; }
+
+    /* ── Panel inferior ── */
+    .venda-panel {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(10,22,40,0.97); border-top: 1px solid rgba(245,166,35,0.2);
+      backdrop-filter: blur(12px); z-index: 200;
+      transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    .venda-panel.open { transform: translateY(0); }
+    .venda-panel-inner { max-width: 1100px; margin: 0 auto; padding: 20px 32px 28px; }
+
+    .venda-panel-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 16px; }
+    .venda-resumo { display: flex; flex-direction: column; gap: 6px; }
+    .venda-resumo-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); }
+    .venda-resumo-nome { font-size: 15px; font-weight: 600; }
+    .venda-resumo-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .rtag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 3px 9px; border-radius: 5px; background: rgba(255,255,255,0.05); border: 1px solid var(--blue-border); color: var(--text-mid); }
+    .rtag-accent { color: var(--accent); background: rgba(245,166,35,0.08); border-color: rgba(245,166,35,0.2); }
+    .rtag-blue   { color: #38bdf8; background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.2); }
+
+    .btn-fechar-panel { background: transparent; border: 1px solid var(--blue-border); border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text-dim); font-size: 18px; line-height: 1; transition: all 0.2s; flex-shrink: 0; }
+    .btn-fechar-panel:hover { border-color: var(--error); color: var(--error); }
+
+    /* ── Form registro simples ── */
+    .form-row { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 11px; font-weight: 500; color: var(--text-mid); }
+    .field input {
+      background: var(--input-bg); border: 1px solid var(--input-border);
+      border-radius: 6px; padding: 10px 14px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600;
+      color: var(--text-bright); outline: none; width: 120px; text-align: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -moz-appearance: textfield;
+    }
+    .field input::-webkit-outer-spin-button,
+    .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,166,35,0.1); }
+
+    .btn-registrar {
+      background: var(--accent); color: var(--blue-deep); border: none;
+      border-radius: 8px; padding: 11px 28px; cursor: pointer;
+      font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-registrar:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(245,166,35,0.25); }
+    .btn-registrar:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-registrar svg { width: 16px; height: 16px; }
+
+    .valor-preview {
+      font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--text-dim);
+      padding: 10px 0;
+    }
+    .valor-preview span { color: var(--accent); font-size: 18px; font-weight: 600; }
+
+    /* Status */
+    .status-bar { padding: 10px 14px; border-radius: 8px; font-size: 13px; line-height: 1.4; display: none; margin-bottom: 12px; }
+    .status-bar.show { display: block; }
+    .status-bar.ok   { background: rgba(245,166,35,0.08); border: 1px solid rgba(245,166,35,0.2); color: #fcd38d; }
+    .status-bar.err  { background: rgba(255,82,82,0.08);  border: 1px solid rgba(255,82,82,0.2);  color: #ffb3b3; }
+    .status-bar.info { background: rgba(30,58,110,0.5);   border: 1px solid var(--blue-border);   color: var(--text-mid); }
+
+    /* Histórico recente no panel */
+    .hist-recente { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--blue-border); }
+    .hist-recente-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+    .hist-lista { display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; }
+    .hist-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--blue-panel); border: 1px solid var(--blue-border); border-radius: 6px; }
+    .hi-data { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-dim); white-space: nowrap; }
+    .hi-loja { font-size: 12px; color: var(--text-mid); flex: 1; }
+    .hi-qtd  { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--accent); }
+    .hi-val  { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-dim); }
+    .hi-del  { background: transparent; border: 1px solid rgba(255,82,82,0.15); border-radius: 4px; padding: 3px 6px; cursor: pointer; color: rgba(255,82,82,0.4); transition: all 0.2s; }
+    .hi-del:hover { border-color: var(--error); color: var(--error); }
+    .hi-del svg { width: 11px; height: 11px; }
+
+    body.panel-open .list-area { padding-bottom: 380px; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin   { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      .main { padding: 20px 16px 40px; }
+      .topbar { padding: 0 16px; }
+      .clock { display: none; }
+      .form-row { flex-direction: column; align-items: stretch; }
+      .field input { width: 100%; }
+      .btn-registrar { width: 100%; justify-content: center; }
+      .venda-panel-inner { padding: 16px 16px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">SISLOT</div>
+      <div class="brand-sub">Vendas Marketplace</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="clock" id="relogio">--:--:--</div>
+    <button class="btn-topbar" onclick="location.href='./menu.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Menu
+    </button>
+    <button class="btn-topbar btn-topbar-sair" id="btnLogout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sair
+    </button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Vendas Marketplace</div>
+      <div class="page-subtitle">Selecione o bolão e informe a quantidade de cotas vendidas</div>
+    </div>
+  </div>
+
+  <div class="date-bar">
+    <div class="date-label">Data de referência</div>
+    <div class="date-stepper">
+      <button class="btn-date" id="btnDtPrev">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="date-display" id="dateDisplay">—</div>
+      <button class="btn-date" id="btnDtNext">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <button class="btn-hoje" id="btnHoje">Hoje</button>
+    <div class="boloes-count" id="boloesCount"></div>
+  </div>
+
+  <div class="list-area" id="listArea">
+    <div id="stLoading" class="state-box">
+      <div class="spinner"></div>
+      <div class="state-title">Buscando bolões vigentes…</div>
+      <div class="state-sub">Aguarde enquanto consultamos o banco de dados.</div>
+    </div>
+    <div id="stVazio" class="state-box" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      <div class="state-title">Nenhum bolão vigente</div>
+      <div class="state-sub" id="stVazioSub">Não há bolões ativos para a data selecionada.</div>
+    </div>
+    <div id="stLista" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- Panel inferior -->
+<div class="venda-panel" id="vendaPanel">
+  <div class="venda-panel-inner">
+    <div class="venda-panel-header">
+      <div class="venda-resumo">
+        <div class="venda-resumo-title">Bolão Selecionado</div>
+        <div class="venda-resumo-nome" id="panelNome">—</div>
+        <div class="venda-resumo-tags" id="panelTags"></div>
+      </div>
+      <button class="btn-fechar-panel" id="btnFecharPanel">×</button>
+    </div>
+
+    <div class="status-bar" id="statusBar"></div>
+
+    <div class="form-row">
+      <div class="field">
+        <label>Qtd. de cotas vendidas</label>
+        <input type="number" id="inputQtd" min="1" max="9999" placeholder="0"
+          oninput="calcPreview()"/>
+      </div>
+      <div class="valor-preview">
+        Total: <span id="valorPreview">R$ 0,00</span>
+      </div>
+      <button class="btn-registrar" id="btnRegistrar" onclick="registrar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Registrar
+      </button>
+    </div>
+
+    <!-- Histórico recente desse bolão nesse canal -->
+    <div class="hist-recente">
+      <div class="hist-recente-label">Lançamentos anteriores neste bolão (Marketplace)</div>
+      <div class="hist-lista" id="histLista">
+        <div style="font-size:12px;color:var(--text-dim);font-style:italic;">Nenhum lançamento ainda.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="./sislot-config.js"></script>
+<script>
+const sb = supabase.createClient(window.SISLOT_CONFIG.url, window.SISLOT_CONFIG.anonKey);
+const CANAL            = 'MARKETPLACE';
+const ORIGEM_LANCAMENTO = 'LANCAMENTO_MANUAL';
+
+let usuario   = null;
+let dataAtual = new Date();
+let bolaoSel  = null;
+
+const $ = id => document.getElementById(id);
+
+function fmtData(dt) { return dt.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit', year:'numeric' }); }
+function isoDate(dt) { return dt.toISOString().slice(0, 10); }
+function fmtBRL(v)   { return 'R$ ' + Number(v||0).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+
+function setStatus(msg, tipo='info') { const el=$('statusBar'); el.textContent=msg; el.className='status-bar show '+tipo; }
+function clearStatus() { $('statusBar').className='status-bar'; }
+
+function updateClock() {
+  const now = new Date();
+  $('relogio').textContent = now.toLocaleTimeString('pt-BR') + ' — ' +
+    now.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'2-digit', year:'numeric' });
+}
+updateClock(); setInterval(updateClock, 1000);
+
+// ── Init ──────────────────────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = './login.html'; return; }
+
+  const { data: usr } = await sb.from('usuarios')
+    .select('id, nome, perfil, ativo, pode_logar')
+    .eq('auth_user_id', session.user.id).eq('ativo', true).eq('pode_logar', true).maybeSingle();
+  if (!usr) { location.href = './login.html'; return; }
+  usuario = usr;
+
+  $('btnLogout').onclick = async () => { await sb.auth.signOut(); location.href = './login.html'; };
+  dataAtual = new Date();
+  atualizarDateDisplay();
+  await buscarBoloes();
+}
+
+// ── Date ─────────────────────────────────────────────────────────
+function atualizarDateDisplay() { $('dateDisplay').textContent = fmtData(dataAtual); }
+async function mudarData(delta) {
+  dataAtual.setDate(dataAtual.getDate() + delta);
+  atualizarDateDisplay(); fecharPanel(); await buscarBoloes();
+}
+
+// ── Buscar bolões ─────────────────────────────────────────────────
+async function buscarBoloes() {
+  $('stLoading').style.display = 'flex';
+  $('stVazio').style.display   = 'none';
+  $('stLista').style.display   = 'none';
+  $('boloesCount').innerHTML   = '';
+
+  const iso = isoDate(dataAtual);
+  const { data: boloes, error } = await sb.from('boloes')
+    .select('id, modalidade, concurso, valor_cota, qtd_jogos, qtd_dezenas, qtd_cotas_total, loteria_id, loterias(id, nome, slug)')
+    .eq('status', 'ATIVO').lte('dt_inicial', iso).gte('dt_concurso', iso)
+    .order('modalidade').order('loteria_id');
+
+  $('stLoading').style.display = 'none';
+  if (error || !boloes?.length) {
+    $('stVazioSub').textContent = `Nenhum bolão ativo para ${fmtData(dataAtual)}.`;
+    $('stVazio').style.display = 'flex'; return;
+  }
+  renderBoloes(boloes);
+}
+
+// ── Render ────────────────────────────────────────────────────────
+function renderBoloes(boloes) {
+  const lista = $('stLista'); lista.innerHTML = '';
+  const grupos = {};
+  boloes.forEach(b => { if (!grupos[b.modalidade]) grupos[b.modalidade]=[]; grupos[b.modalidade].push(b); });
+  const mods = Object.keys(grupos).sort();
+  let total = 0;
+
+  mods.forEach(mod => {
+    const lst = grupos[mod].sort((a, b) => {
+      const nA = a.loterias?.nome||'', nB = b.loterias?.nome||'';
+      return nA !== nB ? (nA < nB ? -1 : 1) : (a.valor_cota||0) - (b.valor_cota||0);
+    });
+    const sep = document.createElement('div');
+    sep.className = 'section-sep'; sep.style.marginTop = total > 0 ? '20px' : '0';
+    sep.innerHTML = `<div class="section-sep-label">${mod}</div><div class="section-sep-line"></div><div class="section-sep-count">${lst.length}</div>`;
+    lista.appendChild(sep);
+
+    const grid = document.createElement('div'); grid.className = 'boloes-grid';
+    lst.forEach((b, i) => {
+      const card = document.createElement('div');
+      card.className = 'bolao-card'; card.dataset.id = b.id;
+      card.style.animationDelay = (i * 0.04) + 's';
+      card.innerHTML = `
+        <div class="bolao-main">
+          <div class="bolao-header">
+            <span class="bolao-modal">${b.modalidade}</span>
+            <span class="bolao-concurso">#${b.concurso}</span>
+            <span class="bolao-origem">${b.loterias?.nome||'—'}</span>
+          </div>
+          <div class="bolao-tags">
+            <span class="btag">${b.qtd_jogos} jogos</span>
+            <span class="btag">${b.qtd_dezenas} dez.</span>
+            <span class="btag">${b.qtd_cotas_total} cotas</span>
+            <span class="btag">${fmtBRL(b.valor_cota)}/cota</span>
+          </div>
+        </div>
+        <div class="bolao-select-ind">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>
+        </div>`;
+      card.addEventListener('click', () => selecionarBolao(b));
+      grid.appendChild(card); total++;
+    });
+    lista.appendChild(grid);
+  });
+
+  $('stLista').style.display = 'block';
+  $('boloesCount').innerHTML = `<span>${total}</span> bolões vigentes`;
+}
+
+// ── Selecionar ────────────────────────────────────────────────────
+async function selecionarBolao(b) {
+  document.querySelectorAll('.bolao-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`.bolao-card[data-id="${b.id}"]`)?.classList.add('selected');
+  bolaoSel = b;
+  clearStatus();
+  $('inputQtd').value = '';
+  calcPreview();
+
+  $('panelNome').textContent = `${b.modalidade} — Concurso ${b.concurso}`;
+  $('panelTags').innerHTML = `
+    <span class="rtag rtag-blue">${b.loterias?.nome||'—'}</span>
+    <span class="rtag rtag-accent">${fmtBRL(b.valor_cota)}/cota</span>
+    <span class="rtag">${b.qtd_jogos} jogos · ${b.qtd_dezenas} dez.</span>
+    <span class="rtag">${b.qtd_cotas_total} cotas total</span>`;
+
+  await carregarHistorico(b.id);
+  $('vendaPanel').classList.add('open');
+  document.body.classList.add('panel-open');
+  $('inputQtd').focus();
+}
+
+function fecharPanel() {
+  $('vendaPanel').classList.remove('open');
+  document.body.classList.remove('panel-open');
+  document.querySelectorAll('.bolao-card').forEach(c => c.classList.remove('selected'));
+  bolaoSel = null;
+}
+
+// ── Histórico do bolão ────────────────────────────────────────────
+async function carregarHistorico(bolaoId) {
+  const { data } = await sb.from('boloes_vendas')
+    .select('id, qtd_vendida, data_referencia, created_at, loterias(nome)')
+    .eq('bolao_id', bolaoId)
+    .eq('canal', CANAL)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  const lista = $('histLista');
+  if (!data?.length) {
+    lista.innerHTML = '<div style="font-size:12px;color:var(--text-dim);font-style:italic;">Nenhum lançamento ainda.</div>';
+    return;
+  }
+  lista.innerHTML = '';
+  data.forEach(v => {
+    const dt = new Date(v.created_at).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    const item = document.createElement('div'); item.className = 'hist-item';
+    item.innerHTML = `
+      <span class="hi-data">${dt}</span>
+      <span class="hi-loja">${v.loterias?.nome||'—'}</span>
+      <span class="hi-qtd">${v.qtd_vendida} cotas</span>
+      <span class="hi-val">${fmtBRL(v.qtd_vendida * (bolaoSel?.valor_cota || 0))}</span>
+      <button class="hi-del" onclick="deletarLancamento(${v.id})" title="Remover">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>`;
+    lista.appendChild(item);
+  });
+}
+
+async function deletarLancamento(id) {
+  if (!confirm('Remover este lançamento?')) return;
+  const { error } = await sb.from('boloes_vendas').delete().eq('id', id);
+  if (error) { alert('Erro ao remover: ' + error.message); return; }
+  if (bolaoSel) await carregarHistorico(bolaoSel.id);
+}
+
+// ── Calc preview ──────────────────────────────────────────────────
+function calcPreview() {
+  const qtd = parseInt($('inputQtd').value) || 0;
+  const val = bolaoSel?.valor_cota || 0;
+  $('valorPreview').textContent = fmtBRL(qtd * val);
+}
+
+// ── Registrar ─────────────────────────────────────────────────────
+async function registrar() {
+  if (!bolaoSel) return;
+  const qtd = parseInt($('inputQtd').value) || 0;
+  if (qtd < 1) { setStatus('Informe a quantidade de cotas.', 'err'); return; }
+
+  const btn = $('btnRegistrar'); btn.disabled = true;
+  setStatus('Registrando…', 'info');
+
+  const { error } = await sb.from('boloes_vendas').insert({
+    bolao_id:             bolaoSel.id,
+    loteria_vendedora_id: bolaoSel.loteria_id,
+    usuario_id:           usuario.id,
+    canal:                CANAL,
+    origem_lancamento:    ORIGEM_LANCAMENTO,
+    qtd_vendida:          qtd,
+    data_referencia:      isoDate(dataAtual),
+  });
+
+  btn.disabled = false;
+  if (error) { setStatus(error.message, 'err'); return; }
+
+  setStatus(`✓ ${qtd} cota(s) registrada(s) — ${fmtBRL(qtd * bolaoSel.valor_cota)}`, 'ok');
+  $('inputQtd').value = ''; calcPreview();
+  await carregarHistorico(bolaoSel.id);
+}
+
+// ── Bindings ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  $('btnDtPrev').addEventListener('click', () => mudarData(-1));
+  $('btnDtNext').addEventListener('click', () => mudarData(+1));
+  $('btnHoje').addEventListener('click', async () => { dataAtual = new Date(); atualizarDateDisplay(); fecharPanel(); await buscarBoloes(); });
+  $('btnFecharPanel').addEventListener('click', fecharPanel);
+  $('inputQtd').addEventListener('keydown', e => { if (e.key === 'Enter') registrar(); });
+  init();
+});
+</script>
+</body>
+</html>

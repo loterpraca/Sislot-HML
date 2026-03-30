@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>SISLOT — Bolões</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    :root{
+      --primary:#6366f1;--primary-dark:#4f46e5;--primary-light:#818cf8;--secondary:#f59e0b;
+      --bg:#f8fafc;--card:#fff;--txt:#0f172a;--muted:#64748b;--label:#334155;--line:#e2e8f0;
+      --success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+      --shadow:0 10px 25px rgba(0,0,0,.08);--shadow-lg:0 20px 50px rgba(0,0,0,.12);
+      --radius:16px;--radius-sm:12px;--pad:7px;
+      --font:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      --transition:all .25s cubic-bezier(.4,0,.2,1);
+    }
+    [data-theme="boulevard"]   {--primary:#4682B4;--primary-dark:#2563eb;--primary-light:#60a5fa;--secondary:#f97316}
+    [data-theme="centro"]      {--primary:#2E8B57;--primary-dark:#16a34a;--primary-light:#4ade80;--secondary:#eab308}
+    [data-theme="lotobel"]     {--primary:#CD5C5C;--primary-dark:#b91c1c;--primary-light:#ef4444;--secondary:#d97706}
+    [data-theme="santa-tereza"]{--primary:#483D8B;--primary-dark:#7e22ce;--primary-light:#a855f7;--secondary:#f59e0b}
+    [data-theme="via-brasil"]  {--primary:#0ea5e9;--primary-dark:#0284c7;--primary-light:#38bdf8;--secondary:#22c55e}
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);color:var(--txt);background:var(--bg);min-height:100vh;transition:var(--transition)}
+
+    /* ── HEADER ── */
+    .header{
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      color:#fff;padding:10px 12px;box-shadow:var(--shadow);
+      position:sticky;top:0;z-index:100
+    }
+    .header-content{max-width:920px;margin:0 auto;display:flex;align-items:center;gap:12px}
+    .logo-container{
+      width:58px;height:58px;background:#fff;border-radius:50%;
+      box-shadow:0 6px 16px rgba(0,0,0,.18);
+      display:flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 auto
+    }
+    .logo-container img{width:122%;height:122%;object-fit:cover;object-position:center}
+    .header-title{flex:1;min-width:0}
+    .header-title h1{font-size:17px;font-weight:900;line-height:1.05;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .header-title p{font-size:12px;opacity:.9;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand-logos{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex:0 0 auto}
+    .brand-logos button{
+      border:0;background:rgba(255,255,255,.14);
+      width:34px;height:34px;border-radius:12px;display:grid;place-items:center;cursor:pointer;
+      transition:var(--transition);padding:0
+    }
+    .brand-logos button:hover{transform:translateY(-1px);background:rgba(255,255,255,.22)}
+    .brand-logos button.active{outline:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.24)}
+    .brand-logos img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.15))}
+
+    /* ── WRAP ── */
+    .wrap{max-width:920px;margin:0 auto;padding:0 12px 30px}
+
+    /* ── CARD ── */
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:var(--pad);margin:8px 0;transition:var(--transition)
+    }
+    .card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+
+    .section-header{display:flex;align-items:center;gap:10px;margin-bottom:4px;padding-bottom:4px;border-bottom:1px solid var(--primary)}
+    .section-icon{
+      width:26px;height:26px;border-radius:8px;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex:0 0 auto
+    }
+    .section-title{font-size:14px;font-weight:800;color:var(--txt);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+    /* ── GRIDS ── */
+    .grid-1{display:grid;grid-template-columns:1fr;gap:10px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .force-2{grid-template-columns:1fr 1fr!important}
+
+    /* ── FIELDS ── */
+    .field label{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--label);font-weight:800;margin:0 0 5px 2px}
+    .field label i{color:var(--primary);font-size:12px}
+    .label-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
+    .day-stepper{display:inline-flex;align-items:center;gap:3px}
+    .day-btn{
+      width:22px!important;height:22px!important;min-height:22px!important;padding:0!important;
+      border-radius:8px!important;border:2px solid var(--line)!important;background:#fff!important;
+      color:var(--primary)!important;cursor:pointer;transition:var(--transition);
+      display:grid!important;place-items:center!important;gap:0!important
+    }
+    .day-btn:hover{border-color:var(--primary)!important;transform:translateY(-1px)}
+    .day-btn i{font-size:10px!important}
+
+    .field input,.field select{
+      width:100%;font-size:13px;padding:6px 7px;border-radius:var(--radius-sm);
+      border:2px solid var(--line);outline:none;background:#fff;
+      transition:var(--transition);font-family:var(--font)
+    }
+    .field input:focus,.field select:focus{
+      border-color:var(--primary);box-shadow:0 0 0 4px rgba(99,102,241,.10);transform:translateY(-1px)
+    }
+    .field input:disabled,.field select:disabled{background:#f1f5f9;color:#94a3b8;cursor:not-allowed;opacity:.75}
+
+    /* ── ORIGEM CHIP ── */
+    .origem-chip{
+      display:inline-flex;align-items:center;gap:6px;padding:5px 10px;
+      border-radius:999px;background:rgba(0,0,0,.06);color:var(--txt);
+      font-size:12px;font-weight:900;border:1px solid var(--line)
+    }
+    .origem-chip i{color:var(--primary)}
+
+    /* ── BUTTONS ── */
+    .actions-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    button{
+      border:0;border-radius:var(--radius-sm);padding:6px 10px;font-size:13px;font-weight:900;
+      cursor:pointer;min-height:34px;transition:var(--transition);font-family:var(--font);
+      display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden
+    }
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.25)}
+    .btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,.32)}
+    .btn-dark{background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;box-shadow:0 4px 12px rgba(15,23,42,.25)}
+    .btn-dark:hover:not(:disabled){transform:translateY(-1px)}
+    .btn-danger{background:linear-gradient(135deg,var(--danger),#dc2626);color:#fff}
+    .btn-danger:hover:not(:disabled){transform:translateY(-1px)}
+    .btn-ghost{background:#fff;border:2px solid var(--line);color:var(--txt)}
+    .btn-ghost:hover:not(:disabled){border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
+    .btn-loading{pointer-events:none;opacity:.75}
+    .btn-loading::after{
+      content:"";position:absolute;width:16px;height:16px;
+      border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+      border-radius:50%;animation:spin .6s linear infinite
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── STATUS ── */
+    .status{
+      margin-top:10px;padding:10px 12px;border-radius:var(--radius-sm);
+      font-size:13px;line-height:1.45;display:flex;align-items:flex-start;gap:10px
+    }
+    .status i{font-size:15px;margin-top:1px}
+    .status.muted{background:#f1f5f9;border:2px solid #e2e8f0;color:var(--muted)}
+    .status.ok{background:#dcfce7;border:2px solid #86efac;color:#15803d}
+    .status.ok i{color:var(--success)}
+    .status.err{background:#fee2e2;border:2px solid #fca5a5;color:#991b1b}
+    .status.err i{color:var(--danger)}
+
+    /* ── QUICKBAR ── */
+    .quickbar{padding:4px;margin:4px 0}
+    .quickbar-grid{
+      display:flex;gap:7px;align-items:stretch;
+      overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding-bottom:2px
+    }
+    .quickbar-grid::-webkit-scrollbar{display:none}
+    .qmod{
+      position:relative;height:40px;width:57px;min-width:57px;flex:0 0 57px;
+      border:2px solid var(--line);border-radius:14px;background:#fff;
+      padding:0;overflow:hidden;cursor:pointer;transition:var(--transition);display:block
+    }
+    .qmod:hover{transform:translateY(-1px)}
+    .qmod.active{border-color:var(--primary);box-shadow:0 8px 18px rgba(0,0,0,.10)}
+    .qmod img{
+      position:absolute;inset:0;width:100%;height:100%;
+      object-fit:contain;padding:0;transform:scale(1.22);
+      transform-origin:center;display:block;pointer-events:none
+    }
+    @media(min-width:760px){.qmod{height:49px;width:69px;min-width:69px;flex-basis:69px}}
+
+    /* ── CHIPS ── */
+    .quickchips{display:none;margin-top:4px}
+    .quickchips.active{display:block}
+    .chips-row{
+      display:flex;gap:6px;align-items:stretch;
+      overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px
+    }
+    .chips-row::-webkit-scrollbar{display:none}
+    .chip-tile{
+      all:unset;box-sizing:border-box;position:relative;
+      height:31px;width:45px;min-width:45px;flex:0 0 45px;
+      border:2px solid var(--line);border-radius:11px;background:#fff;
+      overflow:hidden;cursor:pointer;transition:var(--transition);display:block
+    }
+    .chip-tile:hover{transform:translateY(-1px);border-color:rgba(99,102,241,.45)}
+    .chip-tile.active{border-color:var(--primary);box-shadow:0 4px 10px rgba(0,0,0,.08)}
+    .chip-tile img{
+      position:absolute;inset:0;width:100%;height:100%;
+      object-fit:contain;padding:2px;transform:scale(1.15);
+      transform-origin:center;display:block;pointer-events:none;z-index:1
+    }
+    .chip-badge{
+      position:absolute;left:3px;bottom:3px;padding:2px 5px;
+      border-radius:999px;border:1px solid rgba(0,0,0,.12);
+      background:rgba(255,255,255,.92);font-size:9px;font-weight:900;
+      line-height:1;color:var(--txt);pointer-events:none;z-index:2
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.66);
+      display:none;align-items:center;justify-content:center;z-index:1000
+    }
+    .modal-overlay.active{display:flex}
+    .modal{
+      background:#fff;border-radius:var(--radius);padding:20px;
+      max-width:520px;width:92%;box-shadow:0 25px 50px rgba(0,0,0,.3)
+    }
+    .modal-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .modal-icon{
+      width:44px;height:44px;border-radius:12px;display:flex;align-items:center;
+      justify-content:center;font-size:22px;
+      background:linear-gradient(135deg,var(--warning),#f59e0b);color:#fff;flex:0 0 auto
+    }
+    .modal-title{font-size:18px;font-weight:900;color:var(--txt)}
+    .modal-body{color:var(--muted);line-height:1.55;margin-bottom:16px;white-space:pre-line;font-size:14px}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-content">
+    <div class="logo-container">
+      <img src="./icons/loterpraca.png" alt="Logo" id="logoImg"/>
+    </div>
+    <div class="header-title">
+      <h1 id="headerTitle">Bolões</h1>
+      <p id="headerSub">Cadastro e movimentação</p>
+    </div>
+    <div class="brand-logos">
+      <button type="button" class="brand-btn" data-slug="boulevard"    title="Boulevard">
+        <img src="./icons/boulevard.png" alt="Boulevard"/>
+      </button>
+      <button type="button" class="brand-btn" data-slug="centro"       title="Centro">
+        <img src="./icons/loterpraca.png" alt="Centro"/>
+      </button>
+      <button type="button" class="brand-btn" data-slug="lotobel"      title="Lotobel">
+        <img src="./icons/lotobel.png" alt="Lotobel"/>
+      </button>
+      <button type="button" class="brand-btn" data-slug="santa-tereza" title="Santa Tereza">
+        <img src="./icons/santa-tereza.png" alt="Santa Tereza"/>
+      </button>
+      <button type="button" class="brand-btn" data-slug="via-brasil"   title="Via Brasil">
+        <img src="./icons/via-brasil.png" alt="Via Brasil"/>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- QUICKBAR: modalidades -->
+  <div class="quickbar" id="quickZone">
+    <div class="quickbar-grid" id="modGrid"></div>
+    <div class="quickchips" id="chipsWrap">
+      <div class="chips-row" id="chipsRow"></div>
+    </div>
+  </div>
+
+  <!-- CADASTRO -->
+  <div class="card">
+    <div class="section-header">
+      <div class="section-icon"><i class="fas fa-ticket-alt"></i></div>
+      <h2 class="section-title">Dados do bolão</h2>
+    </div>
+
+    <!-- Origem: fixo do login, só exibição -->
+    <div class="grid-1">
+      <div class="field">
+        <label><i class="fas fa-store"></i> Loja de origem</label>
+        <div class="origem-chip" id="origemChip"><i class="fas fa-store"></i> <span id="origemNome">—</span></div>
+      </div>
+    </div>
+
+    <!-- Modalidade + Concurso -->
+    <div class="grid-2">
+      <div class="field">
+        <label><i class="fas fa-clover"></i> Modalidade</label>
+        <select id="modalidade">
+          <option value="">Selecione…</option>
+          <option>Mega Sena</option>
+          <option>Lotofácil</option>
+          <option>Quina</option>
+          <option>Dupla Sena</option>
+          <option>Dia de Sorte</option>
+          <option>Supersete</option>
+          <option>Milionária</option>
+          <option>Timemania</option>
+          <option>Loteca</option>
+          <option>Páscoa</option>
+          <option>São João</option>
+          <option>Independência</option>
+          <option>Virada</option>
+        </select>
+      </div>
+      <div class="field">
+        <label><i class="fas fa-hashtag"></i> Concurso</label>
+        <input id="concurso" inputmode="numeric" placeholder="Ex: 2940"/>
+      </div>
+    </div>
+
+    <!-- Datas com steppers -->
+    <div class="grid-2">
+      <div class="field">
+        <label class="label-row">
+          <span><i class="fas fa-calendar-day"></i> Data inicial</span>
+          <span class="day-stepper">
+            <button type="button" class="day-btn" id="btnDiPrev"><i class="fas fa-chevron-left"></i></button>
+            <button type="button" class="day-btn" id="btnDiNext"><i class="fas fa-chevron-right"></i></button>
+          </span>
+        </label>
+        <input id="dataInicial" type="date"/>
+      </div>
+      <div class="field">
+        <label class="label-row">
+          <span><i class="fas fa-calendar-check"></i> Data concurso</span>
+          <span class="day-stepper">
+            <button type="button" class="day-btn" id="btnDcPrev"><i class="fas fa-chevron-left"></i></button>
+            <button type="button" class="day-btn" id="btnDcNext"><i class="fas fa-chevron-right"></i></button>
+          </span>
+        </label>
+        <input id="dataConcurso" type="date"/>
+      </div>
+    </div>
+
+    <!-- Jogos + Dezenas + Cota + Cotas -->
+    <div class="grid-2">
+      <div class="field">
+        <label><i class="fas fa-list-ol"></i> Qtd jogos</label>
+        <input id="qtdJogos" inputmode="numeric" placeholder="Ex: 10"/>
+      </div>
+      <div class="field">
+        <label><i class="fas fa-dice"></i> Dezenas</label>
+        <input id="qtdDezenas" inputmode="numeric" placeholder="Ex: 8"/>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label><i class="fas fa-money-bill-wave"></i> Valor da cota (R$)</label>
+        <input id="valorCota" inputmode="decimal" placeholder="Ex: 22,68"/>
+      </div>
+      <div class="field">
+        <label><i class="fas fa-users"></i> Qtd cotas</label>
+        <input id="cotas" inputmode="numeric" placeholder="Ex: 100"/>
+      </div>
+    </div>
+
+    <div class="actions-3">
+      <button class="btn-primary" id="btnCadastrar"><i class="fas fa-check"></i> Cadastrar</button>
+      <button class="btn-ghost"   id="btnLimpar"   ><i class="fas fa-eraser"></i> Limpar</button>
+      <button class="btn-danger"  id="btnDeletar"  ><i class="fas fa-trash"></i> Deletar</button>
+    </div>
+
+    <div id="status" class="status muted">
+      <i class="fas fa-info-circle"></i><span>Pronto.</span>
+    </div>
+  </div>
+
+  <!-- MOVIMENTAR -->
+  <div class="card">
+    <div class="section-header">
+      <div class="section-icon"><i class="fas fa-exchange-alt"></i></div>
+      <h2 class="section-title">
+        Movimentar
+        <span class="origem-chip" id="movOrigemChip" style="margin-left:8px">
+          <i class="fas fa-store"></i> <span id="movOrigemNome">—</span>
+        </span>
+        <button type="button" class="btn-ghost" id="btnBuscar"
+          style="padding:3px 9px;font-size:12px;margin-left:4px">
+          <i class="fas fa-search"></i> Buscar
+        </button>
+      </h2>
+    </div>
+
+    <div class="grid-2 force-2">
+      <div class="field"><label><i class="fas fa-building"></i> Boulevard</label>
+        <input id="deltaBoulevard" inputmode="numeric" placeholder="0"/></div>
+      <div class="field"><label><i class="fas fa-city"></i> Centro</label>
+        <input id="deltaCentro" inputmode="numeric" placeholder="0"/></div>
+    </div>
+    <div class="grid-2 force-2">
+      <div class="field"><label><i class="fas fa-landmark"></i> Lotobel</label>
+        <input id="deltaLotobel" inputmode="numeric" placeholder="0"/></div>
+      <div class="field"><label><i class="fas fa-church"></i> Santa Tereza</label>
+        <input id="deltaSantaTereza" inputmode="numeric" placeholder="0"/></div>
+    </div>
+    <div class="grid-2 force-2">
+      <div class="field"><label><i class="fas fa-road"></i> Via Brasil</label>
+        <input id="deltaViaBrasil" inputmode="numeric" placeholder="0"/></div>
+      <div class="field"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-dark"  id="btnMovimentar"><i class="fas fa-arrows-alt-h"></i> Movimentar</button>
+      <button class="btn-ghost" id="btnZerarMov"  ><i class="fas fa-undo"></i> Limpar</button>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fas fa-question-circle"></i></div>
+      <h3 class="modal-title" id="modalTitle">Confirmação</h3>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost"   id="modalCancel" ><i class="fas fa-times"></i> Cancelar</button>
+      <button class="btn-primary" id="modalConfirm"><i class="fas fa-check"></i> Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="./sislot-config.js"></script>
+<script>
+/************************************************************
+ * SISLOT — Bolões (Cadastro + Movimentação)
+ * Backend: Supabase (substitui Google Apps Script)
+ * Visual: preservado do sistema original
+ ************************************************************/
+const sb  = supabase.createClient(SISLOT_CONFIG.url, SISLOT_CONFIG.key);
+const $   = id => document.getElementById(id);
+
+// ── Configuração de lojas ────────────────────────────────────────────
+const LOJA_CONFIG = {
+  "boulevard":    { nome:"Boulevard",    logo:"./icons/boulevard.png",    theme:"boulevard",    logoPos:"50% 50%" },
+  "centro":       { nome:"Centro",       logo:"./icons/loterpraca.png",   theme:"centro",       logoPos:"50% 42%" },
+  "lotobel":      { nome:"Lotobel",      logo:"./icons/lotobel.png",      theme:"lotobel",      logoPos:"50% 50%" },
+  "santa-tereza": { nome:"Santa Tereza", logo:"./icons/santa-tereza.png", theme:"santa-tereza", logoPos:"50% 50%" },
+  "via-brasil":   { nome:"Via Brasil",   logo:"./icons/via-brasil.png",   theme:"via-brasil",   logoPos:"50% 50%" },
+};
+
+// ── Modalidades (quickbar) ────────────────────────────────────────────
+const MODS = [
+  { key:"Mega Sena",    icon:"./icons/mega-sena.png"    },
+  { key:"Lotofácil",    icon:"./icons/lotofacil.png"    },
+  { key:"Quina",        icon:"./icons/quina.png"        },
+  { key:"Dia de Sorte", icon:"./icons/dia-de-sorte.png" },
+  { key:"Timemania",    icon:"./icons/timemania.png"    },
+  { key:"Dupla Sena",   icon:"./icons/dupla.png"        },
+  { key:"Supersete",    icon:"./icons/super-sete.png"   },
+  { key:"Milionária",   icon:"./icons/milionaria.png"   },
+  { key:"Loteca",       icon:"./icons/loteca.png"       },
+  { key:"Páscoa",       icon:"./icons/pascoa.png"       },
+  { key:"Independência",icon:"./icons/independencia.png"},
+  { key:"Virada",       icon:"./icons/virada.png"       },
+  { key:"São João",     icon:"./icons/saojoao.png"      },
+];
+
+// Mapa JS→DB (normalização de nomes)
+const MODAL_DB = {
+  "Mega Sena":"Mega Sena","Lotofácil":"Lotofácil","Quina":"Quina",
+  "Dupla Sena":"Dupla Sena","Dia de Sorte":"Dia de Sorte","Supersete":"Supersete",
+  "Milionária":"Milionária","Timemania":"Timemania","Loteca":"Loteca",
+  "Páscoa":"Páscoa","São João":"São João","Independência":"Independência","Virada":"Virada",
+};
+
+// Modelos (atalhos) — carregados do Supabase na inicialização
+let SHORTCUTS = {}; // { slug: { modalidade: [{nome,qtd_jogos,qtd_dezenas,valor_cota,qtd_cotas}] } }
+
+// ── Estado da sessão ─────────────────────────────────────────────────
+let usuario   = null;
+let loteria   = null;   // loja principal do usuário
+let loteriaId = null;
+let loteriaSlug = null;
+let todasLojas = [];    // array de { id, nome, slug, codigo }
+
+// ── IDs das lojas (carregados do banco) ─────────────────────────────
+let lojaIdPorSlug = {}; // { "boulevard": 2, ... }
+
+// ── Campos do formulário ─────────────────────────────────────────────
+const CAMPOS_FORM = [
+  "modalidade","concurso","dataInicial","dataConcurso",
+  "qtdJogos","qtdDezenas","valorCota","cotas"
+];
+const CAMPOS_MOV = ["deltaBoulevard","deltaCentro","deltaLotobel","deltaSantaTereza","deltaViaBrasil"];
+
+/************************************************************
+ * INICIALIZAÇÃO
+ ************************************************************/
+async function init() {
+  // Verifica sessão
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = "./login.html"; return; }
+
+  const raw = sessionStorage.getItem("sislot_usuario");
+  if (!raw) { location.href = "./login.html"; return; }
+  usuario = JSON.parse(raw);
+
+  // Loja principal
+  loteria     = usuario.loteria_principal;
+  loteriaId   = loteria?.loteria_id   || loteria?.id;
+  loteriaSlug = loteria?.loteria_slug || loteria?.slug;
+
+  // Atualiza header com loja
+  aplicarTema(loteriaSlug);
+  atualizarOrigemUI();
+
+  // Carrega lojas e modelos em paralelo
+  await Promise.all([carregarLojas(), carregarModelos()]);
+
+  // Desabilita campo destino da própria loja
+  atualizarCamposMov();
+
+  // Quickbar
+  renderQuickbar();
+
+  // Draft
+  loadDraft();
+  applyFederalUI();
+
+  // Bindings
+  bind();
+
+  // Data inicial = hoje
+  if (!$("dataInicial").value) {
+    $("dataInicial").value = new Date().toISOString().slice(0,10);
+  }
+}
+
+async function carregarLojas() {
+  const { data } = await sb.from("loterias").select("id,nome,slug,codigo").eq("ativo",true).order("nome");
+  if (data) {
+    todasLojas = data;
+    data.forEach(l => { lojaIdPorSlug[l.slug] = l.id; });
+  }
+}
+
+async function carregarModelos() {
+  const { data } = await sb
+    .from("modelos_boloes")
+    .select("loteria_id,modalidade,nome,qtd_jogos,qtd_dezenas,valor_cota,qtd_cotas,ordem")
+    .eq("ativo", true)
+    .order("ordem");
+
+  SHORTCUTS = {};
+  if (!data) return;
+
+  // Mapeia loteria_id → slug
+  const idParaSlug = {};
+  todasLojas.forEach(l => { idParaSlug[l.id] = l.slug; });
+
+  data.forEach(m => {
+    const slug = idParaSlug[m.loteria_id];
+    if (!slug) return;
+    if (!SHORTCUTS[slug]) SHORTCUTS[slug] = {};
+    if (!SHORTCUTS[slug][m.modalidade]) SHORTCUTS[slug][m.modalidade] = [];
+    SHORTCUTS[slug][m.modalidade].push(m);
+  });
+}
+
+/************************************************************
+ * TEMA / VISUAL
+ ************************************************************/
+function aplicarTema(slug) {
+  const cfg = LOJA_CONFIG[slug] || LOJA_CONFIG["centro"];
+  document.body.setAttribute("data-theme", cfg.theme);
+  const img = $("logoImg");
+  img.src = cfg.logo;
+  img.style.objectPosition = cfg.logoPos;
+  $("headerTitle").textContent = cfg.nome;
+  $("headerSub").textContent   = "Cadastro e movimentação";
+  document.querySelectorAll(".brand-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.slug === slug);
+  });
+}
+
+function atualizarOrigemUI() {
+  const cfg = LOJA_CONFIG[loteriaSlug] || {};
+  $("origemNome").textContent  = cfg.nome || "—";
+  $("movOrigemNome").textContent = cfg.nome || "—";
+}
+
+function atualizarCamposMov() {
+  const mapaSlug = {
+    "boulevard":"deltaBoulevard","centro":"deltaCentro",
+    "lotobel":"deltaLotobel","santa-tereza":"deltaSantaTereza","via-brasil":"deltaViaBrasil"
+  };
+  Object.entries(mapaSlug).forEach(([slug, inputId]) => {
+    const el = $(inputId);
+    if (!el) return;
+    const eh_origem = slug === loteriaSlug;
+    el.disabled = eh_origem;
+    if (eh_origem) el.value = "";
+  });
+}
+
+/************************************************************
+ * QUICKBAR
+ ************************************************************/
+function renderQuickbar() {
+  const grid = $("modGrid");
+  grid.innerHTML = "";
+  MODS.forEach(mod => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "qmod";
+    btn.dataset.mod = mod.key;
+    btn.title = mod.key;
+    const img = document.createElement("img");
+    img.src = mod.icon; img.alt = mod.key; img.loading = "lazy";
+    btn.appendChild(img);
+    btn.onclick = () => selecionarMod(mod.key);
+    grid.appendChild(btn);
+  });
+
+  // Restaura ativo do draft
+  const ativo = localStorage.getItem("sl_active_mod") || "";
+  if (ativo) {
+    setActiveModBtn(ativo);
+    renderChips(ativo);
+    $("modalidade").value = ativo;
+    applyFederalUI();
+  }
+}
+
+function selecionarMod(modKey) {
+  const prev = localStorage.getItem("sl_active_mod") || "";
+  if (prev !== modKey) limparFormSemLoja();
+  $("modalidade").value = modKey;
+  localStorage.setItem("sl_active_mod", modKey);
+  setActiveModBtn(modKey);
+  renderChips(modKey);
+  applyFederalUI();
+  saveDraft();
+}
+
+function setActiveModBtn(modKey) {
+  document.querySelectorAll(".qmod").forEach(b => b.classList.toggle("active", b.dataset.mod === modKey));
+}
+
+function renderChips(modKey) {
+  const chips = (SHORTCUTS[loteriaSlug] || {})[modKey] || [];
+  const wrap = $("chipsWrap"), row = $("chipsRow");
+  row.innerHTML = "";
+  if (!chips.length) { wrap.classList.remove("active"); return; }
+
+  const modObj = MODS.find(m => m.key === modKey);
+  const icon   = modObj ? modObj.icon : "";
+
+  chips.forEach(sc => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip-tile"; b.title = `${modKey} ${sc.nome}`;
+    if (icon) {
+      const img = document.createElement("img"); img.src = icon; img.alt = modKey; b.appendChild(img);
+    }
+    const badge = document.createElement("span"); badge.className = "chip-badge"; badge.textContent = sc.nome;
+    b.appendChild(badge);
+    b.onclick = () => aplicarShortcut(modKey, sc);
+    row.appendChild(b);
+  });
+  wrap.classList.add("active");
+}
+
+function aplicarShortcut(modKey, sc) {
+  const especiais = ["Páscoa","Virada","Independência","São João"];
+  $("modalidade").value  = modKey;
+  $("qtdJogos").value    = sc.qtd_jogos ?? "";
+  $("qtdDezenas").value  = sc.qtd_dezenas ?? "";
+  $("valorCota").value   = fmtBR(sc.valor_cota);
+  $("cotas").value       = sc.qtd_cotas ?? "";
+  // Especiais já têm concurso/data fixos nos modelos — aqui deixamos em branco pra usuário confirmar
+  applyFederalUI();
+  setStatus("Atalho aplicado: " + sc.nome, "ok", "check-circle");
+  saveDraft();
+}
+
+/************************************************************
+ * FEDERAL: desabilita jogos/dezenas
+ ************************************************************/
+function applyFederalUI() {
+  // Federal não existe mais como modalidade de bolão no novo sistema
+  // (Federal tem tabela própria na Fase 4)
+  // Mantemos a lógica caso alguém adicione manualmente
+  const modal = $("modalidade").value;
+  const isFed = modal === "Federal";
+  const j = $("qtdJogos"), d = $("qtdDezenas");
+  j.disabled = isFed; d.disabled = isFed;
+  if (isFed) { j.value = "0"; d.value = "0"; }
+  else {
+    if (j.value === "0") j.value = "";
+    if (d.value === "0") d.value = "";
+  }
+}
+
+/************************************************************
+ * STEPPERS DE DATA
+ ************************************************************/
+function addDias(inputId, delta) {
+  const el = $(inputId);
+  const v = el.value;
+  let y, m, d;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+    [y,m,d] = v.split("-").map(Number);
+  } else {
+    const n = new Date(); y=n.getFullYear(); m=n.getMonth()+1; d=n.getDate();
+  }
+  const dt = new Date(y, m-1, d); dt.setDate(dt.getDate() + delta);
+  el.value = dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+  el.dispatchEvent(new Event("change",{bubbles:true}));
+}
+
+/************************************************************
+ * DRAFT (localStorage)
+ ************************************************************/
+function saveDraft() {
+  const d = {};
+  CAMPOS_FORM.forEach(id => d[id] = $(id)?.value ?? "");
+  CAMPOS_MOV.forEach(id  => d[id] = $(id)?.value ?? "");
+  d._mod = localStorage.getItem("sl_active_mod") || "";
+  try { localStorage.setItem("sl_draft", JSON.stringify(d)); } catch {}
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem("sl_draft");
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    CAMPOS_FORM.forEach(id => { if ($(id) && d[id] !== undefined) $(id).value = d[id]; });
+    CAMPOS_MOV.forEach(id  => { if ($(id) && d[id] !== undefined) $(id).value = d[id]; });
+    if (d._mod) {
+      localStorage.setItem("sl_active_mod", d._mod);
+      $("modalidade").value = d._mod;
+      setActiveModBtn(d._mod);
+      renderChips(d._mod);
+    }
+  } catch {}
+}
+
+function limparFormSemLoja() {
+  CAMPOS_FORM.forEach(id => { if ($(id)) $(id).value = ""; });
+  saveDraft();
+}
+
+function limparMov() {
+  CAMPOS_MOV.forEach(id => { if ($(id) && !$(id).disabled) $(id).value = ""; });
+  saveDraft();
+}
+
+/************************************************************
+ * STATUS
+ ************************************************************/
+function setStatus(msg, tipo="muted", icone="info-circle") {
+  const el = $("status");
+  el.className = "status " + tipo;
+  el.innerHTML = `<i class="fas fa-${icone}"></i><span>${msg}</span>`;
+}
+
+function setBtnLoading(btn, on) {
+  on ? (btn.classList.add("btn-loading"); btn.disabled=true)
+     : (btn.classList.remove("btn-loading"); btn.disabled=false);
+}
+
+/************************************************************
+ * MODAL
+ ************************************************************/
+function showModal(titulo, corpo, onConfirm, onCancel) {
+  $("modalTitle").textContent = titulo;
+  $("modalBody").textContent  = corpo;
+  const overlay = $("modalOverlay");
+  const fechar  = () => overlay.classList.remove("active");
+  const cancelar = () => { fechar(); typeof onCancel === "function" && onCancel(); };
+
+  $("modalCancel").onclick  = cancelar;
+  overlay.onclick           = cancelar;
+  $("modalBox").onclick     = e => e.stopPropagation();
+
+  if (!onConfirm) {
+    $("modalCancel").style.display = "none";
+    $("modalConfirm").textContent  = "OK";
+    $("modalConfirm").onclick      = fechar;
+  } else {
+    $("modalCancel").style.display = "flex";
+    $("modalConfirm").textContent  = "Confirmar";
+    $("modalConfirm").onclick      = async e => { e.preventDefault(); fechar(); await onConfirm(); };
+  }
+  overlay.classList.add("active");
+}
+
+/************************************************************
+ * PARSE / FORMAT
+ ************************************************************/
+function parseCota(v) {
+  if (!v) return 0;
+  const s = String(v).replace(/[R$\s]/g,"").replace(/\./g,"").replace(",",".");
+  return parseFloat(s) || 0;
+}
+
+function fmtBR(v) {
+  return parseFloat(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function fmtBRL(v) {
+  return parseFloat(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+
+function fmtData(s) {
+  if (!s) return "—";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [y,m,d] = s.split("-"); return `${d}/${m}/${y}`;
+  }
+  return s;
+}
+
+function validarBase(exigirCotas=true) {
+  const modalidade  = $("modalidade").value.trim();
+  const concurso    = $("concurso").value.trim();
+  const dataInicial = $("dataInicial").value;
+  const dataConcurso= $("dataConcurso").value;
+  const qtdJogos    = parseInt($("qtdJogos").value) || 0;
+  const qtdDezenas  = parseInt($("qtdDezenas").value) || 0;
+  const valorCota   = parseCota($("valorCota").value);
+  const cotas       = parseInt($("cotas").value) || 0;
+
+  if (!modalidade)   throw new Error("Modalidade é obrigatória.");
+  if (!concurso)     throw new Error("Número do concurso é obrigatório.");
+  if (!dataInicial)  throw new Error("Data inicial é obrigatória.");
+  if (!dataConcurso) throw new Error("Data do concurso é obrigatória.");
+  if (!valorCota || valorCota <= 0) throw new Error("Valor da cota deve ser > 0.");
+  if (exigirCotas && cotas === 0) throw new Error("Qtd de cotas é obrigatória.");
+
+  return { modalidade, concurso, dataInicial, dataConcurso, qtdJogos, qtdDezenas, valorCota, cotas };
+}
+
+/************************************************************
+ * CADASTRAR
+ ************************************************************/
+async function onCadastrar() {
+  const btn = $("btnCadastrar");
+  try {
+    const b = validarBase(true);
+
+    const corpo = [
+      `🧾 CONFIRMAÇÃO DE CADASTRO`,``,
+      `📍 Origem: ${LOJA_CONFIG[loteriaSlug]?.nome}`,
+      `🎯 Modalidade: ${b.modalidade} | Concurso: ${b.concurso}`,
+      `🗓️ ${fmtData(b.dataInicial)} → ${fmtData(b.dataConcurso)}`,
+      `🎮 ${b.qtdJogos} jogos de ${b.qtdDezenas} dezenas`,
+      `💰 Cota: ${fmtBRL(b.valorCota)} | Total: ${b.cotas} cotas`,``,
+      `Confirma o cadastro?`
+    ].join("\n");
+
+    showModal("Confirmar cadastro", corpo, async () => {
+      setBtnLoading(btn, true);
+      setStatus("Salvando bolão…","muted","spinner fa-spin");
+      try {
+        await doCadastrar(b);
+      } catch(e) {
+        setStatus(e.message, "err", "exclamation-circle");
+      } finally {
+        setBtnLoading(btn, false);
+      }
+    });
+  } catch(e) {
+    setStatus(e.message, "err", "exclamation-circle");
+  }
+}
+
+async function doCadastrar(b, somarCotas=false) {
+  // Verifica duplicata
+  const { data: existe } = await sb
+    .from("boloes")
+    .select("id,qtd_cotas_total")
+    .eq("loteria_id", loteriaId)
+    .eq("modalidade", b.modalidade)
+    .eq("concurso", b.concurso)
+    .eq("valor_cota", b.valorCota)
+    .neq("status","CANCELADO")
+    .maybeSingle();
+
+  if (existe && !somarCotas) {
+    // Pergunta se quer somar
+    const corpo = [
+      `⚠️ Este bolão já existe!`,``,
+      `${b.modalidade} — Concurso ${b.concurso}`,
+      `Cota: ${fmtBRL(b.valorCota)}`,
+      `Cotas atuais: ${existe.qtd_cotas_total}`,
+      `Adicionar mais ${b.cotas}? Novo total: ${existe.qtd_cotas_total + b.cotas}`
+    ].join("\n");
+
+    showModal("Bolão já existe", corpo, async () => {
+      try {
+        await doCadastrar(b, true);
+      } catch(e) {
+        setStatus(e.message, "err", "exclamation-circle");
+      }
+    });
+    setStatus("Aguardando confirmação…","muted","clock");
+    return;
+  }
+
+  if (existe && somarCotas) {
+    // Soma cotas
+    const novoTotal = existe.qtd_cotas_total + b.cotas;
+    const { error } = await sb
+      .from("boloes")
+      .update({ qtd_cotas_total: novoTotal, updated_at: new Date().toISOString() })
+      .eq("id", existe.id);
+    if (error) throw new Error(error.message);
+    setStatus(`✓ Cotas somadas! Novo total: ${novoTotal}`, "ok", "check-circle");
+    return;
+  }
+
+  // Novo bolão
+  const { error } = await sb.from("boloes").insert({
+    loteria_id:      loteriaId,
+    criado_por:      usuario.id,
+    modalidade:      MODAL_DB[b.modalidade] || b.modalidade,
+    concurso:        b.concurso,
+    codigo_loterico: loteria?.loteria_codigo || loteria?.codigo || "",
+    dt_inicial:      b.dataInicial,
+    dt_concurso:     b.dataConcurso,
+    qtd_jogos:       b.qtdJogos,
+    qtd_dezenas:     b.qtdDezenas,
+    valor_cota:      b.valorCota,
+    qtd_cotas_total: b.cotas,
+  });
+  if (error) throw new Error(error.message);
+  setStatus("✓ Bolão cadastrado com sucesso!", "ok", "check-double");
+}
+
+/************************************************************
+ * DELETAR
+ ************************************************************/
+async function onDeletar() {
+  const btn = $("btnDeletar");
+  try {
+    const b = validarBase(false);
+
+    // Busca o bolão
+    const { data: bolao } = await sb
+      .from("boloes")
+      .select("id,qtd_cotas_total")
+      .eq("loteria_id", loteriaId)
+      .eq("modalidade", MODAL_DB[b.modalidade] || b.modalidade)
+      .eq("concurso", b.concurso)
+      .eq("valor_cota", b.valorCota)
+      .neq("status","CANCELADO")
+      .maybeSingle();
+
+    if (!bolao) {
+      setStatus("Bolão não encontrado.", "err", "exclamation-circle"); return;
+    }
+
+    const corpo = [
+      `🗑️ CONFIRMAÇÃO DE DELEÇÃO`,``,
+      `📍 ${LOJA_CONFIG[loteriaSlug]?.nome}`,
+      `🎯 ${b.modalidade} — Concurso ${b.concurso}`,
+      `💰 Cota: ${fmtBRL(b.valorCota)} | ${bolao.qtd_cotas_total} cotas`,``,
+      `⚠️ Esta ação é irreversível. Confirma?`
+    ].join("\n");
+
+    showModal("Confirmar deleção", corpo, async () => {
+      setBtnLoading(btn, true);
+      try {
+        const { error } = await sb.from("boloes").delete().eq("id", bolao.id);
+        if (error) throw new Error(error.message);
+        setStatus("✓ Bolão excluído.", "ok", "check-circle");
+      } catch(e) {
+        setStatus(e.message, "err", "exclamation-circle");
+      } finally {
+        setBtnLoading(btn, false);
+      }
+    });
+  } catch(e) {
+    setStatus(e.message, "err", "exclamation-circle");
+  }
+}
+
+/************************************************************
+ * BUSCAR (conferir saldo antes de movimentar)
+ ************************************************************/
+async function onBuscar() {
+  const btn = $("btnBuscar");
+  try {
+    const modal    = $("modalidade").value.trim();
+    const concurso = $("concurso").value.trim();
+    const cota     = parseCota($("valorCota").value);
+
+    if (!modal || !concurso || !cota) {
+      setStatus("Preencha modalidade, concurso e valor da cota para buscar.", "err", "exclamation-circle");
+      return;
+    }
+
+    setBtnLoading(btn, true);
+    setStatus("Buscando saldos…","muted","spinner fa-spin");
+
+    const { data: bolao } = await sb
+      .from("boloes")
+      .select("id,qtd_cotas_total,enc_fisico,enc_virtual")
+      .eq("loteria_id", loteriaId)
+      .eq("modalidade", MODAL_DB[modal] || modal)
+      .eq("concurso", concurso)
+      .eq("valor_cota", cota)
+      .neq("status","CANCELADO")
+      .maybeSingle();
+
+    if (!bolao) {
+      showModal("Não encontrado", [
+        `❌ Bolão não encontrado`,``,
+        `Modalidade: ${modal}`,
+        `Concurso: ${concurso}`,
+        `Cota: ${fmtBRL(cota)}`,``,
+        `Verifique os dados ou cadastre primeiro.`
+      ].join("\n"), null);
+      setStatus("Bolão não localizado.", "muted", "info-circle");
+      return;
+    }
+
+    // Busca movimentações
+    const { data: movs } = await sb
+      .from("view_posicao_bolao")
+      .select("*")
+      .eq("bolao_id", bolao.id);
+
+    // Monta texto de saldos por destino
+    const linhas = [
+      `📍 ${LOJA_CONFIG[loteriaSlug]?.nome}`,
+      `🎯 ${modal} — Concurso ${concurso}`,
+      `💰 Cota: ${fmtBRL(cota)}`,
+      `📦 Total: ${bolao.qtd_cotas_total} cotas`,
+      `📭 Encalhe origem: ${bolao.enc_fisico + bolao.enc_virtual}`,``,
+      `📊 Distribuição:`
+    ];
+
+    if (movs && movs.length) {
+      movs.forEach(m => {
+        linhas.push(`  ${m.loteria_destino}: ${m.qtd_enviada} enviadas / ${m.qtd_encalhe} encalhes`);
+      });
+    } else {
+      linhas.push("  (nenhuma distribuição registrada)");
+    }
+
+    showModal("🔍 Saldos atuais", linhas.join("\n"), null);
+    setStatus("Busca concluída.", "ok", "check");
+
+  } catch(e) {
+    setStatus(e.message, "err", "exclamation-circle");
+  } finally {
+    setBtnLoading($("btnBuscar"), false);
+  }
+}
+
+/************************************************************
+ * MOVIMENTAR
+ ************************************************************/
+async function onMovimentar() {
+  const btn = $("btnMovimentar");
+  try {
+    const modal    = $("modalidade").value.trim();
+    const concurso = $("concurso").value.trim();
+    const cota     = parseCota($("valorCota").value);
+    const dtIni    = $("dataInicial").value;
+    const dtConc   = $("dataConcurso").value;
+
+    if (!modal || !concurso || !cota)
+      throw new Error("Preencha modalidade, concurso e valor da cota.");
+
+    // Deltas
+    const mapaDeltas = {
+      "boulevard":    parseInt($("deltaBoulevard").value)  || 0,
+      "centro":       parseInt($("deltaCentro").value)     || 0,
+      "lotobel":      parseInt($("deltaLotobel").value)    || 0,
+      "santa-tereza": parseInt($("deltaSantaTereza").value)|| 0,
+      "via-brasil":   parseInt($("deltaViaBrasil").value)  || 0,
+    };
+
+    const temDelta = Object.values(mapaDeltas).some(v => v !== 0);
+    if (!temDelta) throw new Error("Informe ao menos um valor de destino.");
+
+    // Busca o bolão de origem
+    const { data: bolao } = await sb
+      .from("boloes")
+      .select("id,valor_cota,qtd_cotas_total")
+      .eq("loteria_id", loteriaId)
+      .eq("modalidade", MODAL_DB[modal] || modal)
+      .eq("concurso", concurso)
+      .eq("valor_cota", cota)
+      .neq("status","CANCELADO")
+      .maybeSingle();
+
+    if (!bolao) throw new Error("Bolão não encontrado. Cadastre antes de movimentar.");
+
+    // Monta confirmação
+    const linhas = [
+      `📍 Origem: ${LOJA_CONFIG[loteriaSlug]?.nome}`,
+      `🎯 ${modal} — Concurso ${concurso}`,
+      `💰 Cota: ${fmtBRL(cota)}`,``,
+      `📊 DESTINOS:`
+    ];
+    Object.entries(mapaDeltas).forEach(([slug, v]) => {
+      if (v !== 0 && slug !== loteriaSlug) {
+        const nome = LOJA_CONFIG[slug]?.nome || slug;
+        linhas.push(`  ${nome}: ${v > 0 ? "+":""  }${v} cotas`);
+      }
+    });
+    linhas.push(``, `Confirma?`);
+
+    showModal("Confirmar movimentação", linhas.join("\n"), async () => {
+      setBtnLoading(btn, true);
+      setStatus("Registrando…","muted","spinner fa-spin");
+      try {
+        await doMovimentar(bolao, mapaDeltas);
+        setStatus("✓ Movimentação registrada!", "ok", "check-double");
+        limparMov();
+      } catch(e) {
+        setStatus(e.message, "err", "exclamation-circle");
+      } finally {
+        setBtnLoading(btn, false);
+      }
+    });
+
+  } catch(e) {
+    setStatus(e.message, "err", "exclamation-circle");
+  }
+}
+
+async function doMovimentar(bolao, mapaDeltas) {
+  const inserts = [];
+  for (const [slug, qtd] of Object.entries(mapaDeltas)) {
+    if (qtd === 0 || slug === loteriaSlug) continue;
+    const destId = lojaIdPorSlug[slug];
+    if (!destId) throw new Error(`Loja destino não encontrada: ${slug}`);
+    inserts.push({
+      bolao_id:        bolao.id,
+      loteria_origem:  loteriaId,
+      loteria_destino: destId,
+      qtd_cotas:       Math.abs(qtd),
+      valor_unitario:  bolao.valor_cota,
+      criado_por:      usuario.id,
+    });
+  }
+  if (!inserts.length) throw new Error("Nenhuma movimentação válida.");
+  const { error } = await sb.from("movimentacoes_cotas").insert(inserts);
+  if (error) throw new Error(error.message);
+}
+
+/************************************************************
+ * BINDINGS
+ ************************************************************/
+function bind() {
+  // Steppers
+  $("btnDiPrev").onclick = () => addDias("dataInicial", -1);
+  $("btnDiNext").onclick = () => addDias("dataInicial", +1);
+  $("btnDcPrev").onclick = () => addDias("dataConcurso",-1);
+  $("btnDcNext").onclick = () => addDias("dataConcurso",+1);
+
+  // Botões principais
+  $("btnCadastrar").addEventListener("click", onCadastrar);
+  $("btnDeletar"  ).addEventListener("click", onDeletar);
+  $("btnMovimentar").addEventListener("click", onMovimentar);
+  $("btnBuscar"   ).addEventListener("click", onBuscar);
+  $("btnLimpar"   ).addEventListener("click", () => {
+    limparFormSemLoja();
+    setStatus("Campos limpos.", "muted", "broom");
+  });
+  $("btnZerarMov" ).addEventListener("click", () => {
+    limparMov();
+    setStatus("Movimentação limpa.", "muted", "broom");
+  });
+
+  // Modalidade
+  $("modalidade").addEventListener("change", () => {
+    const m = $("modalidade").value;
+    localStorage.setItem("sl_active_mod", m);
+    setActiveModBtn(m);
+    renderChips(m);
+    applyFederalUI();
+    saveDraft();
+  });
+
+  // Brand buttons (só muda visual — loja vem do login)
+  document.querySelectorAll(".brand-btn").forEach(b => {
+    b.addEventListener("click", () => {
+      // Sócios podem ver outras lojas visualmente mas a origem é sempre a do login
+      // Aqui apenas muda o tema para referência visual
+      aplicarTema(b.dataset.slug);
+    });
+  });
+
+  // Draft em todos os campos
+  [...CAMPOS_FORM, ...CAMPOS_MOV].forEach(id => {
+    $(id)?.addEventListener("input",  saveDraft);
+    $(id)?.addEventListener("change", saveDraft);
+  });
+}
+
+// ── Start ────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

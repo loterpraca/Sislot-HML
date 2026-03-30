@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>SISLOT — Bolões</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./css/bolao-cadastro.css"/>
+</head>
+<body data-loja="centro">
+
+<header class="header">
+  <div class="header-inner">
+    <div class="loja-tree" id="lojaTreeWrap">
+      <img src="./icons/loterpraca.png" alt="Logo" id="logoImg"/>
+    </div>
+
+    <div class="header-info">
+      <div class="header-nome" id="headerTitle">Centro</div>
+      <div class="header-sub" id="headerSub">Cadastro · Movimentação</div>
+    </div>
+
+    <button type="button" class="btn-menu" id="btnInicio">
+      <i class="fas fa-home"></i> <span>Início</span>
+    </button>
+
+    <button type="button" class="btn-menu" id="btnSair">
+      <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
+    </button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="quickbar" id="quickZone">
+    <div class="quickbar-grid" id="modGrid"></div>
+    <div class="quickchips" id="chipsWrap">
+      <div class="chips-row" id="chipsRow"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">
+      <div class="section-icon"><i class="fas fa-ticket-alt"></i></div>
+      <h2 class="section-title">
+        Dados do bolão
+        <span class="origem-chip origem-chip-clickable" id="origemChip" title="Trocar loja">
+          <i class="fas fa-store"></i> <span id="origemNome">—</span>
+        </span>
+      </h2>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label><i class="fas fa-clover"></i> Modalidade</label>
+        <select id="modalidade">
+          <option value="">Selecione…</option>
+          <option>Mega Sena</option><option>Lotofácil</option><option>Quina</option>
+          <option>Dupla Sena</option><option>Dia de Sorte</option><option>Supersete</option>
+          <option>Milionária</option><option>Timemania</option><option>Loteca</option>
+          <option>Páscoa</option><option>São João</option><option>Independência</option><option>Virada</option>
+        </select>
+      </div>
+      <div class="field">
+  <label class="label-row">
+    <span><i class="fas fa-hashtag"></i> Concurso</span>
+    <span class="day-stepper">
+      <button type="button" class="day-btn" id="btnConcursoPrev" aria-label="Concurso anterior">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button type="button" class="day-btn" id="btnConcursoNext" aria-label="Próximo concurso">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </span>
+  </label>
+  <input id="concurso" inputmode="numeric" placeholder="Ex: 2940"/>
+</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label class="label-row">
+          <span><i class="fas fa-calendar-day"></i> Data inicial</span>
+          <span class="day-stepper">
+            <button type="button" class="day-btn" id="btnDiPrev"><i class="fas fa-chevron-left"></i></button>
+            <button type="button" class="day-btn" id="btnDiNext"><i class="fas fa-chevron-right"></i></button>
+          </span>
+        </label>
+        <input id="dataInicial" type="date"/>
+      </div>
+      <div class="field">
+        <label class="label-row">
+          <span><i class="fas fa-calendar-check"></i> Data concurso</span>
+          <span class="day-stepper">
+            <button type="button" class="day-btn" id="btnDcPrev"><i class="fas fa-chevron-left"></i></button>
+            <button type="button" class="day-btn" id="btnDcNext"><i class="fas fa-chevron-right"></i></button>
+          </span>
+        </label>
+        <input id="dataConcurso" type="date"/>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field"><label><i class="fas fa-list-ol"></i> Qtd jogos</label><input id="qtdJogos" inputmode="numeric" placeholder="Ex: 10"/></div>
+      <div class="field"><label><i class="fas fa-dice"></i> Dezenas</label><input id="qtdDezenas" inputmode="numeric" placeholder="Ex: 8"/></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field"><label><i class="fas fa-money-bill-wave"></i> Valor da cota (R$)</label><input id="valorCota" inputmode="decimal" placeholder="Ex: 22,68"/></div>
+      <div class="field"><label><i class="fas fa-users"></i> Qtd cotas</label><input id="cotas" inputmode="numeric" placeholder="Ex: 100"/></div>
+    </div>
+
+    <div class="actions-3">
+      <button class="btn-primary" id="btnCadastrar"><i class="fas fa-check"></i> Cadastrar</button>
+      <button class="btn-ghost" id="btnLimpar"><i class="fas fa-eraser"></i> Limpar</button>
+      <button class="btn-danger" id="btnDeletar"><i class="fas fa-ban"></i> Cancelar</button>
+    </div>
+
+    <div id="status" class="status muted"><i class="fas fa-info-circle"></i><span>Pronto.</span></div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">
+      <div class="section-icon"><i class="fas fa-exchange-alt"></i></div>
+      <h2 class="section-title">
+        Movimentar
+        <span class="origem-chip origem-chip-clickable" id="movOrigemChip" title="Trocar loja">
+          <i class="fas fa-store"></i> <span id="movOrigemNome">—</span>
+        </span>
+        <button type="button" class="btn-theme-icon" id="btnBuscar" aria-label="Buscar" title="Buscar">
+  <i class="fas fa-search"></i>
+</button>
+      </h2>
+    </div>
+
+    <div class="mov-grid" id="movGrid">
+      <div class="field mov-item" data-slug="boulevard">
+        <label><i class="fas fa-building"></i> Boulevard</label>
+        <input id="deltaBoulevard" inputmode="numeric" placeholder="0"/>
+      </div>
+
+      <div class="field mov-item" data-slug="centro">
+        <label><i class="fas fa-city"></i> Centro</label>
+        <input id="deltaCentro" inputmode="numeric" placeholder="0"/>
+      </div>
+
+      <div class="field mov-item" data-slug="lotobel">
+        <label><i class="fas fa-landmark"></i> Lotobel</label>
+        <input id="deltaLotobel" inputmode="numeric" placeholder="0"/>
+      </div>
+
+      <div class="field mov-item" data-slug="santa-tereza">
+        <label><i class="fas fa-church"></i> Santa Tereza</label>
+        <input id="deltaSantaTereza" inputmode="numeric" placeholder="0"/>
+      </div>
+
+      <div class="field mov-item" data-slug="via-brasil">
+        <label><i class="fas fa-road"></i> Via Brasil</label>
+        <input id="deltaViaBrasil" inputmode="numeric" placeholder="0"/>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-dark" id="btnMovimentar"><i class="fas fa-arrows-alt-h"></i> Movimentar</button>
+      <button class="btn-ghost" id="btnZerarMov"><i class="fas fa-undo"></i> Limpar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-icon"><i class="fas fa-question-circle"></i></div>
+      <h3 class="modal-title" id="modalTitle">Confirmação</h3>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="modalCancel"><i class="fas fa-times"></i> Cancelar</button>
+      <button class="btn-primary" id="modalConfirm"><i class="fas fa-check"></i> Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="./sislot-config.js"></script>
+<script src="./sislot-security.js"></script>
+<script src="./js/sislot-utils.js"></script>
+<script src="./js/bolao-cadastro.js"></script>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>SISLOT — Menu Principal</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/menu.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-icon">SL</div>
+      <div>
+        <div class="brand-name">SISLOT</div>
+        <div class="brand-sub">Sistema de Lotéricas</div>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="clock" id="relogio">--:--:--</div>
+
+      <div class="user-pill">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div>
+          <div class="user-name" id="userName">Carregando…</div>
+          <div class="user-role" id="userRole">—</div>
+        </div>
+      </div>
+
+      <button class="btn-logout" id="btnLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sair
+      </button>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="hero">
+      <div class="hero-tag">
+        <div class="hero-tag-dot"></div>
+        Menu Principal
+      </div>
+      <h1 class="hero-title">Olá, <span id="heroNome">bem-vindo</span>.</h1>
+      <p class="hero-sub">Selecione uma funcionalidade para começar.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon si-green">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.6 19.79 19.79 0 0 1 1.62 5.1 2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.6a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19v1.42z"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Vendas WPP Hoje</div>
+          <div class="stat-value" id="statVendasWpp">—</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon si-amber">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Venda Marketplace</div>
+          <div class="stat-value" id="statMarketplace">—</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon si-mov">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="17 1 21 5 17 9"/>
+            <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+            <polyline points="7 23 3 19 7 15"/>
+            <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Movimentações Hoje</div>
+          <div class="stat-value" id="statMovs">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="funcs-wrap">
+      <div class="section-sep">
+        <div class="section-sep-label">Gestão</div>
+        <div class="section-sep-line"></div>
+      </div>
+
+      <div class="menu-grid">
+        <a class="menu-card featured card-cadastro" href="./bolao-cadastro.html">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-green">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/>
+              <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+              <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Cadastrar</div>
+            <div class="card-desc">Criar e gerenciar bolões</div>
+          </div>
+        </a>
+
+        <a class="menu-card card-movimentacao" href="./movimentar.html" style="--card-color:#38bdf8">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-blue">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="17 1 21 5 17 9"/>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+              <polyline points="7 23 3 19 7 15"/>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Movimentar</div>
+            <div class="card-desc">Distribuir cotas entre lojas</div>
+          </div>
+        </a>
+
+        <a class="menu-card card-exibir" href="./exibir.html" style="--card-color:var(--amber)">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-amber">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Buscar</div>
+            <div class="card-desc">Consultar saldo de bolões</div>
+          </div>
+        </a>
+
+        <a class="menu-card card-fechamento" href="./fechamento-caixa.html" style="--card-color:#a78bfa">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-purple">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Fechamento</div>
+            <div class="card-desc">Fechar caixa do dia</div>
+          </div>
+        </a>
+
+        <a class="menu-card card-federal" href="./federal.html" style="--card-color:#ff5252">
+          <div class="card-icon ci-red">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+              <line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Federal</div>
+            <div class="card-desc">Gestão de bilhetes federais</div>
+          </div>
+        </a>
+
+        <a class="menu-card card-produtos" href="./produto.html" style="--card-color:#14b8a6">
+          <div class="card-icon ci-teal">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Produtos</div>
+            <div class="card-desc">Controle de estoque</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="section-sep section-sep--mt-sm">
+        <div class="section-sep-label">Canais de Venda</div>
+        <div class="section-sep-line"></div>
+      </div>
+
+      <div class="vendas-grid">
+        <a class="menu-card card-whatsapp" href="./whatsapp-vendas.html" style="--card-color:#25d366">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-wpp">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="#25d366">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">WhatsApp</div>
+            <div class="card-desc">Vendas por WhatsApp</div>
+          </div>
+        </a>
+
+        <a class="menu-card card-marketplace" href="./marketplace-vendas.html" style="--card-color:#f5a623">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-amber">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Marketplace</div>
+            <div class="card-desc">Vendas em plataformas</div>
+          </div>
+        </a>
+
+        <a class="menu-card card-financeiro" href="./controle.html" style="--card-color:#f59e0b">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-amber">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18"/>
+              <path d="M7 14l3-3 3 2 4-5"/>
+              <circle cx="7" cy="14" r="1"/>
+              <circle cx="10" cy="11" r="1"/>
+              <circle cx="13" cy="13" r="1"/>
+              <circle cx="17" cy="8" r="1"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Controle Financeiro</div>
+            <div class="card-desc">Acertos entre lojas</div>
+          </div>
+        </a>
+
+        <a class="menu-card card-caixa" href="./caixa-vendas.html" style="--card-color:#a78bfa">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-purple">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Caixa</div>
+            <div class="card-desc">Vendas presenciais</div>
+          </div>
+        </a>
+
+        <a class="menu-card card-controle-fechamento" href="./controle-caixa.html" style="--card-color:#22c55e">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-green">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18"/>
+              <path d="M7 14l3-3 3 2 4-5"/>
+              <circle cx="7" cy="14" r="1"/>
+              <circle cx="10" cy="11" r="1"/>
+              <circle cx="13" cy="13" r="1"/>
+              <circle cx="17" cy="8" r="1"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Controle Fechamento</div>
+            <div class="card-desc">Conferir fechamentos</div>
+          </div>
+        </a>
+
+        <a class="menu-card card-pendencias" href="javascript:void(0)" onclick="alert('Pendências ainda está em desenvolvimento.')" style="--card-color:#f59e0b">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-amber">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <path d="M8 9h8"/>
+              <path d="M8 13h5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Pendências</div>
+            <div class="card-desc">Em desenvolvimento</div>
+          </div>
+        </a>
+      </div>
+</div>
+   
+    <div id="adminWrap" class="admin-wrap is-hidden">
+      <div class="section-sep section-sep--admin">
+        <div class="section-sep-label">Administração</div>
+        <div class="section-sep-line"></div>
+      </div>
+
+      <div class="admin-grid">
+        <a class="menu-card card-config" href="./configuracoes.html" style="--card-color:#a78bfa">
+          <div class="card-arrow">→</div>
+          <div class="card-icon ci-purple">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card-title">Configurações</div>
+            <div class="card-desc">Usuários, loterias e permissões</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="lojas-wrap">
+      <div class="section-sep section-sep--stores">
+        <div class="section-sep-label">Lojas do Grupo</div>
+        <div class="section-sep-line"></div>
+      </div>
+
+      <div class="lojas-row">
+        <div class="loja-chip" data-loteria-id="2" data-loteria-nome="Boulevard">
+          <div class="loja-logo"><img src="./icons/boulevard.png" alt="Boulevard" /></div>
+          Boulevard
+        </div>
+
+        <div class="loja-chip" data-loteria-id="1" data-loteria-nome="Centro">
+          <div class="loja-logo"><img src="./icons/loterpraca.png" alt="Centro" /></div>
+          Centro
+        </div>
+
+        <div class="loja-chip" data-loteria-id="3" data-loteria-nome="Lotobel">
+          <div class="loja-logo"><img src="./icons/lotobel.png" alt="Lotobel" /></div>
+          Lotobel
+        </div>
+
+        <div class="loja-chip" data-loteria-id="4" data-loteria-nome="Santa Tereza">
+          <div class="loja-logo"><img src="./icons/santa-tereza.png" alt="Santa Tereza" /></div>
+          Santa Tereza
+        </div>
+
+        <div class="loja-chip" data-loteria-id="5" data-loteria-nome="Via Brasil">
+          <div class="loja-logo"><img src="./icons/via-brasil.png" alt="Via Brasil" /></div>
+          Via Brasil
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay-menu" id="mGerarTokenLoja">
+    <div class="modal-token-menu">
+      <div class="modal-token-head">
+        <div>
+          <div class="modal-token-title">Gerar token</div>
+          <div class="modal-token-sub">Autorização para sobrescrever fechamento</div>
+        </div>
+        <button type="button" class="modal-token-close" id="btnFecharTokenLoja">×</button>
+      </div>
+
+      <div class="modal-token-body">
+        <div class="token-field token-field-full">
+          <label>Loja</label>
+          <input type="text" id="gtLojaNome" readonly>
+        </div>
+
+        <div class="token-grid">
+          <div class="token-field">
+            <label>Funcionário</label>
+            <select id="gtFuncionario">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+
+          <div class="token-field">
+            <label>Data</label>
+            <input type="date" id="gtData">
+          </div>
+        </div>
+
+        <div class="token-result" id="gtResultado" style="display:none">
+          <div class="token-result-label">Token gerado</div>
+          <div class="token-result-code" id="gtCodigoToken">000000</div>
+          <div class="token-result-expira" id="gtExpiraToken"></div>
+        </div>
+
+        <div class="token-erro" id="gtErro" style="display:none"></div>
+      </div>
+
+      <div class="modal-token-actions">
+        <button type="button" class="btn-token-sec" id="btnCancelarTokenLoja">Fechar</button>
+        <button type="button" class="btn-token-pri" id="btnConfirmarGerarTokenLoja">Gerar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>SISLOT v2.0 · Sistema de Gestão de Bolões · Supabase Auth</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="./sislot-config.js"></script>
+  <script src="./sislot-security.js"></script>
+  <script src="./js/fechamento-rules.js"></script>
+  <script src="./js/menu.js"></script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SISLOT — Design System Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+/* ── BASE ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070d1a;--bg2:#0c1528;--panel:#101f38;--panel2:#132240;
+  --border:#1a3060;--border2:#243d70;
+  --text:#dde8f8;--text2:#7a95c4;--text3:#3d5a8a;
+  --error:#ff4f4f;--success:#00d4a0;--amber:#f5a623;--sky:#38bdf8;--purple:#a78bfa;
+  --input-bg:#0a1628;--tr:0.25s cubic-bezier(0.4,0,0.2,1);
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  --t1:#94a3b8;--t2:#64748b;--t3:rgba(148,163,184,.10);--t4:rgba(148,163,184,.25);--t5:rgba(148,163,184,.05);
+}
+body[data-loja="boulevard"]{--t1:#3b82f6;--t2:#1d4ed8;--t3:rgba(59,130,246,.10);--t4:rgba(59,130,246,.25);--t5:rgba(59,130,246,.05)}
+body[data-loja="centro"]   {--t1:#00c896;--t2:#00a07a;--t3:rgba(0,200,150,.10);--t4:rgba(0,200,150,.25);--t5:rgba(0,200,150,.05)}
+body[data-loja="lotobel"]  {--t1:#ef4444;--t2:#b91c1c;--t3:rgba(239,68,68,.10);--t4:rgba(239,68,68,.25);--t5:rgba(239,68,68,.05)}
+body[data-loja="santa-tereza"]{--t1:#a855f7;--t2:#7e22ce;--t3:rgba(168,85,247,.10);--t4:rgba(168,85,247,.25);--t5:rgba(168,85,247,.05)}
+body[data-loja="via-brasil"]{--t1:#eab308;--t2:#a16207;--t3:rgba(234,179,8,.10);--t4:rgba(234,179,8,.25);--t5:rgba(234,179,8,.05)}
+
+body{background:var(--bg);font-family:var(--sans);color:var(--text);min-height:100vh;
+  background-image:radial-gradient(ellipse 100% 50% at 50% -10%,var(--t3) 0%,transparent 65%),
+    repeating-linear-gradient(0deg,transparent,transparent 47px,rgba(26,48,96,.18) 47px,rgba(26,48,96,.18) 48px),
+    repeating-linear-gradient(90deg,transparent,transparent 47px,rgba(26,48,96,.10) 47px,rgba(26,48,96,.10) 48px);
+  transition:background-image .25s}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── HEADER ── */
+.sl-header{position:sticky;top:0;z-index:200;background:rgba(7,13,26,.95);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);padding:0 20px;height:62px;display:flex;align-items:center}
+.sl-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--t1) 50%,transparent 100%);opacity:.4;transition:background .25s}
+.sl-header-inner{max-width:1200px;width:100%;margin:0 auto;display:flex;align-items:center;gap:14px}
+.sl-loja-logo{width:44px;height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:center;background:var(--t5);border-radius:50%;border:1.5px solid var(--t4);overflow:hidden;cursor:pointer;box-shadow:0 0 14px var(--t3);transition:.25s}
+.sl-loja-logo:hover{transform:scale(1.05);border-color:var(--t1)}
+.sl-loja-logo span{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--t1)}
+.sl-header-info{flex:1;min-width:0}
+.sl-header-nome{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--text);line-height:1;margin-bottom:3px}
+.sl-header-sub{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--text3)}
+.sl-header-clock{font-family:var(--mono);font-size:11px;color:var(--text2);white-space:nowrap}
+.sl-btn-header{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:7px 13px;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);transition:.25s}
+.sl-btn-header:hover{border-color:var(--t4);color:var(--t1);background:var(--t5)}
+.sl-loja-select{display:flex;align-items:center;background:var(--panel);border:1px solid var(--t4);border-radius:8px;padding:6px 10px;gap:6px}
+.sl-loja-select select{background:transparent;border:none;color:var(--text);font-family:var(--mono);font-size:11px;font-weight:500;cursor:pointer;outline:none;appearance:none}
+.sl-loja-select select option{background:var(--bg2)}
+
+/* ── LAYOUT ── */
+.sl-main{flex:1;padding:32px 20px;max-width:1200px;width:100%;margin:0 auto}
+.sl-section-sep{display:flex;align-items:center;gap:14px;margin:28px 0 16px}
+.sl-section-label{white-space:nowrap;color:var(--text3);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase}
+.sl-section-line{flex:1;height:1px;background:var(--border)}
+
+/* ── CARDS ── */
+.sl-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px}
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.sl-menu-card{position:relative;overflow:hidden;padding:16px 14px 14px;border:1px solid var(--border);border-radius:10px;background:var(--panel);display:flex;flex-direction:column;align-items:flex-start;gap:12px;transition:border-color .25s,background .25s,transform .25s;cursor:pointer}
+.sl-menu-card::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--card-accent,var(--t1));opacity:0;transition:opacity .25s}
+.sl-menu-card:hover{border-color:var(--card-accent,var(--t1));background:rgba(255,255,255,.025);transform:translateY(-2px)}
+.sl-menu-card:hover::after{opacity:1}
+.sl-card-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.sl-icon--green{background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.2)}
+.sl-icon--blue{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2)}
+.sl-icon--amber{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2)}
+.sl-icon--purple{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2)}
+.sl-icon--red{background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.2)}
+.sl-icon--teal{background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.2)}
+.sl-card-label{color:var(--text);font-size:13px;font-weight:600;line-height:1.2}
+.sl-card-desc{margin-top:2px;color:var(--text3);font-size:10px;font-weight:300;line-height:1.4}
+
+/* ── STAT ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.sl-stat-card{padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:var(--panel);display:flex;align-items:center;gap:10px;transition:border-color .25s}
+.sl-stat-card:hover{border-color:var(--t4)}
+.sl-stat-icon{width:32px;height:32px;flex-shrink:0;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.sl-stat-icon--green{background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.2)}
+.sl-stat-icon--amber{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2)}
+.sl-stat-icon--theme{background:var(--t5);border:1px solid var(--t4)}
+.sl-stat-label{margin-bottom:3px;white-space:nowrap;color:var(--text3);font-family:var(--mono);font-size:9px;letter-spacing:.10em;text-transform:uppercase}
+.sl-stat-value{color:var(--text);font-family:var(--mono);font-size:18px;font-weight:600}
+
+/* ── BOTÕES ── */
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.sl-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:.25s;border:1px solid transparent;white-space:nowrap}
+.sl-btn--primary{background:var(--t1);color:var(--bg);border-color:var(--t1)}
+.sl-btn--primary:hover{background:var(--t2);border-color:var(--t2);transform:translateY(-1px);box-shadow:0 4px 14px var(--t3)}
+.sl-btn--outline{background:transparent;color:var(--text2);border-color:var(--border)}
+.sl-btn--outline:hover{border-color:var(--t4);color:var(--t1);background:var(--t5)}
+.sl-btn--ghost{background:var(--panel);color:var(--text2);border-color:var(--border)}
+.sl-btn--ghost:hover{border-color:var(--border2);color:var(--text)}
+.sl-btn--danger{background:transparent;color:rgba(255,80,80,.7);border-color:rgba(255,80,80,.2)}
+.sl-btn--danger:hover{background:rgba(255,80,80,.08);border-color:var(--error);color:var(--error)}
+.sl-btn--sm{padding:5px 12px;font-size:11px;border-radius:6px}
+
+/* ── FORM ── */
+.sl-form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.sl-field{display:flex;flex-direction:column;gap:6px}
+.sl-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.sl-input,.sl-select{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--sans);font-size:13px;width:100%;transition:border-color .25s,box-shadow .25s;appearance:none}
+.sl-input::placeholder{color:var(--text3)}
+.sl-input:focus,.sl-select:focus{outline:none;border-color:var(--t4);box-shadow:0 0 0 3px var(--t3)}
+.sl-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233d5a8a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer}
+.sl-select option{background:var(--bg2);color:var(--text)}
+
+/* ── TABELA ── */
+.sl-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+.sl-table{width:100%;border-collapse:collapse;font-size:12px}
+.sl-table th{padding:10px 14px;text-align:left;background:var(--panel2);color:var(--text3);font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap}
+.sl-table td{padding:10px 14px;color:var(--text2);border-bottom:1px solid rgba(26,48,96,.5);vertical-align:middle}
+.sl-table tr:last-child td{border-bottom:none}
+.sl-table tr:hover td{background:rgba(255,255,255,.02);color:var(--text)}
+.td-mono{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)}
+.td-ok{color:var(--success)}.td-err{color:var(--error)}.td-amber{color:var(--amber)}.td-theme{color:var(--t1)}
+
+/* ── BADGE ── */
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sl-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.sl-badge--ok{background:rgba(0,212,160,.1);border:1px solid rgba(0,212,160,.25);color:var(--success)}
+.sl-badge--err{background:rgba(255,79,79,.1);border:1px solid rgba(255,79,79,.25);color:var(--error)}
+.sl-badge--amber{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);color:var(--amber)}
+.sl-badge--theme{background:var(--t3);border:1px solid var(--t4);color:var(--t1)}
+.sl-badge--neutral{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text3)}
+.sl-badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1.5s ease infinite}
+.sl-status-bar{display:none;padding:8px 14px;border-radius:8px;font-size:12px;border-left:3px solid}
+.sl-status-bar.show{display:flex;align-items:center;gap:8px}
+.sl-status-bar.ok{background:rgba(0,212,160,.08);border-color:var(--success);color:var(--success)}
+.sl-status-bar.err{background:rgba(255,79,79,.08);border-color:var(--error);color:var(--error)}
+.sl-status-bar.warn{background:rgba(245,166,35,.08);border-color:var(--amber);color:var(--amber)}
+
+/* ── MODAL ── */
+.sl-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.sl-modal-overlay.open{display:flex}
+.sl-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:520px;overflow:hidden;animation:fadeUp .2s ease}
+.sl-modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
+.sl-modal-title{font-size:16px;font-weight:600;color:var(--text)}
+.sl-modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text3);cursor:pointer;font-size:16px;transition:.25s}
+.sl-modal-close:hover{background:rgba(255,79,79,.08);border-color:var(--error);color:var(--error)}
+.sl-modal-body{padding:20px 24px}
+.sl-modal-footer{padding:16px 24px 20px;display:flex;align-items:center;justify-content:flex-end;gap:10px;border-top:1px solid var(--border)}
+
+/* ── TOAST ── */
+.sl-toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.sl-toast{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;opacity:0;transform:translateX(16px);transition:opacity .3s,transform .3s;box-shadow:0 4px 16px rgba(0,0,0,.3);min-width:240px;max-width:360px}
+.sl-toast.show{opacity:1;transform:translateX(0)}
+.sl-toast--success{background:rgba(0,212,160,.95);color:#051a12}
+.sl-toast--error{background:rgba(255,79,79,.95);color:#1a0505}
+.sl-toast--warning{background:rgba(245,166,35,.95);color:#1a0e03}
+.sl-toast--info{background:rgba(56,189,248,.95);color:#020e1a}
+
+/* ── PREVIEW EXTRAS ── */
+.preview-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.tema-chips{display:flex;flex-wrap:wrap;gap:8px}
+.tema-chip{padding:6px 16px;border-radius:20px;border:2px solid transparent;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:600;transition:.25s}
+.tema-chip:hover{transform:scale(1.05)}
+.sl-footer{padding:18px 20px;border-top:1px solid var(--border);color:var(--text3);text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.08em}
+  </style>
+</head>
+<body data-loja="todas">
+
+<header class="sl-header">
+  <div class="sl-header-inner">
+    <div class="sl-loja-logo" id="logo"><span id="logoText">SL</span></div>
+    <div class="sl-header-info">
+      <div class="sl-header-nome" id="headerNome">Todas as Lojas</div>
+      <div class="sl-header-sub">SISLOT · Design System v3.0</div>
+    </div>
+    <div class="sl-loja-select">
+      <select id="temaSelect">
+        <option value="todas">Todas</option>
+        <option value="boulevard">Boulevard</option>
+        <option value="centro">Centro</option>
+        <option value="lotobel">Lotobel</option>
+        <option value="santa-tereza">Santa Tereza</option>
+        <option value="via-brasil">Via Brasil</option>
+      </select>
+    </div>
+    <div class="sl-header-clock" id="relogio">--:--:--</div>
+    <button class="sl-btn-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Menu
+    </button>
+  </div>
+</header>
+
+<main class="sl-main">
+
+  <!-- Temas -->
+  <div class="sl-section-sep"><div class="sl-section-label">Temas por lotérica</div><div class="sl-section-line"></div></div>
+  <div class="tema-chips">
+    <div class="tema-chip" style="background:rgba(148,163,184,.15);border-color:#94a3b8;color:#94a3b8" onclick="setTema('todas')">Todas</div>
+    <div class="tema-chip" style="background:rgba(59,130,246,.15);border-color:#3b82f6;color:#3b82f6" onclick="setTema('boulevard')">Boulevard</div>
+    <div class="tema-chip" style="background:rgba(0,200,150,.15);border-color:#00c896;color:#00c896" onclick="setTema('centro')">Centro</div>
+    <div class="tema-chip" style="background:rgba(239,68,68,.15);border-color:#ef4444;color:#ef4444" onclick="setTema('lotobel')">Lotobel</div>
+    <div class="tema-chip" style="background:rgba(168,85,247,.15);border-color:#a855f7;color:#a855f7" onclick="setTema('santa-tereza')">Santa Tereza</div>
+    <div class="tema-chip" style="background:rgba(234,179,8,.15);border-color:#eab308;color:#eab308" onclick="setTema('via-brasil')">Via Brasil</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="sl-section-sep"><div class="sl-section-label">Stat cards</div><div class="sl-section-line"></div></div>
+  <div class="stats-row">
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.69 13.6"/></svg></div>
+      <div><div class="sl-stat-label">Vendas WPP</div><div class="sl-stat-value">28</div></div>
+    </div>
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--amber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+      <div><div class="sl-stat-label">Marketplace</div><div class="sl-stat-value">R$ 1.240</div></div>
+    </div>
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--theme"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/></svg></div>
+      <div><div class="sl-stat-label">Movimentações</div><div class="sl-stat-value">12</div></div>
+    </div>
+    <div class="sl-stat-card">
+      <div class="sl-stat-icon sl-stat-icon--theme"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+      <div><div class="sl-stat-label">Pendente acerto</div><div class="sl-stat-value">R$ 580</div></div>
+    </div>
+  </div>
+
+  <!-- Botões -->
+  <div class="sl-section-sep"><div class="sl-section-label">Botões</div><div class="sl-section-line"></div></div>
+  <div class="btn-row">
+    <button class="sl-btn sl-btn--primary">Salvar</button>
+    <button class="sl-btn sl-btn--outline">Cancelar</button>
+    <button class="sl-btn sl-btn--ghost">Exportar</button>
+    <button class="sl-btn sl-btn--danger">Excluir</button>
+    <button class="sl-btn sl-btn--primary sl-btn--sm">Pequeno</button>
+    <button class="sl-btn sl-btn--outline" onclick="showToast('success')">Toast ✓</button>
+    <button class="sl-btn sl-btn--outline" onclick="showToast('error')">Toast ✗</button>
+    <button class="sl-btn sl-btn--outline" onclick="openModal()">Abrir modal</button>
+  </div>
+
+  <!-- Formulário -->
+  <div class="sl-section-sep"><div class="sl-section-label">Formulário</div><div class="sl-section-line"></div></div>
+  <div class="sl-card">
+    <div class="sl-form-grid">
+      <div class="sl-field">
+        <label class="sl-label">Lotérica <span>*</span></label>
+        <select class="sl-select"><option>Centro</option><option>Boulevard</option><option>Lotobel</option></select>
+      </div>
+      <div class="sl-field">
+        <label class="sl-label">Concurso</label>
+        <input class="sl-input" placeholder="ex: 3056" />
+      </div>
+      <div class="sl-field">
+        <label class="sl-label">Valor da cota</label>
+        <input class="sl-input" placeholder="R$ 0,00" style="font-family:var(--mono)" />
+      </div>
+      <div class="sl-field">
+        <label class="sl-label">Data do concurso</label>
+        <input type="date" class="sl-input" />
+      </div>
+    </div>
+    <div style="margin-top:16px">
+      <div class="sl-status-bar ok show">✓ Formulário válido — pronto para salvar</div>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="sl-section-sep"><div class="sl-section-label">Tabela</div><div class="sl-section-line"></div></div>
+  <div class="sl-table-wrap">
+    <table class="sl-table">
+      <thead>
+        <tr>
+          <th>Modalidade</th><th>Concurso</th><th>Dt. concurso</th>
+          <th>Cotas totais</th><th>Vendidas</th><th>Estoque</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Mega-Sena</td><td class="td-mono">2780</td><td>12/04/2025</td><td class="td-mono">50</td><td class="td-ok td-mono">42</td><td class="td-mono">8</td><td><span class="sl-badge sl-badge--ok"><span class="sl-badge-dot"></span>Ativo</span></td></tr>
+        <tr><td>Lotofácil</td><td class="td-mono">3102</td><td>14/04/2025</td><td class="td-mono">100</td><td class="td-amber td-mono">55</td><td class="td-mono">45</td><td><span class="sl-badge sl-badge--amber">Em venda</span></td></tr>
+        <tr><td>Quina</td><td class="td-mono">6540</td><td>11/04/2025</td><td class="td-mono">40</td><td class="td-err td-mono">0</td><td class="td-mono td-err">40</td><td><span class="sl-badge sl-badge--err">Encalhe</span></td></tr>
+        <tr><td>Timemania</td><td class="td-mono">2011</td><td>18/04/2025</td><td class="td-mono">60</td><td class="td-theme td-mono">60</td><td class="td-mono">0</td><td><span class="sl-badge sl-badge--theme">Esgotado</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Badges -->
+  <div class="sl-section-sep"><div class="sl-section-label">Badges & status</div><div class="sl-section-line"></div></div>
+  <div class="badge-row">
+    <span class="sl-badge sl-badge--ok"><span class="sl-badge-dot"></span>Pago</span>
+    <span class="sl-badge sl-badge--err">Pendente</span>
+    <span class="sl-badge sl-badge--amber">Parcial</span>
+    <span class="sl-badge sl-badge--theme">Ativo</span>
+    <span class="sl-badge sl-badge--neutral">Inativo</span>
+  </div>
+  <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;max-width:420px">
+    <div class="sl-status-bar ok show">✓ Operação realizada com sucesso</div>
+    <div class="sl-status-bar err show">✗ Saldo insuficiente para movimentação</div>
+    <div class="sl-status-bar warn show">⚠ Atenção: concurso próximo do prazo</div>
+  </div>
+
+</main>
+
+<!-- Modal -->
+<div class="sl-modal-overlay" id="modal">
+  <div class="sl-modal">
+    <div class="sl-modal-header">
+      <div class="sl-modal-title">Confirmar movimentação</div>
+      <button class="sl-modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="sl-modal-body">
+      <p style="color:var(--text2);font-size:13px;line-height:1.6">Você está enviando <strong style="color:var(--text)">20 cotas</strong> da loja <strong style="color:var(--t1)">Centro</strong> para <strong style="color:var(--t1)">Boulevard</strong>.<br>Isso gerará uma pendência financeira de <strong style="color:var(--amber)">R$ 400,00</strong>.</p>
+      <div style="margin-top:16px" class="sl-status-bar warn show">⚠ Esta ação não pode ser desfeita sem auditoria</div>
+    </div>
+    <div class="sl-modal-footer">
+      <button class="sl-btn sl-btn--ghost" onclick="closeModal()">Cancelar</button>
+      <button class="sl-btn sl-btn--primary" onclick="closeModal()">Confirmar envio</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="sl-toast-container" id="toastContainer"></div>
+
+<footer class="sl-footer">SISLOT v3.0 · Design System Preview · Troque o tema no seletor acima</footer>
+
+<script>
+  const LOJAS={todas:{nome:'Todas as Lojas'},boulevard:{nome:'Boulevard'},centro:{nome:'Centro'},lotobel:{nome:'Lotobel'},'santa-tereza':{nome:'Santa Tereza'},'via-brasil':{nome:'Via Brasil'}};
+  
+  function setTema(slug){
+    document.body.dataset.loja=slug;
+    document.getElementById('headerNome').textContent=LOJAS[slug]?.nome||slug;
+    document.getElementById('temaSelect').value=slug;
+    document.getElementById('logoText').textContent=slug==='todas'?'SL':LOJAS[slug]?.nome.slice(0,2).toUpperCase();
+  }
+  document.getElementById('temaSelect').addEventListener('change',e=>setTema(e.target.value));
+  
+  function openModal(){document.getElementById('modal').classList.add('open')}
+  function closeModal(){document.getElementById('modal').classList.remove('open')}
+  document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+  
+  function showToast(type){
+    const msgs={success:'Movimentação salva com sucesso!',error:'Erro ao salvar. Tente novamente.',warning:'Atenção: saldo baixo.',info:'Dados atualizados.'};
+    const icons={success:'✓',error:'✗',warning:'⚠',info:'ℹ'};
+    const t=document.createElement('div');
+    t.className=`sl-toast sl-toast--${type}`;
+    t.textContent=`${icons[type]} ${msgs[type]}`;
+    t.onclick=()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300)};
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(()=>t.classList.add('show'),10);
+    setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300)},3000);
+  }
+  
+  (function clock(){
+    const el=document.getElementById('relogio');
+    if(!el)return;
+    const tick=()=>{const n=new Date();el.textContent=n.toLocaleTimeString('pt-BR')+' — '+n.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})};
+    tick();setInterval(tick,1000);
+  })();
+</script>
+</body>
+</html>

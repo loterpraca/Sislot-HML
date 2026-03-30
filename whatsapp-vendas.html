@@ -1,0 +1,1187 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>SISLOT — Vendas WhatsApp</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#070d1a;--bg2:#0c1528;--panel:#101f38;--panel2:#132240;
+      --border:#1a3060;--border2:#243d70;
+      --text:#dde8f8;--text2:#7a95c4;--text3:#3d5a8a;
+      --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+      --input-bg:#0a1628;--error:#ff4f4f;--green:#25d366;
+      --tr:0.2s ease;
+    }
+    body{font-family:var(--sans);color:var(--text);background:var(--bg);min-height:100vh;
+      display:flex;flex-direction:column;
+      background-image:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(37,211,102,0.05) 0%,transparent 60%),
+        repeating-linear-gradient(0deg,transparent,transparent 47px,rgba(26,48,96,0.18) 47px,rgba(26,48,96,0.18) 48px),
+        repeating-linear-gradient(90deg,transparent,transparent 47px,rgba(26,48,96,0.1) 47px,rgba(26,48,96,0.1) 48px)}
+
+    /* TOPBAR */
+    .topbar{display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;height:56px;background:rgba(7,13,26,0.95);
+      border-bottom:1px solid var(--border);backdrop-filter:blur(12px);
+      position:sticky;top:0;z-index:100}
+    .topbar-brand{display:flex;align-items:center;gap:10px}
+    .brand-icon{width:30px;height:30px;background:var(--green);border-radius:7px;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .brand-icon svg{width:16px;height:16px;fill:white}
+    .brand-name{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+    .brand-sub{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+    .clock{font-family:var(--mono);font-size:11px;color:var(--text2)}
+    .btn-top{display:flex;align-items:center;gap:5px;background:var(--panel);border:1px solid var(--border);
+      border-radius:7px;padding:6px 11px;cursor:pointer;font-family:var(--sans);font-size:11px;
+      font-weight:500;color:var(--text2);transition:var(--tr);white-space:nowrap}
+    .btn-top:hover{color:var(--green);border-color:rgba(37,211,102,0.3);background:rgba(37,211,102,0.04)}
+    .btn-top-sair:hover{color:var(--error);border-color:rgba(255,79,79,0.3);background:rgba(255,79,79,0.04)}
+    .btn-top svg{width:12px;height:12px}
+
+    /* TABS */
+    .tabs-bar{background:rgba(7,13,26,0.9);border-bottom:1px solid var(--border);
+      padding:0 24px;display:flex;gap:2px;backdrop-filter:blur(8px);
+      position:sticky;top:56px;z-index:99}
+    .tab-btn{display:flex;align-items:center;gap:7px;padding:12px 16px;
+      background:transparent;border:none;cursor:pointer;
+      font-family:var(--sans);font-size:13px;font-weight:500;
+      color:var(--text2);border-bottom:2px solid transparent;
+      transition:var(--tr);white-space:nowrap;margin-bottom:-1px}
+    .tab-btn svg{width:14px;height:14px;flex-shrink:0}
+    .tab-btn:hover{color:var(--text)}
+    .tab-btn.active{color:var(--green);border-bottom-color:var(--green)}
+    .tab-pane{display:none}
+    .tab-pane.active{display:block}
+
+    /* MAIN */
+    .main{max-width:1200px;width:100%;margin:0 auto;padding:24px 24px 64px}
+
+    /* DATE BAR */
+    .date-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+    .date-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3)}
+    .date-stepper{display:flex;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+    .btn-date{width:34px;height:34px;background:transparent;border:none;color:var(--text2);
+      cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr)}
+    .btn-date:hover{background:rgba(37,211,102,0.07);color:var(--green)}
+    .btn-date svg{width:13px;height:13px}
+    .date-display{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);
+      padding:0 14px;border-left:1px solid var(--border);border-right:1px solid var(--border);
+      height:34px;display:flex;align-items:center;white-space:nowrap;min-width:128px;justify-content:center}
+    .btn-hoje{background:transparent;border:1px solid rgba(37,211,102,0.2);border-radius:6px;
+      padding:5px 11px;cursor:pointer;font-family:var(--mono);font-size:9px;font-weight:500;
+      letter-spacing:.1em;text-transform:uppercase;color:var(--green);transition:var(--tr)}
+    .btn-hoje:hover{background:rgba(37,211,102,0.07);border-color:var(--green)}
+
+    /* TOGGLE VIEW */
+    .view-toggle{display:flex;align-items:center;gap:6px;margin-left:auto}
+    .view-toggle-label{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
+    .toggle-btns{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:7px;overflow:hidden}
+    .toggle-btn{padding:6px 12px;border:none;background:transparent;cursor:pointer;
+      font-family:var(--mono);font-size:10px;font-weight:500;color:var(--text2);
+      display:flex;align-items:center;gap:5px;transition:var(--tr);white-space:nowrap}
+    .toggle-btn svg{width:12px;height:12px}
+    .toggle-btn.active{background:rgba(37,211,102,0.1);color:var(--green)}
+    .toggle-btn:hover:not(.active){color:var(--text)}
+
+    /* STATES */
+    .state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:10px;padding:48px 24px;text-align:center;
+      background:var(--panel);border:1px dashed var(--border);border-radius:10px}
+    .state-box svg{width:32px;height:32px;opacity:.25}
+    .state-title{font-size:14px;font-weight:500;color:var(--text2)}
+    .state-sub{font-size:12px;color:var(--text3);max-width:320px}
+    .spinner{width:28px;height:28px;border-radius:50%;border:2px solid rgba(37,211,102,0.15);
+      border-top-color:var(--green);animation:spin .8s linear infinite}
+
+    /* SECTION SEP */
+    .sec-sep{display:flex;align-items:center;gap:12px;margin:20px 0 12px}
+    .sec-sep-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.15em;
+      text-transform:uppercase;color:var(--text3);white-space:nowrap}
+    .sec-sep-line{flex:1;height:1px;background:var(--border)}
+    .sec-sep-count{font-family:var(--mono);font-size:10px;color:var(--green);
+      background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.2);
+      border-radius:4px;padding:2px 7px}
+
+    /* BOLÃO GROUP CARD */
+    .bolao-group{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px}
+    .bolao-group-header{display:flex;align-items:center;gap:10px;padding:12px 16px;
+      background:var(--panel2);cursor:pointer;transition:background var(--tr);position:relative}
+    .bolao-group-header:hover{background:rgba(37,211,102,0.03)}
+    .bolao-color-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;cursor:pointer;
+      border:2px solid rgba(255,255,255,0.2);transition:transform .15s}
+    .bolao-color-dot:hover{transform:scale(1.3)}
+    .bolao-info{flex:1;min-width:0}
+    .bolao-titulo{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .bolao-tag{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;
+      background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.2);color:var(--green)}
+    .bolao-tag-loja{background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.2);color:#38bdf8}
+    .bolao-tag-val{background:rgba(245,166,35,0.08);border-color:rgba(245,166,35,0.2);color:#f5a623}
+    .bolao-stats{display:flex;gap:16px;margin-top:5px;flex-wrap:wrap}
+    .bolao-stat{font-family:var(--mono);font-size:10px;color:var(--text2)}
+    .bolao-stat span{color:var(--text);font-weight:600}
+    .bolao-chevron{color:var(--text3);transition:transform .2s;flex-shrink:0}
+    .bolao-chevron svg{width:14px;height:14px}
+    .bolao-group.open .bolao-chevron{transform:rotate(180deg)}
+
+    /* COLOR PICKER POPUP */
+    .color-picker-wrap{position:relative;display:inline-flex}
+    .color-picker-popup{display:none;position:absolute;top:24px;left:0;z-index:200;
+      background:var(--panel2);border:1px solid var(--border2);border-radius:8px;
+      padding:8px;display:none;flex-wrap:wrap;gap:5px;width:130px}
+    .color-picker-popup.open{display:flex}
+    .cp-swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;
+      transition:transform .15s}
+    .cp-swatch:hover{transform:scale(1.2);border-color:rgba(255,255,255,0.4)}
+
+    /* BOLAO BODY - TABELA */
+    .bolao-body{display:none;border-top:1px solid var(--border)}
+    .bolao-group.open .bolao-body{display:block}
+    .vendas-table{width:100%;border-collapse:collapse}
+    .vendas-table th{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--text3);padding:8px 14px;text-align:left;background:var(--panel);
+      border-bottom:1px solid var(--border)}
+    .vendas-table td{padding:9px 14px;font-size:12px;color:var(--text2);
+      border-bottom:1px solid rgba(26,48,96,0.4);vertical-align:middle}
+    .vendas-table tr:last-child td{border-bottom:none}
+    .vendas-table tr:hover td{background:rgba(255,255,255,0.015)}
+    .td-nome{color:var(--text);font-weight:500}
+    .td-sub{font-size:10px;color:var(--text3);margin-top:1px}
+    .td-mono{font-family:var(--mono);font-size:11px}
+    .td-green{color:var(--green);font-weight:600;font-family:var(--mono)}
+
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;gap:4px;border-radius:4px;
+      padding:3px 8px;font-size:10px;font-weight:600;cursor:pointer;
+      transition:var(--tr);font-family:var(--mono);border:1px solid transparent;white-space:nowrap}
+    .badge-pago{background:rgba(37,211,102,0.1);color:var(--green);border-color:rgba(37,211,102,0.25)}
+    .badge-pendente{background:rgba(255,79,79,0.08);color:#f87171;border-color:rgba(255,79,79,0.2)}
+    .badge-conf-ok{background:rgba(56,189,248,0.08);color:#7dd3fc;border-color:rgba(56,189,248,0.2)}
+    .badge-conf-no{background:rgba(255,255,255,0.04);color:var(--text2);border-color:var(--border)}
+    .badge-sep-ok{background:rgba(167,139,250,0.1);color:#c4b5fd;border-color:rgba(167,139,250,0.25)}
+    .badge-sep-no{background:rgba(255,255,255,0.04);color:var(--text2);border-color:var(--border)}
+    .badge:hover{filter:brightness(1.15)}
+
+    /* WPP BTN */
+    .btn-wpp{background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.2);
+      border-radius:5px;padding:4px 8px;cursor:pointer;color:var(--green);
+      display:flex;align-items:center;gap:4px;font-size:10px;font-family:var(--mono);
+      font-weight:500;transition:var(--tr);white-space:nowrap}
+    .btn-wpp:hover{background:rgba(37,211,102,0.15)}
+    .btn-wpp svg{width:11px;height:11px;fill:currentColor}
+    .btn-del{background:transparent;border:1px solid rgba(255,79,79,0.15);
+      border-radius:5px;padding:4px 7px;cursor:pointer;color:rgba(255,79,79,0.5);transition:var(--tr)}
+    .btn-del:hover{border-color:var(--error);color:var(--error)}
+    .btn-del svg{width:11px;height:11px}
+
+    /* VISÃO POR CLIENTE */
+    .cliente-group{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px}
+    .cliente-group-header{display:flex;align-items:center;gap:12px;padding:12px 16px;
+      background:var(--panel2);cursor:pointer}
+    .cli-avatar{width:36px;height:36px;border-radius:8px;background:rgba(37,211,102,0.1);
+      border:1px solid rgba(37,211,102,0.2);display:flex;align-items:center;justify-content:center;
+      font-family:var(--mono);font-size:13px;font-weight:600;color:var(--green);flex-shrink:0;text-transform:uppercase}
+    .cli-group-info{flex:1;min-width:0}
+    .cli-group-nome{font-size:13px;font-weight:600;color:var(--text)}
+    .cli-group-sub{font-size:11px;color:var(--text3);margin-top:2px;font-family:var(--mono)}
+
+    /* REGISTRO PANEL */
+    .reg-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px}
+    .reg-section-title{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--text3);margin-bottom:14px}
+    .bolao-cards-grid{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+    .bolao-sel-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;
+      padding:10px 14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+      cursor:pointer;transition:var(--tr);border-left:3px solid transparent}
+    .bolao-sel-card:hover{border-color:rgba(37,211,102,0.3);background:rgba(37,211,102,0.02)}
+    .bolao-sel-card.selected{border-color:var(--green)!important;background:rgba(37,211,102,0.04)!important}
+    .bsc-main{display:flex;flex-direction:column;gap:4px}
+    .bsc-header{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .bsc-modal{font-size:13px;font-weight:600;color:var(--text)}
+    .bsc-tags{display:flex;gap:5px;flex-wrap:wrap}
+    .bsc-tag{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:4px;
+      background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text2)}
+    .bsc-ind{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);
+      display:flex;align-items:center;justify-content:center;transition:var(--tr);flex-shrink:0}
+    .bolao-sel-card.selected .bsc-ind{background:var(--green);border-color:var(--green)}
+    .bsc-ind svg{display:none;width:9px;height:9px;stroke:#0a1628}
+    .bolao-sel-card.selected .bsc-ind svg{display:block}
+
+    /* FORM REGISTRO */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:10px;align-items:end;margin-bottom:12px}
+    .field{display:flex;flex-direction:column;gap:5px}
+    .field label{font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.12em;
+      text-transform:uppercase;color:var(--text3)}
+    .field input,.field select{background:var(--input-bg);border:1px solid var(--border);
+      border-radius:7px;padding:9px 12px;font-family:var(--sans);font-size:13px;
+      color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;
+      -webkit-appearance:none;appearance:none;width:100%}
+    .field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(37,211,102,0.1)}
+    .field input::placeholder{color:var(--text3)}
+    .field input::-webkit-outer-spin-button,.field input::-webkit-inner-spin-button{-webkit-appearance:none}
+    .field select option{background:var(--bg2)}
+    .check-wrap{display:flex;align-items:center;gap:7px;background:var(--input-bg);
+      border:1px solid var(--border);border-radius:7px;padding:9px 12px;cursor:pointer;
+      transition:border-color .15s}
+    .check-wrap:hover{border-color:var(--green)}
+    .check-wrap input{width:15px;height:15px;accent-color:var(--green);cursor:pointer}
+    .check-wrap span{font-size:12px;color:var(--text2);white-space:nowrap}
+    .btn-registrar{background:var(--green);color:#070d1a;border:none;border-radius:8px;
+      padding:10px 20px;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:600;
+      display:flex;align-items:center;gap:7px;transition:var(--tr);white-space:nowrap}
+    .btn-registrar:hover{filter:brightness(1.1);transform:translateY(-1px)}
+    .btn-registrar:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .btn-registrar svg{width:15px;height:15px}
+
+    /* CLIENTE COMBO */
+    .cliente-combo{position:relative}
+    .cli-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:300;
+      background:var(--panel2);border:1px solid var(--border2);border-radius:7px;
+      max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+    .cli-dropdown.show{display:block}
+    .cli-opt{padding:9px 12px;cursor:pointer;font-size:12px;color:var(--text);
+      transition:background .1s;display:flex;justify-content:space-between;align-items:center}
+    .cli-opt:hover{background:rgba(37,211,102,0.07)}
+    .cli-opt-tel{font-family:var(--mono);font-size:10px;color:var(--text3)}
+    .cli-add{padding:9px 12px;cursor:pointer;font-size:11px;color:var(--green);
+      border-top:1px solid var(--border);display:flex;align-items:center;gap:6px;transition:background .1s}
+    .cli-add:hover{background:rgba(37,211,102,0.05)}
+
+    /* STATUS */
+    .status-bar{padding:9px 13px;border-radius:8px;font-size:12px;display:none;margin-bottom:10px}
+    .status-bar.show{display:block}
+    .status-bar.ok{background:rgba(37,211,102,0.07);border:1px solid rgba(37,211,102,0.2);color:#86efac}
+    .status-bar.err{background:rgba(255,79,79,0.07);border:1px solid rgba(255,79,79,0.2);color:#fca5a5}
+    .status-bar.info{background:rgba(26,48,96,0.5);border:1px solid var(--border);color:var(--text2)}
+
+    /* HISTORICO FILTROS */
+    .hist-filters{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+    .hist-filter-select,.hist-filter-input{background:var(--input-bg);border:1px solid var(--border);
+      border-radius:7px;padding:7px 11px;font-size:12px;color:var(--text2);cursor:pointer;
+      outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none;font-family:var(--sans)}
+    .hist-filter-select:focus,.hist-filter-input:focus{border-color:var(--green)}
+    .hist-filter-input{color:var(--text)}
+    .hist-filter-input::placeholder{color:var(--text3)}
+    .btn-filtrar{background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.25);
+      border-radius:7px;padding:7px 14px;cursor:pointer;font-family:var(--mono);
+      font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--green);transition:var(--tr)}
+    .btn-filtrar:hover{background:rgba(37,211,102,0.18)}
+    .btn-limpar-filtro{background:transparent;border:1px solid var(--border);
+      border-radius:7px;padding:7px 12px;cursor:pointer;font-family:var(--mono);
+      font-size:9px;color:var(--text3);transition:var(--tr)}
+    .btn-limpar-filtro:hover{color:var(--text);border-color:var(--border2)}
+
+    /* HIST TABLE */
+    .hist-table-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;overflow-x:auto}
+    .hist-table{width:100%;border-collapse:collapse;min-width:800px}
+    .hist-table th{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--text3);padding:9px 13px;text-align:left;background:var(--panel);
+      border-bottom:1px solid var(--border);white-space:nowrap}
+    .hist-table td{padding:9px 13px;font-size:12px;color:var(--text2);
+      border-bottom:1px solid rgba(26,48,96,0.35);vertical-align:middle;white-space:nowrap}
+    .hist-table tr:last-child td{border-bottom:none}
+    .hist-table tr:hover td{background:rgba(255,255,255,0.015)}
+    .hist-table .td-nome{color:var(--text);font-weight:500;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+    .hist-table .td-mono{font-family:var(--mono);font-size:11px}
+    .hist-table .td-green{font-family:var(--mono);font-size:11px;color:var(--green);font-weight:600}
+    .btn-toggle-sm{border:none;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:600;
+      cursor:pointer;transition:var(--tr);font-family:var(--mono)}
+
+    /* CLIENTES TAB */
+    .cli-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+    .search-box{display:flex;align-items:center;gap:8px;background:var(--input-bg);
+      border:1px solid var(--border);border-radius:7px;padding:8px 11px;flex:1;max-width:300px}
+    .search-box svg{width:13px;height:13px;stroke:var(--text3);flex-shrink:0}
+    .search-box input{background:transparent;border:none;outline:none;
+      font-family:var(--sans);font-size:12px;color:var(--text);width:100%}
+    .search-box input::placeholder{color:var(--text3)}
+    .btn-novo-cli{background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.25);
+      border-radius:7px;padding:8px 14px;cursor:pointer;font-family:var(--sans);
+      font-size:12px;font-weight:500;color:var(--green);display:flex;align-items:center;gap:6px;transition:var(--tr)}
+    .btn-novo-cli:hover{background:rgba(37,211,102,0.18)}
+    .clientes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+    .cli-card{background:var(--panel);border:1px solid var(--border);border-radius:9px;
+      padding:12px 14px;display:flex;align-items:center;gap:11px;transition:border-color var(--tr)}
+    .cli-card:hover{border-color:var(--border2)}
+    .cli-av{width:38px;height:38px;border-radius:8px;background:rgba(37,211,102,0.1);
+      border:1px solid rgba(37,211,102,0.2);display:flex;align-items:center;justify-content:center;
+      font-family:var(--mono);font-size:13px;font-weight:600;color:var(--green);
+      flex-shrink:0;text-transform:uppercase}
+    .cli-info{flex:1;min-width:0}
+    .cli-nome{font-size:13px;font-weight:500;color:var(--text)}
+    .cli-apelido{font-size:11px;color:var(--text3);margin-top:1px}
+    .cli-tel{font-family:var(--mono);font-size:10px;color:var(--text2);margin-top:3px;
+      display:flex;align-items:center;gap:4px}
+    .cli-actions{display:flex;gap:5px}
+    .btn-cli-act{background:rgba(255,255,255,0.04);border:1px solid var(--border);
+      border-radius:5px;padding:5px;cursor:pointer;color:var(--text2);
+      display:flex;align-items:center;justify-content:center;transition:var(--tr)}
+    .btn-cli-act:hover{color:var(--text);border-color:var(--border2)}
+    .btn-cli-wpp{background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.2);
+      border-radius:5px;padding:5px;cursor:pointer;color:var(--green);
+      display:flex;align-items:center;justify-content:center;transition:var(--tr)}
+    .btn-cli-wpp:hover{background:rgba(37,211,102,0.16)}
+    .btn-cli-act svg,.btn-cli-wpp svg{width:13px;height:13px}
+    .btn-cli-wpp svg{fill:currentColor}
+
+    /* MODAL */
+    .modal-overlay{display:none;position:fixed;inset:0;z-index:9999;
+      background:rgba(7,13,26,0.88);backdrop-filter:blur(6px);
+      align-items:center;justify-content:center}
+    .modal-overlay.show{display:flex}
+    .modal-box{background:var(--panel2);border:1px solid var(--border);border-radius:14px;
+      padding:24px 28px;width:min(92vw,420px)}
+    .modal-title{font-size:15px;font-weight:600;margin-bottom:18px;color:var(--text)}
+    .modal-fields{display:flex;flex-direction:column;gap:13px;margin-bottom:20px}
+    .modal-btns{display:flex;gap:10px;justify-content:flex-end}
+    .btn-modal-cancel{background:transparent;border:1px solid var(--border);color:var(--text2);
+      border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:var(--tr)}
+    .btn-modal-cancel:hover{border-color:var(--border2);color:var(--text)}
+    .btn-modal-save{background:var(--green);color:#070d1a;border:none;border-radius:8px;
+      padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:var(--tr)}
+    .btn-modal-save:hover{filter:brightness(1.1)}
+
+    /* CONFIRM */
+    .confirm-overlay{display:none;position:fixed;inset:0;z-index:9998;
+      background:rgba(7,13,26,0.88);backdrop-filter:blur(6px);
+      align-items:center;justify-content:center}
+    .confirm-overlay.show{display:flex}
+    .confirm-box{background:var(--panel2);border:1px solid var(--border);
+      border-radius:14px;padding:24px 28px;width:min(92vw,360px);text-align:center}
+    .confirm-title{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--text)}
+    .confirm-body{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5}
+    .confirm-btns{display:flex;gap:10px;justify-content:center}
+    .btn-conf-no{background:transparent;border:1px solid var(--border);color:var(--text2);
+      border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:var(--tr)}
+    .btn-conf-no:hover{border-color:var(--border2);color:var(--text)}
+    .btn-conf-yes{background:var(--error);color:white;border:none;border-radius:8px;
+      padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:var(--tr)}
+    .btn-conf-yes:hover{filter:brightness(1.1)}
+
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .fade-in{animation:fadeIn .25s ease both}
+
+    @media(max-width:700px){
+      .main{padding:16px 14px 48px}
+      .topbar{padding:0 14px}
+      .clock{display:none}
+      .form-grid{grid-template-columns:1fr 1fr}
+      .form-grid .btn-registrar{grid-column:span 2;justify-content:center}
+      .tabs-bar{padding:0 14px;overflow-x:auto}
+    }
+  </style>
+</head>
+<body>
+
+<!-- WPP ICON SPRITE -->
+<svg style="display:none">
+  <symbol id="wpp-icon" viewBox="0 0 24 24">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </symbol>
+</svg>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24"><use href="#wpp-icon"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">SISLOT</div>
+      <div class="brand-sub">Vendas WhatsApp</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="clock" id="relogio">--:--:--</div>
+    <button class="btn-top" onclick="location.href='./menu.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Menu
+    </button>
+    <button class="btn-top btn-top-sair" id="btnLogout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sair
+    </button>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('vendas')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Vendas
+  </button>
+  <button class="tab-btn" onclick="switchTab('registrar')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Registrar Venda
+  </button>
+  <button class="tab-btn" onclick="switchTab('clientes')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Clientes
+  </button>
+  <button class="tab-btn" onclick="switchTab('historico')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Histórico
+  </button>
+</nav>
+
+<div class="main">
+
+  <!-- ===== TAB VENDAS ===== -->
+  <div class="tab-pane active" id="tab-vendas">
+
+    <div class="date-bar">
+      <div class="date-label">Data de referência</div>
+      <div class="date-stepper">
+        <button class="btn-date" id="btnDtPrev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="date-display" id="dateDisplay">—</div>
+        <button class="btn-date" id="btnDtNext">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <button class="btn-hoje" id="btnHoje">Hoje</button>
+
+      <div class="view-toggle">
+        <span class="view-toggle-label">Agrupar por</span>
+        <div class="toggle-btns">
+          <button class="toggle-btn active" id="toggleBolao" onclick="setViewMode('bolao')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Bolão
+          </button>
+          <button class="toggle-btn" id="toggleCliente" onclick="setViewMode('cliente')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Cliente
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="vendasContent">
+      <div class="state-box"><div class="spinner"></div><div class="state-title">Buscando vendas…</div></div>
+    </div>
+
+  </div>
+
+  <!-- ===== TAB REGISTRAR ===== -->
+  <div class="tab-pane" id="tab-registrar">
+    <div class="reg-panel">
+      <div class="reg-section-title">Selecione o bolão</div>
+
+      <!-- date bar para registrar -->
+      <div class="date-bar" style="margin-bottom:14px">
+        <div class="date-label">Data ref.</div>
+        <div class="date-stepper">
+          <button class="btn-date" id="btnDtPrevReg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="date-display" id="dateDisplayReg">—</div>
+          <button class="btn-date" id="btnDtNextReg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <button class="btn-hoje" id="btnHojeReg">Hoje</button>
+      </div>
+
+      <div id="boloesRegLista">
+        <div class="state-box"><div class="spinner"></div><div class="state-title">Buscando bolões…</div></div>
+      </div>
+
+      <div class="status-bar" id="statusBarReg"></div>
+
+      <div class="reg-section-title" style="margin-top:18px">Dados da venda</div>
+      <div class="form-grid">
+        <div class="field cliente-combo" id="cliComboWrap">
+          <label>Cliente</label>
+          <input type="text" id="inputCliente" placeholder="Buscar cliente…" autocomplete="off" oninput="buscarClienteInput()"/>
+          <div class="cli-dropdown" id="cliDropdown"></div>
+        </div>
+        <div class="field">
+          <label>Qtd cotas</label>
+          <input type="number" id="inputQtd" min="1" value="1" style="-moz-appearance:textfield" oninput="calcTotal()"/>
+        </div>
+        <div class="field">
+          <label>Valor/cota</label>
+          <input type="text" id="inputValor" placeholder="0,00" oninput="calcTotal()"/>
+        </div>
+        <div class="field">
+          <label>Situação</label>
+          <label class="check-wrap">
+            <input type="checkbox" id="chkPago"/>
+            <span>Pago</span>
+          </label>
+        </div>
+        <button class="btn-registrar" id="btnRegistrar" onclick="registrarVenda()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Registrar
+        </button>
+      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:-4px">
+        Total: <span id="totalVenda" style="color:var(--green);font-weight:600">R$ 0,00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB CLIENTES ===== -->
+  <div class="tab-pane" id="tab-clientes">
+    <div class="cli-header">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchCliente" placeholder="Buscar por nome, apelido ou telefone…" oninput="filtrarClientes()"/>
+      </div>
+      <button class="btn-novo-cli" onclick="abrirModalCliente()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Cliente
+      </button>
+    </div>
+    <div id="clientesGrid" class="clientes-grid"></div>
+  </div>
+
+  <!-- ===== TAB HISTÓRICO ===== -->
+  <div class="tab-pane" id="tab-historico">
+    <div class="hist-filters">
+      <!-- Data da venda -->
+      <div class="field" style="flex-direction:row;align-items:center;gap:6px">
+        <label style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);white-space:nowrap">Venda de</label>
+        <input type="date" id="filtDataVendaDe" class="hist-filter-input" style="width:130px"/>
+        <label style="font-family:var(--mono);font-size:9px;color:var(--text3)">até</label>
+        <input type="date" id="filtDataVendaAte" class="hist-filter-input" style="width:130px"/>
+      </div>
+      <!-- Data concurso -->
+      <div class="field" style="flex-direction:row;align-items:center;gap:6px">
+        <label style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);white-space:nowrap">Concurso de</label>
+        <input type="date" id="filtDataConc" class="hist-filter-input" style="width:130px"/>
+        <label style="font-family:var(--mono);font-size:9px;color:var(--text3)">até</label>
+        <input type="date" id="filtDataConcAte" class="hist-filter-input" style="width:130px"/>
+      </div>
+      <!-- Linha 2 -->
+      <input type="text" id="filtModalidade" class="hist-filter-input" placeholder="Modalidade…" style="width:120px"/>
+      <input type="text" id="filtConcurso" class="hist-filter-input" placeholder="Concurso…" style="width:100px"/>
+      <select id="filtPago" class="hist-filter-select">
+        <option value="">Pagamento</option>
+        <option value="true">Pago</option>
+        <option value="false">Pendente</option>
+      </select>
+      <select id="filtConf" class="hist-filter-select">
+        <option value="">Conferência</option>
+        <option value="true">Enviada</option>
+        <option value="false">Pendente</option>
+      </select>
+      <select id="filtSep" class="hist-filter-select">
+        <option value="">Separação</option>
+        <option value="true">Separada</option>
+        <option value="false">Pendente</option>
+      </select>
+      <select id="filtLoja" class="hist-filter-select" style="width:130px">
+        <option value="">Todas as lojas</option>
+      </select>
+      <button class="btn-filtrar" onclick="carregarHistorico()">Buscar</button>
+      <button class="btn-limpar-filtro" onclick="limparFiltros()">Limpar</button>
+    </div>
+    <div id="histContent">
+      <div class="state-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <div class="state-title">Use os filtros acima</div>
+        <div class="state-sub">Selecione um período para ver o histórico de vendas.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL CLIENTE -->
+<div class="modal-overlay" id="modalCliente">
+  <div class="modal-box">
+    <div class="modal-title" id="modalCliTitulo">Novo Cliente</div>
+    <div class="modal-fields">
+      <div class="field"><label>Nome completo *</label><input type="text" id="cliNome" placeholder="Ex: João da Silva"/></div>
+      <div class="field"><label>Apelido</label><input type="text" id="cliApelido" placeholder="Ex: João do Mercado"/></div>
+      <div class="field"><label>Telefone WhatsApp * (com DDI)</label><input type="text" id="cliTelefone" placeholder="5531999990000"/></div>
+      <div class="field"><label>Observações</label><input type="text" id="cliObs" placeholder="Opcional…"/></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="fecharModalCliente()">Cancelar</button>
+      <button class="btn-modal-save" onclick="salvarCliente()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">Confirmar</div>
+    <div class="confirm-body" id="confirmBody"></div>
+    <div class="confirm-btns">
+      <button class="btn-conf-no" id="confirmNo">Cancelar</button>
+      <button class="btn-conf-yes" id="confirmYes">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="./sislot-config.js"></script>
+<script>
+const sb = supabase.createClient(window.SISLOT_CONFIG.url, window.SISLOT_CONFIG.anonKey);
+
+// ── CORES disponíveis para bolões ────────────────────────────────
+const CORE_BOLAO = [
+  '#ef4444','#f97316','#eab308','#22c55e','#14b8a6',
+  '#3b82f6','#8b5cf6','#ec4899','#64748b','#a16207',
+  '#dc2626','#16a34a','#0891b2','#7c3aed','#db2777',
+];
+
+// ── Estado ────────────────────────────────────────────────────────
+let usuario        = null;
+let dataAtual      = new Date();
+let dataAtualReg   = new Date();
+let clientes       = [];
+let clienteSel     = null;
+let clienteEditId  = null;
+let bolaoSelReg    = null;
+let viewMode       = 'bolao';    // 'bolao' | 'cliente'
+let coresBolao     = {};         // { bolao_id: '#hex' } — carregado do localStorage
+
+const $ = id => document.getElementById(id);
+
+function fmtData(dt){return dt.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}
+function isoDate(dt){return dt.toISOString().slice(0,10)}
+function fmtBRL(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function parseBRL(v){return parseFloat(String(v).replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.'))||0}
+function iniciais(n){return(n||'?').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()}
+function tel2wpp(t){return String(t).replace(/\D/g,'')}
+
+function setStatusReg(msg,tipo='info'){const e=$('statusBarReg');e.textContent=msg;e.className='status-bar show '+tipo}
+function clearStatusReg(){$('statusBarReg').className='status-bar'}
+
+// ── Relógio ───────────────────────────────────────────────────────
+function updateClock(){
+  const now=new Date();
+  $('relogio').textContent=now.toLocaleTimeString('pt-BR')+' — '+now.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
+}
+updateClock();setInterval(updateClock,1000);
+
+// ── Cores bolão (localStorage) ────────────────────────────────────
+function loadCoresBolao(){try{coresBolao=JSON.parse(localStorage.getItem('sl_cores_bolao')||'{}')}catch{coresBolao={}}}
+function saveCoresBolao(){try{localStorage.setItem('sl_cores_bolao',JSON.stringify(coresBolao))}catch{}}
+function getCorBolao(id){return coresBolao[id]||'#3d5a8a'}
+function setCorBolao(id,cor){coresBolao[id]=cor;saveCoresBolao()}
+
+// ── TABS ──────────────────────────────────────────────────────────
+function switchTab(id){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['vendas','registrar','clientes','historico'][i]===id);
+  });
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  $('tab-'+id).classList.add('active');
+  if(id==='clientes')renderClientes();
+}
+
+// ── VIEW MODE ─────────────────────────────────────────────────────
+function setViewMode(mode){
+  viewMode=mode;
+  $('toggleBolao').classList.toggle('active',mode==='bolao');
+  $('toggleCliente').classList.toggle('active',mode==='cliente');
+  carregarVendas();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+async function init(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){location.href='./login.html';return}
+  const{data:usr}=await sb.from('usuarios').select('id,nome,perfil,ativo,pode_logar')
+    .eq('auth_user_id',session.user.id).eq('ativo',true).eq('pode_logar',true).maybeSingle();
+  if(!usr){location.href='./login.html';return}
+  usuario=usr;
+  loadCoresBolao();
+
+  const{data:lojas}=await sb.from('loterias').select('id,nome,slug').eq('ativo',true);
+  if(lojas){
+    const sel=$('filtLoja');
+    lojas.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=l.nome;sel.appendChild(o)});
+  }
+
+  await carregarClientes();
+  $('btnLogout').onclick=async()=>{await sb.auth.signOut();location.href='./login.html'};
+  document.addEventListener('click',e=>{if(!e.target.closest('#cliComboWrap'))$('cliDropdown').classList.remove('show')});
+
+  dataAtual=new Date();dataAtualReg=new Date();
+  atualizarDates();
+  await carregarVendas();
+  await buscarBoloesReg();
+}
+
+function atualizarDates(){
+  $('dateDisplay').textContent=fmtData(dataAtual);
+  $('dateDisplayReg').textContent=fmtData(dataAtualReg);
+}
+
+// ── VENDAS (aba principal) ────────────────────────────────────────
+async function carregarVendas(){
+  $('vendasContent').innerHTML='<div class="state-box"><div class="spinner"></div><div class="state-title">Buscando…</div></div>';
+  const iso=isoDate(dataAtual);
+
+  // Busca vendas da data (bolões vigentes com ao menos 1 venda)
+  const{data:vendas}=await sb.from('view_vendas_whatsapp')
+    .select('*')
+    .lte('data_referencia', iso)  // bolão começou antes ou na data
+    .gte('dt_concurso', iso)      // bolão ainda não venceu
+    .order('modalidade').order('created_at');
+
+  if(!vendas?.length){
+    $('vendasContent').innerHTML=`<div class="state-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      <div class="state-title">Nenhuma venda</div>
+      <div class="state-sub">Não há vendas registradas para bolões vigentes em ${fmtData(dataAtual)}.</div></div>`;
+    return;
+  }
+
+  // Monta lista de bolões únicos a partir das vendas
+  const boloesMap={};
+  vendas.forEach(v=>{
+    if(!boloesMap[v.bolao_id]) boloesMap[v.bolao_id]={
+      id:v.bolao_id, modalidade:v.modalidade, concurso:v.concurso,
+      valor_cota:v.valor_cota, qtd_jogos:v.qtd_jogos, qtd_dezenas:v.qtd_dezenas,
+      qtd_cotas_total:null, loteria_id:v.loteria_id,
+      loterias:{nome:v.loteria_nome, slug:v.loteria_slug}
+    };
+  });
+  const boloes=Object.values(boloesMap);
+
+  if(viewMode==='bolao') renderVendasPorBolao(boloes,vendas||[]);
+  else renderVendasPorCliente(boloes,vendas||[]);
+}
+
+// ── RENDER: por bolão ─────────────────────────────────────────────
+function renderVendasPorBolao(boloes,vendas){
+  const wrap=document.createElement('div');wrap.className='fade-in';
+  const grupos={};
+  boloes.forEach(b=>{if(!grupos[b.modalidade])grupos[b.modalidade]=[];grupos[b.modalidade].push(b)});
+  const mods=Object.keys(grupos).sort();
+
+  mods.forEach((mod,mi)=>{
+    const sep=document.createElement('div');sep.className='sec-sep';
+    if(mi>0)sep.style.marginTop='28px';
+    sep.innerHTML=`<div class="sec-sep-label">${mod}</div><div class="sec-sep-line"></div><div class="sec-sep-count">${grupos[mod].length}</div>`;
+    wrap.appendChild(sep);
+
+    grupos[mod].sort((a,b)=>{
+      if(a.loterias?.nome!==b.loterias?.nome)return(a.loterias?.nome||'')>(b.loterias?.nome||'')?1:-1;
+      return(a.valor_cota||0)-(b.valor_cota||0);
+    }).forEach(b=>{
+      const vb=vendas.filter(v=>v.bolao_id===b.id);
+      const totalCotas=vb.reduce((s,v)=>s+(v.qtd_vendida||0),0);
+      const totalVal=vb.reduce((s,v)=>s+(v.qtd_vendida||0)*(v.valor_cota||0),0);
+      const pgPend=vb.filter(v=>!v.pago).length;
+      const confPend=vb.filter(v=>!v.conferencia_enviada).length;
+      const sepPend=vb.filter(v=>!v.cota_separada).length;
+      const cor=getCorBolao(b.id);
+
+      const group=document.createElement('div');group.className='bolao-group';group.dataset.id=b.id;
+      group.innerHTML=`
+        <div class="bolao-group-header" onclick="toggleGroup(this)">
+          <div class="color-picker-wrap">
+            <div class="bolao-color-dot" id="dot-${b.id}" style="background:${cor}" onclick="e=>e.stopPropagation()" title="Clique para mudar a cor"></div>
+            <div class="color-picker-popup" id="cp-${b.id}"></div>
+          </div>
+          <div class="bolao-info">
+            <div class="bolao-titulo">
+              ${b.modalidade}
+              <span class="bolao-tag">#${b.concurso}</span>
+              <span class="bolao-tag bolao-tag-loja">${b.loterias?.nome||'—'}</span>
+              <span class="bolao-tag bolao-tag-val">${fmtBRL(b.valor_cota)}/cota</span>
+            </div>
+            <div class="bolao-stats">
+              <span class="bolao-stat"><span>${totalCotas}</span> cotas vendidas</span>
+              <span class="bolao-stat">Total: <span>${fmtBRL(totalVal)}</span></span>
+              ${pgPend>0?`<span class="bolao-stat" style="color:#f87171">${pgPend} pag. pendente${pgPend>1?'s':''}</span>`:''}
+              ${confPend>0?`<span class="bolao-stat" style="color:#7dd3fc">${confPend} conf. pendente${confPend>1?'s':''}</span>`:''}
+              ${sepPend>0?`<span class="bolao-stat" style="color:#c4b5fd">${sepPend} não separada${sepPend>1?'s':''}</span>`:''}
+              ${vb.length===0?'<span class="bolao-stat" style="color:var(--text3)">Sem vendas nesta data</span>':''}
+            </div>
+          </div>
+          <div class="bolao-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="bolao-body">
+          ${vb.length===0
+            ? '<div style="padding:16px 20px;font-size:12px;color:var(--text3)">Nenhuma venda registrada para este bolão nesta data.</div>'
+            : `<table class="vendas-table">
+              <thead><tr>
+                <th>Cliente</th><th>Qtd</th><th>Valor</th>
+                <th>Pagamento</th><th>Conferência</th><th>Separação</th><th></th>
+              </tr></thead>
+              <tbody>${vb.map(v=>{
+                const nome=v.cliente_apelido?`${v.cliente_nome}<div class="td-sub">${v.cliente_apelido}</div>`:v.cliente_nome;
+                const vt=fmtBRL((v.qtd_vendida||0)*(v.valor_cota||0));
+                return`<tr>
+                  <td><div class="td-nome">${nome}</div></td>
+                  <td class="td-mono">${v.qtd_vendida}</td>
+                  <td class="td-green">${vt}</td>
+                  <td><button class="badge ${v.pago?'badge-pago':'badge-pendente'}" onclick="togglePago(${v.id},${v.pago})">${v.pago?'✓ Pago':'$ Pendente'}</button></td>
+                  <td><button class="badge ${v.conferencia_enviada?'badge-conf-ok':'badge-conf-no'}" onclick="toggleConf(${v.id},${v.conferencia_enviada})">${v.conferencia_enviada?'✓ Enviada':'⏳ Pendente'}</button></td>
+                  <td><button class="badge ${v.cota_separada?'badge-sep-ok':'badge-sep-no'}" onclick="toggleSep(${v.id},${v.cota_separada})">${v.cota_separada?'✓ Separada':'◻ Pendente'}</button></td>
+                  <td style="display:flex;gap:6px;align-items:center">
+                    <button class="btn-wpp" onclick="enviarWpp('${v.cliente_telefone}','${v.cliente_nome}','${v.modalidade}','${v.concurso}',${v.qtd_vendida},${(v.qtd_vendida||0)*(v.valor_cota||0)})"><svg><use href="#wpp-icon"/></svg> WPP</button>
+                    <button class="btn-del" onclick="deletarVenda(${v.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+                  </td>
+                </tr>`}).join('')}
+              </tbody></table>`
+          }
+        </div>`;
+
+      // monta color picker
+      const cp=group.querySelector(`#cp-${b.id}`);
+      const dot=group.querySelector(`#dot-${b.id}`);
+      CORE_BOLAO.forEach(c=>{
+        const sw=document.createElement('div');sw.className='cp-swatch';sw.style.background=c;
+        sw.onclick=e=>{e.stopPropagation();setCorBolao(b.id,c);dot.style.background=c;cp.classList.remove('open')};
+        cp.appendChild(sw);
+      });
+      dot.onclick=e=>{e.stopPropagation();document.querySelectorAll('.color-picker-popup').forEach(x=>x!==cp&&x.classList.remove('open'));cp.classList.toggle('open')};
+      document.addEventListener('click',()=>cp.classList.remove('open'),{once:false});
+
+      wrap.appendChild(group);
+    });
+  });
+
+  $('vendasContent').innerHTML='';
+  $('vendasContent').appendChild(wrap);
+}
+
+// ── RENDER: por cliente ───────────────────────────────────────────
+function renderVendasPorCliente(boloes,vendas){
+  const wrap=document.createElement('div');wrap.className='fade-in';
+  const porCliente={};
+  vendas.forEach(v=>{
+    const k=v.cliente_id;
+    if(!porCliente[k])porCliente[k]={nome:v.cliente_nome,apelido:v.cliente_apelido,tel:v.cliente_telefone,vendas:[]};
+    porCliente[k].vendas.push(v);
+  });
+
+  if(!Object.keys(porCliente).length){
+    wrap.innerHTML=`<div class="state-box"><div class="state-title">Nenhuma venda nesta data</div><div class="state-sub">Registre a primeira venda na aba Registrar Venda.</div></div>`;
+    $('vendasContent').innerHTML='';$('vendasContent').appendChild(wrap);return;
+  }
+
+  Object.values(porCliente).sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(cli=>{
+    const totalCotas=cli.vendas.reduce((s,v)=>s+(v.qtd_vendida||0),0);
+    const totalVal=cli.vendas.reduce((s,v)=>s+(v.qtd_vendida||0)*(v.valor_cota||0),0);
+    const grp=document.createElement('div');grp.className='cliente-group';
+    grp.innerHTML=`
+      <div class="cliente-group-header" onclick="this.parentElement.classList.toggle('open');this.nextElementSibling.style.display=this.parentElement.classList.contains('open')?'block':'none'">
+        <div class="cli-avatar">${iniciais(cli.nome)}</div>
+        <div class="cli-group-info">
+          <div class="cli-group-nome">${cli.nome}${cli.apelido?` <span style="font-size:11px;color:var(--text3)">(${cli.apelido})</span>`:''}</div>
+          <div class="cli-group-sub">${totalCotas} cotas · ${fmtBRL(totalVal)}</div>
+        </div>
+        <div class="bolao-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="bolao-body" style="display:none">
+        <table class="vendas-table">
+          <thead><tr><th>Bolão</th><th>Loja</th><th>Qtd</th><th>Valor</th><th>Pagamento</th><th>Conferência</th><th>Separação</th><th></th></tr></thead>
+          <tbody>${cli.vendas.map(v=>{
+            const vt=fmtBRL((v.qtd_vendida||0)*(v.valor_cota||0));
+            const cor=getCorBolao(v.bolao_id);
+            return`<tr>
+              <td><div style="display:flex;align-items:center;gap:7px"><div style="width:10px;height:10px;border-radius:50%;background:${cor};flex-shrink:0"></div><div class="td-nome">${v.modalidade} #${v.concurso}</div></div></td>
+              <td>${v.loteria_nome}</td>
+              <td class="td-mono">${v.qtd_vendida}</td>
+              <td class="td-green">${vt}</td>
+              <td><button class="badge ${v.pago?'badge-pago':'badge-pendente'}" onclick="togglePago(${v.id},${v.pago})">${v.pago?'✓ Pago':'$ Pend.'}</button></td>
+              <td><button class="badge ${v.conferencia_enviada?'badge-conf-ok':'badge-conf-no'}" onclick="toggleConf(${v.id},${v.conferencia_enviada})">${v.conferencia_enviada?'✓ Env.':'⏳ Pend.'}</button></td>
+              <td><button class="badge ${v.cota_separada?'badge-sep-ok':'badge-sep-no'}" onclick="toggleSep(${v.id},${v.cota_separada})">${v.cota_separada?'✓ Sep.':'◻ Pend.'}</button></td>
+              <td><button class="btn-wpp" onclick="enviarWpp('${v.cliente_telefone}','${v.cliente_nome}','${v.modalidade}','${v.concurso}',${v.qtd_vendida},${(v.qtd_vendida||0)*(v.valor_cota||0)})"><svg><use href="#wpp-icon"/></svg> WPP</button></td>
+            </tr>`}).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    wrap.appendChild(grp);
+  });
+  $('vendasContent').innerHTML='';$('vendasContent').appendChild(wrap);
+}
+
+function toggleGroup(header){
+  const grp=header.closest('.bolao-group');grp.classList.toggle('open');
+}
+
+// ── BOLÕES para registrar ─────────────────────────────────────────
+async function buscarBoloesReg(){
+  $('boloesRegLista').innerHTML='<div class="state-box" style="padding:24px"><div class="spinner"></div></div>';
+  const iso=isoDate(dataAtualReg);
+  const{data:boloes}=await sb.from('boloes')
+    .select('id,modalidade,concurso,valor_cota,qtd_jogos,qtd_dezenas,qtd_cotas_total,loteria_id,loterias(id,nome,slug)')
+    .eq('status','ATIVO').lte('dt_inicial',iso).gte('dt_concurso',iso)
+    .order('modalidade').order('loteria_id');
+  if(!boloes?.length){
+    $('boloesRegLista').innerHTML='<div class="state-box" style="padding:24px"><div class="state-title">Nenhum bolão vigente</div><div class="state-sub">Tente outra data.</div></div>';return;
+  }
+  renderBoloesReg(boloes);
+}
+
+function renderBoloesReg(boloes){
+  const wrap=document.createElement('div');wrap.className='bolao-cards-grid';
+  const grupos={};boloes.forEach(b=>{if(!grupos[b.modalidade])grupos[b.modalidade]=[];grupos[b.modalidade].push(b)});
+  Object.keys(grupos).sort().forEach(mod=>{
+    const sep=document.createElement('div');
+    sep.className='sec-sep';sep.style.margin='8px 0 6px';
+    sep.innerHTML=`<div class="sec-sep-label">${mod}</div><div class="sec-sep-line"></div>`;
+    wrap.appendChild(sep);
+    grupos[mod].sort((a,b)=>(a.valor_cota||0)-(b.valor_cota||0)).forEach(b=>{
+      const card=document.createElement('div');card.className='bolao-sel-card';card.dataset.id=b.id;
+      card.innerHTML=`
+        <div class="bsc-main">
+          <div class="bsc-header">
+            <span class="bsc-modal">${b.modalidade}</span>
+            <span class="bsc-tag" style="color:var(--green);background:rgba(37,211,102,.08);border-color:rgba(37,211,102,.2)">#${b.concurso}</span>
+            <span class="bsc-tag" style="color:#38bdf8;background:rgba(56,189,248,.08);border-color:rgba(56,189,248,.2)">${b.loterias?.nome||'—'}</span>
+          </div>
+          <div class="bsc-tags">
+            <span class="bsc-tag">${b.qtd_jogos} jogos</span>
+            <span class="bsc-tag">${b.qtd_dezenas} dez.</span>
+            <span class="bsc-tag">${b.qtd_cotas_total} cotas</span>
+            <span class="bsc-tag" style="color:#f5a623">${fmtBRL(b.valor_cota)}/cota</span>
+          </div>
+        </div>
+        <div class="bsc-ind"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg></div>`;
+      card.onclick=()=>{
+        document.querySelectorAll('.bolao-sel-card').forEach(c=>c.classList.remove('selected'));
+        card.classList.add('selected');bolaoSelReg=b;
+        $('inputValor').value=Number(b.valor_cota).toLocaleString('pt-BR',{minimumFractionDigits:2});
+        calcTotal();clearStatusReg();
+      };
+      wrap.appendChild(card);
+    });
+  });
+  $('boloesRegLista').innerHTML='';$('boloesRegLista').appendChild(wrap);
+}
+
+// ── CLIENTES ──────────────────────────────────────────────────────
+async function carregarClientes(){
+  const{data}=await sb.from('clientes_whatsapp').select('*').eq('ativo',true).order('nome');
+  clientes=data||[];
+}
+
+function renderClientes(){
+  const busca=($('searchCliente').value||'').toLowerCase();
+  const lista=busca?clientes.filter(c=>c.nome.toLowerCase().includes(busca)||(c.apelido||'').toLowerCase().includes(busca)||(c.telefone||'').includes(busca)):clientes;
+  const grid=$('clientesGrid');grid.innerHTML='';
+  if(!lista.length){
+    grid.innerHTML=`<div class="state-box" style="grid-column:1/-1"><div class="state-title">Nenhum cliente</div><div class="state-sub">Cadastre o primeiro cliente.</div></div>`;return;
+  }
+  lista.forEach(c=>{
+    const card=document.createElement('div');card.className='cli-card';
+    card.innerHTML=`
+      <div class="cli-av">${iniciais(c.nome)}</div>
+      <div class="cli-info">
+        <div class="cli-nome">${c.nome}</div>
+        ${c.apelido?`<div class="cli-apelido">${c.apelido}</div>`:''}
+        <div class="cli-tel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.6 19.79 19.79 0 0 1 1.62 5.1 2 2 0 0 1 3.6 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.6a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 19z"/></svg>${c.telefone}</div>
+      </div>
+      <div class="cli-actions">
+        <button class="btn-cli-wpp" onclick="abrirWpp('${c.telefone}','')" title="WhatsApp"><svg viewBox="0 0 24 24"><use href="#wpp-icon"/></svg></button>
+        <button class="btn-cli-act" onclick="abrirModalCliente(${c.id})" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function filtrarClientes(){renderClientes()}
+
+function buscarClienteInput(){
+  const q=$('inputCliente').value.toLowerCase();const dd=$('cliDropdown');clienteSel=null;
+  if(!q||q.length<2){dd.classList.remove('show');return}
+  const res=clientes.filter(c=>c.nome.toLowerCase().includes(q)||(c.apelido||'').toLowerCase().includes(q)||(c.telefone||'').includes(q)).slice(0,8);
+  dd.innerHTML='';
+  res.forEach(c=>{
+    const it=document.createElement('div');it.className='cli-opt';
+    it.innerHTML=`<span>${c.nome}${c.apelido?` <span style="color:var(--text3);font-size:11px">(${c.apelido})</span>`:''}</span><span class="cli-opt-tel">${c.telefone}</span>`;
+    it.onclick=()=>{clienteSel=c;$('inputCliente').value=c.apelido?`${c.nome} (${c.apelido})`:c.nome;dd.classList.remove('show')};
+    dd.appendChild(it);
+  });
+  const add=document.createElement('div');add.className='cli-add';
+  add.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Cadastrar novo`;
+  add.onclick=()=>{dd.classList.remove('show');abrirModalCliente()};
+  dd.appendChild(add);dd.classList.add('show');
+}
+
+function abrirModalCliente(id=null){
+  clienteEditId=id;$('modalCliTitulo').textContent=id?'Editar Cliente':'Novo Cliente';
+  if(id){const c=clientes.find(x=>x.id===id);if(c){$('cliNome').value=c.nome||'';$('cliApelido').value=c.apelido||'';$('cliTelefone').value=c.telefone||'';$('cliObs').value=c.observacoes||''}}
+  else{$('cliNome').value=$('cliApelido').value=$('cliTelefone').value=$('cliObs').value=''}
+  $('modalCliente').classList.add('show');
+}
+function fecharModalCliente(){$('modalCliente').classList.remove('show')}
+async function salvarCliente(){
+  const nome=$('cliNome').value.trim();const tel=$('cliTelefone').value.replace(/\D/g,'');
+  if(!nome){alert('Nome é obrigatório.');return}if(!tel){alert('Telefone é obrigatório.');return}
+  const payload={nome,telefone:tel,apelido:$('cliApelido').value.trim()||null,observacoes:$('cliObs').value.trim()||null,criado_por:usuario.id};
+  let error;
+  if(clienteEditId)({error}=await sb.from('clientes_whatsapp').update(payload).eq('id',clienteEditId));
+  else({error}=await sb.from('clientes_whatsapp').insert(payload));
+  if(error){alert('Erro: '+error.message);return}
+  fecharModalCliente();await carregarClientes();renderClientes();
+}
+
+// ── CALCULAR TOTAL ────────────────────────────────────────────────
+function calcTotal(){
+  const qtd=parseInt($('inputQtd').value)||0;const val=parseBRL($('inputValor').value);
+  $('totalVenda').textContent=fmtBRL(qtd*val);
+}
+
+// ── REGISTRAR VENDA ───────────────────────────────────────────────
+async function registrarVenda(){
+  if(!bolaoSelReg){setStatusReg('Selecione um bolão.','err');return}
+  if(!clienteSel){setStatusReg('Selecione um cliente.','err');return}
+  const qtd=parseInt($('inputQtd').value)||0;const val=parseBRL($('inputValor').value);
+  if(qtd<1){setStatusReg('Qtd deve ser ≥ 1.','err');return}
+  if(val<=0){setStatusReg('Valor deve ser > 0.','err');return}
+  const btn=$('btnRegistrar');btn.disabled=true;setStatusReg('Registrando…','info');
+
+  const{data:bv,error:e1}=await sb.from('boloes_vendas').insert({
+    bolao_id:bolaoSelReg.id,loteria_vendedora_id:bolaoSelReg.loteria_id,
+    usuario_id:usuario.id,canal:'WHATSAPP',origem_lancamento:'LANCAMENTO_MANUAL',
+    qtd_vendida:qtd,data_referencia:isoDate(dataAtualReg),
+  }).select('id').single();
+  if(e1){btn.disabled=false;setStatusReg(e1.message,'err');return}
+
+  const{error:e2}=await sb.from('vendas_whatsapp').insert({
+    bolao_venda_id:bv.id,cliente_id:clienteSel.id,
+    pago:$('chkPago').checked,
+    dt_pagamento:$('chkPago').checked?isoDate(new Date()):null,
+    criado_por:usuario.id,
+  });
+  btn.disabled=false;
+  if(e2){setStatusReg(e2.message,'err');return}
+  setStatusReg(`✓ Venda registrada para ${clienteSel.nome}!`,'ok');
+  $('inputCliente').value='';clienteSel=null;$('inputQtd').value='1';$('chkPago').checked=false;calcTotal();
+  await carregarVendas();
+}
+
+// ── TOGGLES ───────────────────────────────────────────────────────
+async function togglePago(id,atual){
+  await sb.from('vendas_whatsapp').update({pago:!atual,dt_pagamento:!atual?isoDate(new Date()):null}).eq('id',id);
+  await carregarVendas();
+}
+async function toggleConf(id,atual){
+  await sb.from('vendas_whatsapp').update({conferencia_enviada:!atual,dt_conferencia:!atual?new Date().toISOString():null}).eq('id',id);
+  await carregarVendas();
+}
+async function toggleSep(id,atual){
+  await sb.from('vendas_whatsapp').update({cota_separada:!atual}).eq('id',id);
+  await carregarVendas();
+}
+
+async function deletarVenda(id){
+  const ok=await confirmar('Remover venda','Tem certeza que deseja remover este registro?');
+  if(!ok)return;
+  await sb.from('vendas_whatsapp').delete().eq('id',id);
+  await carregarVendas();
+}
+
+// ── WHATSAPP ──────────────────────────────────────────────────────
+function abrirWpp(tel,msg){window.open(`https://wa.me/${tel2wpp(tel)}${msg?'?text='+encodeURIComponent(msg):''}`, '_blank')}
+function enviarWpp(tel,nome,modal,concurso,qtd,val){
+  const msg=`Olá ${nome}! 😊\n\nSua cota do bolão foi registrada:\n📍 ${modal} — Concurso ${concurso}\n🎫 ${qtd} cota(s) — ${fmtBRL(val)}\n\nQualquer dúvida, é só chamar! 🍀`;
+  abrirWpp(tel,msg);
+}
+
+// ── HISTÓRICO ─────────────────────────────────────────────────────
+async function carregarHistorico(){
+  $('histContent').innerHTML='<div class="state-box"><div class="spinner"></div><div class="state-title">Buscando…</div></div>';
+  let q=sb.from('view_vendas_whatsapp').select('*').order('created_at',{ascending:false}).limit(300);
+  const de=$('filtDataVendaDe').value;const ate=$('filtDataVendaAte').value;
+  const cDe=$('filtDataConc').value;const cAte=$('filtDataConcAte').value;
+  const modal=$('filtModalidade').value.trim();const conc=$('filtConcurso').value.trim();
+  const pago=$('filtPago').value;const conf=$('filtConf').value;
+  const sep=$('filtSep').value;const loja=$('filtLoja').value;
+  if(de)q=q.gte('created_at',de);if(ate)q=q.lte('created_at',ate+'T23:59:59');
+  if(cDe)q=q.gte('dt_concurso',cDe);if(cAte)q=q.lte('dt_concurso',cAte);
+  if(modal)q=q.ilike('modalidade','%'+modal+'%');if(conc)q=q.ilike('concurso','%'+conc+'%');
+  if(pago!=='')q=q.eq('pago',pago==='true');if(conf!=='')q=q.eq('conferencia_enviada',conf==='true');
+  if(sep!=='')q=q.eq('cota_separada',sep==='true');if(loja)q=q.eq('loteria_id',parseInt(loja));
+  const{data}=await q;
+  renderHistorico(data||[]);
+}
+
+function renderHistorico(rows){
+  if(!rows.length){
+    $('histContent').innerHTML='<div class="state-box"><div class="state-title">Nenhum resultado</div><div class="state-sub">Ajuste os filtros acima.</div></div>';return;
+  }
+  const wrap=document.createElement('div');wrap.className='hist-table-wrap fade-in';
+  wrap.innerHTML=`<table class="hist-table">
+    <thead><tr>
+      <th>Data venda</th><th>Cliente</th><th>Bolão</th><th>Conc.</th><th>Loja</th>
+      <th>Qtd</th><th>Valor</th><th>Pagamento</th><th>Conferência</th><th>Separação</th><th>WPP</th>
+    </tr></thead>
+    <tbody id="histTbody"></tbody>
+  </table>`;
+  $('histContent').innerHTML='';$('histContent').appendChild(wrap);
+  const tb=$('histTbody');
+  rows.forEach(v=>{
+    const tr=document.createElement('tr');
+    const dt=new Date(v.created_at).toLocaleDateString('pt-BR');
+    const nomeCli=v.cliente_apelido?`${v.cliente_nome}<br><span style="font-size:10px;color:var(--text3)">${v.cliente_apelido}</span>`:v.cliente_nome;
+    const vt=fmtBRL((v.qtd_vendida||0)*(v.valor_cota||0));
+    const dtConc=v.dt_concurso?new Date(v.dt_concurso+'T12:00:00').toLocaleDateString('pt-BR'):'—';
+    const cor=getCorBolao(v.bolao_id);
+    tr.innerHTML=`
+      <td class="td-mono">${dt}</td>
+      <td class="td-nome">${nomeCli}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div style="width:9px;height:9px;border-radius:50%;background:${cor};flex-shrink:0"></div>${v.modalidade}</div></td>
+      <td class="td-mono">${dtConc}</td>
+      <td>${v.loteria_nome}</td>
+      <td class="td-mono">${v.qtd_vendida}</td>
+      <td class="td-green">${vt}</td>
+      <td><button class="btn-toggle-sm ${v.pago?'badge-pago':'badge-pendente'}" onclick="togglePagoHist(${v.id},${v.pago},this)">${v.pago?'✓ Pago':'$ Pend.'}</button></td>
+      <td><button class="btn-toggle-sm ${v.conferencia_enviada?'badge-conf-ok':'badge-conf-no'}" onclick="toggleConfHist(${v.id},${v.conferencia_enviada},this)">${v.conferencia_enviada?'✓ Env.':'⏳ Pend.'}</button></td>
+      <td><button class="btn-toggle-sm ${v.cota_separada?'badge-sep-ok':'badge-sep-no'}" onclick="toggleSepHist(${v.id},${v.cota_separada},this)">${v.cota_separada?'✓ Sep.':'◻ Pend.'}</button></td>
+      <td><button class="btn-wpp" onclick="enviarWpp('${v.cliente_telefone}','${v.cliente_nome}','${v.modalidade}','${v.concurso}',${v.qtd_vendida},${(v.qtd_vendida||0)*(v.valor_cota||0)})"><svg style="width:11px;height:11px"><use href="#wpp-icon"/></svg> WPP</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+async function togglePagoHist(id,atual,btn){
+  await sb.from('vendas_whatsapp').update({pago:!atual,dt_pagamento:!atual?isoDate(new Date()):null}).eq('id',id);
+  const n=!atual;btn.textContent=n?'✓ Pago':'$ Pend.';btn.className=`btn-toggle-sm ${n?'badge-pago':'badge-pendente'}`;
+}
+async function toggleConfHist(id,atual,btn){
+  await sb.from('vendas_whatsapp').update({conferencia_enviada:!atual,dt_conferencia:!atual?new Date().toISOString():null}).eq('id',id);
+  const n=!atual;btn.textContent=n?'✓ Env.':'⏳ Pend.';btn.className=`btn-toggle-sm ${n?'badge-conf-ok':'badge-conf-no'}`;
+}
+async function toggleSepHist(id,atual,btn){
+  await sb.from('vendas_whatsapp').update({cota_separada:!atual}).eq('id',id);
+  const n=!atual;btn.textContent=n?'✓ Sep.':'◻ Pend.';btn.className=`btn-toggle-sm ${n?'badge-sep-ok':'badge-sep-no'}`;
+}
+
+function limparFiltros(){
+  ['filtDataVendaDe','filtDataVendaAte','filtDataConc','filtDataConcAte','filtModalidade','filtConcurso'].forEach(id=>$(id).value='');
+  ['filtPago','filtConf','filtSep','filtLoja'].forEach(id=>$(id).selectedIndex=0);
+  $('histContent').innerHTML=`<div class="state-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;opacity:.25"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><div class="state-title">Use os filtros acima</div><div class="state-sub">Selecione um período para ver o histórico.</div></div>`;
+}
+
+// ── CONFIRMAR ─────────────────────────────────────────────────────
+function confirmar(titulo,corpo){
+  return new Promise(res=>{
+    $('confirmTitle').textContent=titulo;$('confirmBody').textContent=corpo;
+    $('confirmOverlay').classList.add('show');
+    $('confirmNo').onclick=()=>{$('confirmOverlay').classList.remove('show');res(false)};
+    $('confirmYes').onclick=()=>{$('confirmOverlay').classList.remove('show');res(true)};
+  });
+}
+
+// ── BINDINGS ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  $('btnDtPrev').onclick=async()=>{dataAtual.setDate(dataAtual.getDate()-1);atualizarDates();await carregarVendas()};
+  $('btnDtNext').onclick=async()=>{dataAtual.setDate(dataAtual.getDate()+1);atualizarDates();await carregarVendas()};
+  $('btnHoje').onclick=async()=>{dataAtual=new Date();atualizarDates();await carregarVendas()};
+  $('btnDtPrevReg').onclick=async()=>{dataAtualReg.setDate(dataAtualReg.getDate()-1);atualizarDates();await buscarBoloesReg()};
+  $('btnDtNextReg').onclick=async()=>{dataAtualReg.setDate(dataAtualReg.getDate()+1);atualizarDates();await buscarBoloesReg()};
+  $('btnHojeReg').onclick=async()=>{dataAtualReg=new Date();atualizarDates();await buscarBoloesReg()};
+  init();
+});
+</script>
+</body>
+</html>

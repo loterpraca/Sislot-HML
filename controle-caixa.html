@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conferência de Caixa — SISLOT</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/controle-caixa.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CABEÇALHO PRINCIPAL
+════════════════════════════════════════════════════════════════ -->
+<header class="app-header" id="app-header">
+  <div class="header-brand">
+    <img src="./icons/loterpraca.png" alt="Logo" id="logoImg" class="brand-logo" onerror="this.style.display='none'">
+    <div class="brand-text">
+      <div class="brand-name">SISLOT</div>
+      <div class="brand-sub">Conferência de Caixa</div>
+    </div>
+  </div>
+
+  <div class="header-filters">
+    <div class="filter-group">
+      <label class="filter-label">Mês</label>
+      <select id="sel-mes" class="filter-sel"></select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Ano</label>
+      <select id="sel-ano" class="filter-sel filter-sel-sm"></select>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-group">
+      <label class="filter-label">Loja</label>
+      <select id="sel-loja" class="filter-sel">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Funcionário</label>
+      <select id="sel-func" class="filter-sel">
+        <option value="">Todos</option>
+      </select>
+    </div>
+    <button class="btn-atualizar" id="btn-atualizar" onclick="VIEWER.recarregar()" title="Recarregar">
+      <i class="fas fa-sync-alt"></i>
+    </button>
+  </div>
+
+  <div class="header-right">
+    <div class="periodo-info" id="periodo-info">
+      <span id="periodo-label">—</span>
+    </div>
+    <div class="app-clock" id="app-clock">--:--:--</div>
+    <button class="hdr-btn" id="btn-inicio" title="Início"><i class="fas fa-home"></i></button>
+    <button class="hdr-btn hdr-btn-exit" id="btn-sair" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CORPO PRINCIPAL (split: esquerda + direita)
+════════════════════════════════════════════════════════════════ -->
+<div class="app-body" id="app-body">
+
+  <!-- ──────────────────────────────────────────────────────────
+       PAINEL ESQUERDO: Resumo do fechamento do dia selecionado
+  ─────────────────────────────────────────────────────────────── -->
+  <aside class="painel-esq" id="painel-esq">
+
+    <!-- Estado: nenhum dia selecionado -->
+    <div class="esq-state" id="esq-vazio">
+      <div class="state-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="state-titulo">Selecione um dia</div>
+      <div class="state-sub">Clique em um dia na barra abaixo para visualizar o fechamento</div>
+    </div>
+
+    <!-- Estado: carregando -->
+    <div class="esq-state" id="esq-loading" style="display:none">
+      <div class="loading-ring"></div>
+      <div class="state-titulo">Carregando...</div>
+    </div>
+
+    <!-- Estado: sem fechamento neste dia -->
+    <div class="esq-state" id="esq-sem-dados" style="display:none">
+      <div class="state-icon state-icon-empty">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </div>
+      <div class="state-titulo">Sem fechamento</div>
+      <div class="state-sub" id="esq-sem-dados-txt">Nenhum fechamento registrado para este dia.</div>
+      <button class="btn-novo-fech" id="btn-novo-fech" onclick="VIEWER.iniciarNovo()">
+        <i class="fas fa-plus"></i> Iniciar fechamento
+      </button>
+    </div>
+
+    <!-- CONTEÚDO DO FECHAMENTO -->
+    <div id="esq-dados" style="display:none">
+
+      <!-- CABEÇALHO DO FECHAMENTO -->
+      <div class="fech-topo">
+        <div class="fech-status-row">
+          <div class="status-pill" id="fech-status-pill">
+            <span class="status-led" id="fech-status-led"></span>
+            <span id="fech-status-txt">—</span>
+          </div>
+          <div class="fech-hora" id="fech-hora">—</div>
+        </div>
+
+        <!-- Navegação múltiplos fechamentos no mesmo dia -->
+        <div class="multi-fech" id="multi-fech" style="display:none">
+          <div class="mf-label">Fechamentos do dia</div>
+          <div class="mf-tabs" id="mf-tabs"></div>
+        </div>
+      </div>
+
+      <!-- IDENTIFICAÇÃO: Funcionário + Data -->
+      <div class="fech-ident">
+        <div class="func-avatar" id="func-avatar">A</div>
+        <div class="func-info">
+          <div class="func-nome" id="func-nome">—</div>
+          <div class="func-loja" id="func-loja">
+            <i class="fas fa-map-marker-alt"></i>
+            <span id="func-loja-txt">—</span>
+          </div>
+        </div>
+        <div class="data-badge" id="data-badge">
+          <div class="data-dia" id="data-dia">--</div>
+          <div class="data-meta">
+            <div class="data-mes" id="data-mes">---</div>
+            <div class="data-dow" id="data-dow">---</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINHA DIVISÓRIA -->
+      <div class="esq-divisor"></div>
+
+      <!-- CARDS DE TOTAIS -->
+      <div class="resumo-grid">
+        <div class="rg-card rg-card-full">
+          <div class="rg-label">Relatório do Dia</div>
+          <div class="rg-val rg-val-main" id="rc-relatorio">R$ 0,00</div>
+        </div>
+
+        <div class="rg-card">
+          <div class="rg-label">Depósito</div>
+          <div class="rg-val" id="rc-deposito">R$ 0,00</div>
+        </div>
+        <div class="rg-card">
+          <div class="rg-label">PIX CNPJ</div>
+          <div class="rg-val rg-val-green" id="rc-pix">R$ 0,00</div>
+        </div>
+        <div class="rg-card">
+          <div class="rg-label">Produtos</div>
+          <div class="rg-val rg-val-blue" id="rc-produtos">R$ 0,00</div>
+        </div>
+        <div class="rg-card">
+          <div class="rg-label">Bolões</div>
+          <div class="rg-val rg-val-purple" id="rc-boloes">R$ 0,00</div>
+        </div>
+        <div class="rg-card rg-card-full">
+          <div class="rg-label">Dívidas</div>
+          <div class="rg-val rg-val-amber" id="rc-dividas">R$ 0,00</div>
+        </div>
+      </div>
+
+      <!-- LINHA DIVISÓRIA -->
+      <div class="esq-divisor"></div>
+
+      <!-- BALANÇO DÉBITOS vs CRÉDITOS -->
+      <div class="balanco-bar">
+        <div class="balanco-lado">
+          <div class="bl-label">↓ Débitos</div>
+          <div class="bl-val bl-deb" id="bl-deb">R$ 0,00</div>
+        </div>
+        <div class="balanco-sep"></div>
+        <div class="balanco-lado">
+          <div class="bl-label">↑ Créditos</div>
+          <div class="bl-val bl-cred" id="bl-cred">R$ 0,00</div>
+        </div>
+      </div>
+
+      <!-- QUEBRA CARD -->
+      <div class="quebra-card" id="quebra-card">
+        <div>
+          <div class="qc-label">Quebra de Caixa</div>
+          <div class="qc-desc" id="qc-desc">—</div>
+        </div>
+        <div class="qc-valor" id="qc-valor">R$ 0,00</div>
+      </div>
+
+      <!-- JUSTIFICATIVA -->
+      <div class="justificativa-box" id="justificativa-box" style="display:none">
+        <div class="just-header"><i class="fas fa-exclamation-triangle"></i> Justificativa</div>
+        <div class="just-content" id="just-content"></div>
+      </div>
+
+      <!-- LINHA DIVISÓRIA -->
+      <div class="esq-divisor"></div>
+
+      <!-- CAMPOS ADICIONAIS -->
+      <div class="campos-adicionais">
+        <div class="ca-row">
+          <span class="ca-label">Troco Inicial</span>
+          <span class="ca-val" id="ca-troco-ini">—</span>
+        </div>
+        <div class="ca-row">
+          <span class="ca-label">Troco Sobra</span>
+          <span class="ca-val" id="ca-troco-sob">—</span>
+        </div>
+        <div class="ca-row">
+          <span class="ca-label">Diferença PIX</span>
+          <span class="ca-val" id="ca-pix-dif">—</span>
+        </div>
+        <div class="ca-row">
+          <span class="ca-label">Prêmio Raspadinha</span>
+          <span class="ca-val ca-val-pos" id="ca-premio-rasp">—</span>
+        </div>
+        <div class="ca-row">
+          <span class="ca-label">Resgate Telesena</span>
+          <span class="ca-val ca-val-pos" id="ca-resgate-tele">—</span>
+        </div>
+      </div>
+
+      <!-- LINHA DIVISÓRIA -->
+      <div class="esq-divisor"></div>
+
+      <!-- AÇÕES -->
+      <div class="esq-acoes">
+        <button class="btn-acao btn-acao-edit" id="btn-editar" onclick="VIEWER.toggleEdicao()">
+          <i class="fas fa-pen"></i> Editar
+        </button>
+        <button class="btn-acao btn-acao-print" onclick="VIEWER.imprimir()">
+          <i class="fas fa-print"></i> Imprimir
+        </button>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ──────────────────────────────────────────────────────────
+       PAINEL DIREITO: Tabelas detalhadas
+  ─────────────────────────────────────────────────────────────── -->
+  <main class="painel-dir" id="painel-dir">
+
+    <!-- Background decorativo -->
+    <div class="dir-grid-bg" id="dir-grid-bg"></div>
+
+    <!-- Estado vazio central -->
+    <div class="dir-vazio-center" id="dir-vazio-center">
+      <div class="dvc-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=".8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="13" y2="18"/></svg>
+      </div>
+      <div class="dvc-titulo">Conferência de Caixa</div>
+      <div class="dvc-sub">Selecione um dia na barra abaixo para visualizar os detalhes do fechamento</div>
+      <div class="dvc-chips">
+        <div class="dvc-chip"><i class="fas fa-box" style="font-size:9px"></i> Produtos</div>
+        <div class="dvc-chip"><i class="fas fa-circle-check" style="font-size:9px"></i> Bolões</div>
+        <div class="dvc-chip"><i class="fas fa-star" style="font-size:9px"></i> Dívidas</div>
+      </div>
+    </div>
+
+    <!-- ÁREA DE DETALHES -->
+    <div class="detalhe-area" id="detalhe-area" style="display:none">
+
+      <!-- Barra de contexto -->
+      <div class="contexto-bar">
+        <div class="ctx-info">
+          <span class="ctx-chip ctx-chip-data" id="ctx-data">—</span>
+          <span class="ctx-chip" id="ctx-func">—</span>
+          <span class="ctx-chip ctx-chip-loja" id="ctx-loja">—</span>
+        </div>
+        <div class="ctx-right">
+          <div class="ctx-total-label">Total Geral</div>
+          <div class="ctx-total-val" id="ctx-total-geral">R$ 0,00</div>
+        </div>
+      </div>
+
+      <!-- ───────── SEÇÃO PRODUTOS ───────── -->
+      <section class="sec" id="sec-produtos">
+        <div class="sec-head" data-sec="produtos" onclick="VIEWER.toggleSecao(this)">
+          <div class="sec-head-l">
+            <div class="sec-ico sec-ico-blue">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><path d="M8 7V5a2 2 0 0 0-4 0v2"/></svg>
+            </div>
+            <span class="sec-titulo">Produtos</span>
+            <span class="sec-count" id="count-produtos">0 itens</span>
+          </div>
+          <div class="sec-head-r">
+            <span class="sec-total-val" id="stotal-produtos">R$ 0,00</span>
+            <span class="sec-chevron" id="chev-produtos">
+              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 6l5 5 5-5"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="sec-body" id="body-produtos">
+          <table class="dt">
+            <thead>
+              <tr>
+                <th class="th-main">Descrição</th>
+                <th>Tipo</th>
+                <th class="th-r">Qtd</th>
+                <th class="th-r">Valor Unit.</th>
+                <th class="th-r th-last">Total</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-produtos">
+              <tr class="tr-empty"><td colspan="5"><i class="fas fa-inbox"></i> Nenhum produto registrado</td></tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="tf-label">Total Produtos</td>
+                <td class="tf-val" id="tf-produtos">R$ 0,00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- ───────── SEÇÃO BOLÕES ───────── -->
+      <section class="sec" id="sec-boloes">
+        <div class="sec-head" data-sec="boloes" onclick="VIEWER.toggleSecao(this)">
+          <div class="sec-head-l">
+            <div class="sec-ico sec-ico-purple">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg>
+            </div>
+            <span class="sec-titulo">Bolões</span>
+            <span class="sec-count" id="count-boloes">0 itens</span>
+          </div>
+          <div class="sec-head-r">
+            <span class="sec-total-val" id="stotal-boloes">R$ 0,00</span>
+            <span class="sec-chevron" id="chev-boloes">
+              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 6l5 5 5-5"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="sec-body" id="body-boloes">
+          <table class="dt">
+            <thead>
+              <tr>
+                <th class="th-main">Descrição</th>
+                <th>Tipo</th>
+                <th class="th-r">Cotas Vendidas</th>
+                <th class="th-r">Valor / Cota</th>
+                <th class="th-r th-last">Total</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-boloes">
+              <tr class="tr-empty"><td colspan="5"><i class="fas fa-inbox"></i> Nenhum bolão registrado</td></tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td class="tf-label">Interno</td>
+                <td colspan="2" class="tf-label tf-sub" id="tf-bol-int-info">0 cotas</td>
+                <td class="tf-label">Total</td>
+                <td class="tf-val" id="tf-boloes">R$ 0,00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- ───────── SEÇÃO DÍVIDAS ───────── -->
+      <section class="sec" id="sec-dividas">
+        <div class="sec-head" data-sec="dividas" onclick="VIEWER.toggleSecao(this)">
+          <div class="sec-head-l">
+            <div class="sec-ico sec-ico-amber">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <span class="sec-titulo">Dívidas de Clientes</span>
+            <span class="sec-count" id="count-dividas">0 clientes</span>
+          </div>
+          <div class="sec-head-r">
+            <span class="sec-total-val sec-total-amber" id="stotal-dividas">R$ 0,00</span>
+            <span class="sec-chevron" id="chev-dividas">
+              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 6l5 5 5-5"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="sec-body" id="body-dividas">
+          <table class="dt">
+            <thead>
+              <tr>
+                <th class="th-main">Cliente</th>
+                <th class="th-r">Valor da Dívida</th>
+                <th>Observação</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-dividas">
+              <tr class="tr-empty"><td colspan="3"><i class="fas fa-inbox"></i> Nenhuma dívida registrada</td></tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td class="tf-label">Total Dívidas</td>
+                <td class="tf-val" id="tf-dividas">R$ 0,00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- ───────── SEÇÃO DADOS GERAIS ───────── -->
+      <section class="sec" id="sec-geral">
+        <div class="sec-head" data-sec="geral" onclick="VIEWER.toggleSecao(this)">
+          <div class="sec-head-l">
+            <div class="sec-ico sec-ico-green">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="9" y1="14" x2="15" y2="14"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+            </div>
+            <span class="sec-titulo">Dados Gerais do Fechamento</span>
+          </div>
+          <div class="sec-head-r">
+            <span class="sec-chevron" id="chev-geral">
+              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 6l5 5 5-5"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="sec-body" id="body-geral">
+          <table class="dt dt-kv">
+            <tbody id="tbody-geral"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BARRA DE DIAS (abas inferiores, estilo Excel/Sheets)
+════════════════════════════════════════════════════════════════ -->
+<footer class="dias-bar" id="dias-bar">
+  <div class="dias-label">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+  </div>
+  <div class="dias-scroll" id="dias-scroll">
+    <!-- Abas geradas via JS -->
+  </div>
+  <div class="dias-nav">
+    <button class="dias-nav-btn" id="dias-prev" onclick="VIEWER.scrollDias(-1)">
+      <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 4l-6 4 6 4"/></svg>
+    </button>
+    <button class="dias-nav-btn" id="dias-next" onclick="VIEWER.scrollDias(1)">
+      <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 4l6 4-6 4"/></svg>
+    </button>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAIS
+════════════════════════════════════════════════════════════════ -->
+
+<!-- Modal Início -->
+<div class="modal-overlay" id="modal-inicio">
+  <div class="modal-box">
+    <div class="modal-ico">🏠</div>
+    <div class="modal-titulo">Voltar ao menu?</div>
+    <div class="modal-desc">Você sairá da tela de conferência.</div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="VIEWER.fecharModal('modal-inicio')">Cancelar</button>
+      <button class="mbtn mbtn-ok" onclick="VIEWER.irInicio()">Sim, voltar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Sair -->
+<div class="modal-overlay" id="modal-sair">
+  <div class="modal-box">
+    <div class="modal-ico">🔒</div>
+    <div class="modal-titulo">Sair do sistema?</div>
+    <div class="modal-desc">Sua sessão será encerrada.</div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="VIEWER.fecharModal('modal-sair')">Cancelar</button>
+      <button class="mbtn mbtn-danger" onclick="VIEWER.sair()">Sim, sair</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast de notificação -->
+<div class="toast" id="toast">
+  <span class="toast-ico" id="toast-ico">✓</span>
+  <span id="toast-msg">Mensagem</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./sislot-config.js"></script>
+<script src="./sislot-security.js"></script>
+<script src="./js/controle-caixa.js"></script>
+</body>
+</html>

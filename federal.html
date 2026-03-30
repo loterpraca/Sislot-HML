@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Federal — SISLOT</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/federal.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./sislot-config.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">LC</div>
+      <div>
+        <div class="brand-name">SisLot</div>
+        <div class="brand-sub">Federal • Controle Completo</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div id="relogio"></div>
+      <button class="btn-topbar" onclick="location.href='./menu.html'">Menu</button>
+    </div>
+  </header>
+
+  <nav class="tabs-bar">
+    <button class="tab-btn active" data-tab="visao"><span class="tab-dot" style="background:var(--accent)"></span>Exibição</button>
+    <button class="tab-btn" data-tab="cadastro"><span class="tab-dot" style="background:var(--sky)"></span>Cadastro</button>
+    <button class="tab-btn" data-tab="movimentacao"><span class="tab-dot" style="background:var(--amber)"></span>Movimentação</button>
+    <button class="tab-btn" data-tab="fechamento"><span class="tab-dot" style="background:var(--purple)"></span>Fechamento</button>
+    <button class="tab-btn" data-tab="auditoria"><span class="tab-dot" style="background:var(--coral)"></span>Auditoria</button>
+    <button class="tab-btn" data-tab="config"><span class="tab-dot" style="background:var(--muted)"></span>Ajustes</button>
+  </nav>
+
+  <main class="main">
+    <section class="tab-panel active" id="panel-visao">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Resumo Analítico da Federal</div>
+          <div class="page-sub">Visão central por concurso e loja origem, com vendas internas, externas, devoluções, encalhe e resultado.</div>
+        </div>
+      </div>
+
+      <div class="status-bar" id="st-visao"></div>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="field" style="min-width:190px"><label class="field-label">Concurso</label><input id="filtro-concurso" placeholder="3060"></div>
+          <div class="field" style="min-width:180px"><label class="field-label">Loja origem</label><select id="filtro-loja"></select></div>
+          <div class="field" style="min-width:170px"><label class="field-label">Data sorteio inicial</label><input type="date" id="filtro-dt-ini"></div>
+          <div class="field" style="min-width:170px"><label class="field-label">Data sorteio final</label><input type="date" id="filtro-dt-fim"></div>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn-secondary" id="btn-filtrar-visao">Filtrar</button>
+          <button class="btn-secondary" id="btn-limpar-visao">Limpar</button>
+          <button class="btn-primary" id="btn-recarregar-visao">Atualizar</button>
+        </div>
+      </div>
+
+      <div class="kpis" id="kpis-visao"></div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Modalidade</th>
+              <th>Loja Origem</th>
+              <th>Concurso</th>
+              <th>Dt Sorteio</th>
+              <th>Qtd Inicial</th>
+              <th>Vend. Funcionários</th>
+              <th>Vend. Externa</th>
+              <th>Dev. Origem</th>
+              <th>Dev. Terceiros</th>
+              <th>Encalhe</th>
+              <th>Prêmio</th>
+              <th>Estoque</th>
+              <th>Resultado</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-visao"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panel-cadastro">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Cadastro de Concurso</div>
+          <div class="page-sub">Cadastre a Federal de todas as loterias de uma vez, com padrão automático para quarta e sábado.</div>
+        </div>
+      </div>
+
+      <div class="status-bar" id="st-cadastro"></div>
+
+      <div class="card" id="card-form-cadastro" style="display:block">
+        <div class="sep"><span class="sep-label">Dados do concurso</span><div class="sep-line"></div></div>
+        <div class="grid-4">
+          <div class="field"><label class="field-label">Modalidade</label><input value="Federal" readonly></div>
+          <div class="field"><label class="field-label req">Concurso</label><input id="cad-concurso" placeholder="3060"></div>
+          <div class="field"><label class="field-label req">Data sorteio</label><div style="display:grid;grid-template-columns:36px 1fr 36px;gap:0;align-items:stretch"><button type="button" class="btn-secondary" id="cad-data-prev" style="border-radius:8px 0 0 8px;padding:0;height:34px;justify-content:center">−</button><input type="date" id="cad-dt-sorteio" style="border-radius:0;height:34px"><button type="button" class="btn-secondary" id="cad-data-next" style="border-radius:0 8px 8px 0;padding:0;height:34px;justify-content:center">+</button></div></div>
+          <div class="field"><label class="field-label req">Tipo</label><select id="cad-tipo"><option value="COMUM">Comum</option><option value="ESPECIAL">Especial</option></select></div>
+        </div>
+        <div class="grid-4" style="margin-top:14px">
+          <div class="field"><label class="field-label req">Valor fração</label><input type="number" id="cad-valor-fracao" step="0.01"></div>
+          <div class="field"><label class="field-label req">Valor custo</label><input type="number" id="cad-valor-custo" step="0.01"></div>
+          <div class="field"><label class="field-label req">Frações/bilhete</label><input type="number" id="cad-fracoes-bilhete" value="10"></div>
+          <div class="field"><label class="field-label">Padrão automático</label><input value="Quarta / Sábado" readonly></div>
+        </div>
+        <div class="sep"><span class="sep-label">Qtd inicial por loteria</span><div class="sep-line"></div></div>
+        <div class="grid-5" style="margin-top:14px">
+          <div class="field"><label class="field-label">Centro</label><input type="number" id="cad-qtd-centro"></div>
+          <div class="field"><label class="field-label">Boulevard</label><input type="number" id="cad-qtd-boulevard"></div>
+          <div class="field"><label class="field-label">Lotobel</label><input type="number" id="cad-qtd-lotobel"></div>
+          <div class="field"><label class="field-label">Santa Tereza</label><input type="number" id="cad-qtd-santa"></div>
+          <div class="field"><label class="field-label">Via Brasil</label><input type="number" id="cad-qtd-via"></div>
+        </div>
+        <div class="flex" style="margin-top:12px">
+          <button class="btn-primary" id="btn-salvar-cadastro">Salvar concurso</button>
+          <button class="btn-secondary" id="btn-cancelar-cadastro">Limpar</button>
+        </div>
+      </div>
+
+      <div class="sep"><span class="sep-label">Concursos cadastrados</span><div class="sep-line"></div><span class="sep-count" id="cnt-cadastros">0</span></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Loja</th>
+              <th>Concurso</th>
+              <th>Dt Sorteio</th>
+              <th>Tipo</th>
+              <th>Valor Fração</th>
+              <th>Valor Custo</th>
+              <th>Qtd Inicial</th>
+              <th>Devolvida</th>
+              <th>Encalhe</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-cadastro"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panel-movimentacao">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Movimentação Operacional</div>
+          <div class="page-sub">Registre transferência, devolução na Caixa e venda cambista.</div>
+        </div>
+      </div>
+
+      <div class="status-bar" id="st-mov"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="sep" style="margin-top:0"><span class="sep-label">Nova movimentação</span><div class="sep-line"></div></div>
+          <div class="grid-3">
+            <div class="field"><label class="field-label">Modalidade</label><input id="mov-modalidade" value="Federal" readonly></div>
+            <div class="field"><label class="field-label req">Concurso</label><select id="mov-federal"></select></div>
+            <div class="field"><label class="field-label">Data do concurso</label><input type="date" id="mov-dt-concurso" readonly></div>
+          </div>
+          <div class="grid-3" style="margin-top:14px">
+            <div class="field"><label class="field-label req">Loteria origem</label><select id="mov-loteria-origem"></select></div>
+            <div class="field"><label class="field-label req">Loteria destino</label><select id="mov-loteria-destino"></select></div>
+            <div class="field"><label class="field-label req">Tipo de evento</label><select id="mov-tipo-evento"><option value="TRANSFERENCIA">Transferência</option><option value="DEVOLUCAO_CAIXA">Devolução Caixa</option><option value="VENDA_CAMBISTA">Venda Cambista</option></select></div>
+          </div>
+          <div class="grid-3" style="margin-top:14px">
+            <div class="field"><label class="field-label req">Qtd de frações</label><input type="number" id="mov-qtd"></div>
+            <div class="field"><label class="field-label req">Valor fração</label><input type="number" step="0.01" id="mov-valor"></div>
+            <div class="field"><label class="field-label">Valor total</label><input type="number" step="0.01" id="mov-total" readonly></div>
+          </div>
+          <div class="grid-1" style="margin-top:14px">
+            <div class="field"><label class="field-label">Status</label><input id="mov-status-acerto" value="PENDENTE" readonly></div>
+          </div>
+          <div class="field" style="margin-top:14px"><label class="field-label">Observação</label><textarea id="mov-observacao" placeholder="Detalhes da operação"></textarea></div>
+          <div class="flex" style="margin-top:18px"><button class="btn-primary" id="btn-salvar-mov">Salvar movimentação</button><button class="btn-secondary" id="btn-limpar-mov">Limpar</button><button class="btn-danger" id="btn-excluir-mov" style="display:none">Apagar linha</button></div>
+        </div>
+
+        <div class="card">
+          <div class="sep" style="margin-top:0"><span class="sep-label">Resumo do concurso selecionado</span><div class="sep-line"></div></div>
+          <div id="mov-resumo-selec" class="empty"><div class="empty-title">Selecione um concurso</div><div class="empty-sub">O sistema mostra saldo, valores base e últimos eventos da origem escolhida.</div></div>
+        </div>
+      </div>
+
+      <div class="sep"><span class="sep-label">Histórico operacional</span><div class="sep-line"></div></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Carimbo</th>
+              <th>Modalidade</th>
+              <th>Concurso</th>
+              <th>Evento</th>
+              <th>Origem</th>
+              <th>Destino</th>
+              <th>Qtd</th>
+              <th>Valor</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-mov"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panel-fechamento">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Fechamento de Caixa • Federal</div>
+          <div class="page-sub">Lançamento de vendas dos funcionários por concurso e dia de fechamento.</div>
+        </div>
+      </div>
+
+      <div class="status-bar" id="st-fechamento"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="sep" style="margin-top:0"><span class="sep-label">Novo lançamento</span><div class="sep-line"></div></div>
+          <div class="grid-3">
+            <div class="field"><label class="field-label req">Loja</label><select id="fec-loteria"></select></div>
+            <div class="field"><label class="field-label req">Funcionário</label><select id="fec-usuario"></select></div>
+            <div class="field"><label class="field-label req">Data fechamento</label><input type="date" id="fec-data-ref"></div>
+          </div>
+          <div class="grid-4" style="margin-top:14px">
+            <div class="field"><label class="field-label req">Concurso</label><select id="fec-federal"></select></div>
+            <div class="field"><label class="field-label req">Valor fração</label><input type="number" step="0.01" id="fec-valor-fracao"></div>
+            <div class="field"><label class="field-label req">Qtd vendida</label><input type="number" id="fec-qtd-vendida"></div>
+            <div class="field"><label class="field-label req">Total</label><input type="number" step="0.01" id="fec-total"></div>
+          </div>
+          <div class="flex" style="margin-top:18px"><button class="btn-primary" id="btn-salvar-fechamento">Salvar venda do funcionário</button><button class="btn-secondary" id="btn-limpar-fechamento">Limpar</button></div>
+        </div>
+        <div class="card">
+          <div class="sep" style="margin-top:0"><span class="sep-label">Conferência por funcionário</span><div class="sep-line"></div></div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Funcionário</th><th>Concurso</th><th>Qtd Vendida</th><th>Total</th></tr></thead>
+              <tbody id="tbody-fechamento-resumo"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panel-auditoria">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Auditoria e Edição Segura</div>
+          <div class="page-sub">Filtre e visualize as movimentações com foco em pendências e acertos.</div>
+        </div>
+      </div>
+
+      <div class="status-bar" id="st-auditoria"></div>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="field"><label class="field-label">Evento</label><select id="aud-tipo"><option value="">Todos</option><option>TRANSFERENCIA</option><option>DEVOLUCAO_CAIXA</option><option>VENDA_CAMBISTA</option></select></div>
+          <div class="field"><label class="field-label">Status</label><select id="aud-status"><option value="">Todos</option><option>PENDENTE</option><option>PAGO</option></select></div>
+          <div class="field"><label class="field-label">Concurso</label><input id="aud-concurso"></div>
+          <div class="field"><label class="field-label">Carimbo inicial</label><input type="date" id="aud-dt-ini"></div>
+          <div class="field"><label class="field-label">Carimbo final</label><input type="date" id="aud-dt-fim"></div>
+        </div>
+        <div class="toolbar-right"><button class="btn-secondary" id="btn-filtrar-auditoria">Filtrar</button><button class="btn-primary" id="btn-recarregar-auditoria">Atualizar</button></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Carimbo</th>
+              <th>Modalidade</th>
+              <th>Concurso</th>
+              <th>Evento</th>
+              <th>Origem</th>
+              <th>Destino</th>
+              <th>Qtd</th>
+              <th>Valor</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-auditoria"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panel-config">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Ajustes de Federal</div>
+          <div class="page-sub">Lançamento manual migrou para a aba Exibição.</div>
+        </div>
+      </div>
+
+      <div class="status-bar" id="st-config"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="sep" style="margin-top:0"><span class="sep-label">Encalhe e prêmio</span><div class="sep-line"></div></div>
+          <div class="empty"><div class="empty-title">Lançamento migrou para a aba Exibição</div><div class="empty-sub">Use o botão Lançamento na linha do concurso para informar devolução na origem, encalhe e premiação.</div></div>
+        </div>
+
+        <div class="card">
+          <div class="sep" style="margin-top:0"><span class="sep-label">Resumo rápido</span><div class="sep-line"></div></div>
+          <div class="empty"><div class="empty-title">Painel informativo</div><div class="empty-sub">Os ajustes operacionais principais ficam nas abas Exibição, Movimentação e Fechamento.</div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="overlay" id="overlay-lanc"></div>
+
+  <div class="drawer" id="drawer-lanc">
+    <div class="drawer-head">
+      <div>
+        <div class="drawer-title" id="lanc-title">Lançamento</div>
+        <div class="drawer-sub" id="lanc-sub">Devolução, encalhe e premiação</div>
+      </div>
+      <button class="btn-secondary" id="btn-close-lanc">Fechar</button>
+    </div>
+    <div class="drawer-body">
+      <div class="grid-3">
+        <div class="field"><label class="field-label">Modalidade</label><input id="lanc-modalidade" value="Federal" readonly></div>
+        <div class="field"><label class="field-label">Concurso</label><input id="lanc-concurso" readonly></div>
+        <div class="field"><label class="field-label">Data do concurso</label><input id="lanc-data" readonly></div>
+      </div>
+      <div class="grid-3" style="margin-top:14px">
+        <div class="field"><label class="field-label">Loja origem</label><input id="lanc-loja" readonly></div>
+        <div class="field"><label class="field-label req">Qtd devolução na origem</label><input type="number" id="lanc-qtd-dev"></div>
+        <div class="field"><label class="field-label req">Qtd encalhe</label><input type="number" id="lanc-qtd-enc"></div>
+      </div>
+      <div class="grid-2" style="margin-top:14px">
+        <div class="field"><label class="field-label req">Valor total da premiação</label><input type="number" step="0.01" id="lanc-vlr-premio"></div>
+        <div class="field"><label class="field-label">Observação</label><input id="lanc-obs" placeholder="Opcional"></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn-secondary" id="btn-cancel-lanc">Cancelar</button>
+      <button class="btn-primary" id="btn-save-lanc">Salvar lançamento</button>
+    </div>
+  </div>
+
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <div>
+        <div class="drawer-title" id="drawer-title">Detalhe</div>
+        <div class="drawer-sub" id="drawer-sub">Visualização protegida</div>
+      </div>
+      <button class="btn-secondary" id="btn-close-drawer">Fechar</button>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+    <div class="drawer-foot" id="drawer-foot"></div>
+  </div>
+
+  <script src="./js/federal.js"></script>
+</body>
+</html>

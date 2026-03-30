@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Controle Financeiro — SISLOT</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/controle.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./sislot-config.js"></script>
+  <script src="./js/sislot-utils.js"></script>
+  <script src="./sislot-security.js"></script>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+
+      <div class="loja-tree" id="lojaTreeWrap" title="Clique para filtrar por loja">
+        <svg class="loja-tree-all" id="lojaTreeAll" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3"  y="3"  width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3"  width="7" height="7" rx="1.5"/>
+          <rect x="3"  y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+        <img src="" alt="Logo" id="logoImg" style="display:none"/>
+      </div>
+
+      <div class="header-info">
+        <div class="header-nome" id="headerNome">Todas as Lojas</div>
+        <div class="header-sub">Controle Financeiro · SISLOT</div>
+      </div>
+
+      <div class="header-clock" id="relogio">--:--:--</div>
+
+      <button class="btn-header" onclick="location.href='./menu.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             width="13" height="13">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>Menu</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs-bar">
+    <button class="tab-btn active" data-tab="saldo">
+      <span class="tab-dot" style="background:#00c896"></span>Saldo
+    </button>
+    <button class="tab-btn" data-tab="movimentacoes">
+      <span class="tab-dot" style="background:#38bdf8"></span>Movimentações
+    </button>
+  </nav>
+
+  <main class="main">
+
+    <div id="panel-saldo" class="tab-panel active">
+      <div class="filter-bar">
+        <div class="flex" style="gap:12px;align-items:flex-end;flex-wrap:wrap;flex:1">
+
+          <div class="filter-wrap">
+            <label class="filter-label">Visualização</label>
+            <select id="saldo-periodo" class="filter-select">
+              <option value="mes">Por mês</option>
+              <option value="total">Total acumulado</option>
+            </select>
+          </div>
+
+          <div class="filter-wrap" id="wrap-saldo-mes">
+            <label class="filter-label">Mês</label>
+            <select id="saldo-mes" class="filter-select">
+              <option value="">Todos os meses</option>
+            </select>
+          </div>
+
+          <div class="filter-wrap">
+            <label class="filter-label">Módulo</label>
+            <select id="saldo-produto" class="filter-select">
+              <option value="">Todos</option>
+              <option value="FEDERAL">Federal</option>
+              <option value="BOLAO">Bolão</option>
+              <option value="PRODUTO">Produto</option>
+            </select>
+          </div>
+
+          <div class="filter-wrap">
+            <label class="filter-label">Status</label>
+            <select id="saldo-status" class="filter-select">
+              <option value="PENDENTE">Pendentes</option>
+              <option value="PAGO">Pagos</option>
+              <option value="">Todos</option>
+            </select>
+          </div>
+
+        </div>
+
+        <button id="btn-pagar-tudo" class="btn-pagar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+               width="14" height="14">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Pagar tudo
+        </button>
+      </div>
+
+      <div id="st-saldo" class="status-bar"></div>
+
+      <div id="kpis-saldo" class="kpi-row" style="margin-bottom:20px"></div>
+
+      <div class="sep">
+        <span class="sep-label" id="sep-label-saldo">Saldo líquido por par de lojas</span>
+        <div class="sep-line"></div>
+        <span id="saldo-count" class="sep-count">0</span>
+      </div>
+
+      <div id="cards-saldo" class="cards-grid"></div>
+    </div>
+
+    <div id="panel-movimentacoes" class="tab-panel">
+      <div class="filter-bar">
+        <div class="flex" style="gap:12px;align-items:flex-end;flex-wrap:wrap;flex:1">
+
+          <div class="filter-wrap">
+            <label class="filter-label">Módulo</label>
+            <select id="mov-produto" class="filter-select">
+              <option value="">Todos</option>
+              <option value="FEDERAL">Federal</option>
+              <option value="BOLAO">Bolão</option>
+              <option value="PRODUTO">Produto</option>
+            </select>
+          </div>
+
+          <div class="filter-wrap">
+            <label class="filter-label">Origem</label>
+            <select id="mov-origem" class="filter-select">
+              <option value="">Todas</option>
+            </select>
+          </div>
+
+          <div class="filter-wrap">
+            <label class="filter-label">Destino</label>
+            <select id="mov-destino" class="filter-select">
+              <option value="">Todas</option>
+            </select>
+          </div>
+
+          <div class="filter-wrap">
+            <label class="filter-label">Mês</label>
+            <select id="mov-mes" class="filter-select">
+              <option value="">Todos</option>
+            </select>
+          </div>
+
+          <div class="filter-wrap">
+            <label class="filter-label">Status</label>
+            <select id="mov-status" class="filter-select">
+              <option value="">Todos</option>
+              <option value="PENDENTE">Pendente</option>
+              <option value="PAGO">Pago</option>
+              <option value="CANCELADO">Cancelado</option>
+            </select>
+          </div>
+
+          <button class="btn-limpar" id="btn-limpar-mov" type="button">Limpar</button>
+        </div>
+      </div>
+
+      <div id="st-mov" class="status-bar"></div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Módulo</th>
+              <th>Referência</th>
+              <th>Origem</th>
+              <th>Destino</th>
+              <th>Qtd</th>
+              <th>Valor unit.</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Data acerto</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-movimentacoes"></tbody>
+        </table>
+      </div>
+
+      <div id="mov-totais" class="totais-bar"></div>
+    </div>
+
+  </main>
+
+  <script src="./js/controle.js"></script>
+</body>
+</html>

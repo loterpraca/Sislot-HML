@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#00c896">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fechamento de Caixa — SISLOT</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/fechamento-caixa.css">
+  <link rel="stylesheet" href="./css/cliente-fechamento.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+</head>
+<body data-loja="centro">
+
+<header class="header">
+  <div class="header-inner">
+    <div class="loja-tree" id="lojaTreeWrap" title="Trocar loja">
+      <img src="./icons/loterpraca.png" alt="Logo" id="logoImg"/>
+    </div>
+
+    <div class="header-info">
+      <div class="header-nome" id="headerTitle">Centro</div>
+      <div class="header-sub" id="headerSub">Fechamento de Caixa</div>
+    </div>
+
+    <div id="relogio">--:--:--</div>
+
+    <button type="button" class="btn-menu" id="btnInicio">
+      <i class="fas fa-home"></i> <span>Início</span>
+    </button>
+
+    <button type="button" class="btn-menu" id="btnSair">
+      <span>Sair</span>
+    </button>
+  </div>
+</header>
+
+<div class="steps-bar" id="steps-bar">
+  <div class="step active" id="s1"><div class="step-circle">1</div><div class="step-label">Dados</div></div>
+  <div class="step-line" id="l1"></div>
+  <div class="step wait" id="s2"><div class="step-circle">2</div><div class="step-label">Produtos</div></div>
+  <div class="step-line" id="l2"></div>
+  <div class="step wait" id="s3"><div class="step-circle">3</div><div class="step-label">Bolões</div></div>
+  <div class="step-line" id="l3"></div>
+  <div class="step wait" id="s4"><div class="step-circle">4</div><div class="step-label">Resumo</div></div>
+</div>
+
+<main class="main">
+
+  <!-- ═══════════════════════════════════════════════════════ TELA 1 ══ -->
+  <div class="step-content active" id="step1">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Entrada de Dados Externos</div>
+        <div class="page-sub">Preencha os valores conforme os relatórios físicos do dia</div>
+      </div>
+      <div class="step-badge">Tela 1 de 4</div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Identificação</div>
+      <div class="g3">
+        <div class="field">
+          <label class="field-label req">Funcionário</label>
+          <select id="funcionario" class="sel" onchange="onFuncChange()">
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label req">Data do Fechamento</label>
+          <input type="date" id="data-ref">
+        </div>
+        <div class="field">
+          <label class="field-label" style="opacity:0">.</label>
+          <button type="button" id="btn-buscar-fech" class="btn-back"
+                  style="justify-content:center;height:42px"
+                  onclick="buscarFechamentoExistente()">Buscar Fechamento</button>
+        </div>
+      </div>
+      <div class="status-chip" id="status-busca"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Relatório e Movimentação Bancária</div>
+      <div class="g2">
+        <div class="field">
+          <label class="field-label req">Valor do Relatório</label>
+          <div class="pfx-wrap"><span class="pfx">R$</span>
+            <input type="number" id="relatorio" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label req">Depósito Bancário</label>
+          <div class="pfx-wrap"><span class="pfx">R$</span>
+            <input type="number" id="deposito" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Controle de Troco</div>
+      <div class="g2">
+        <div class="field">
+          <label class="field-label req">Troco Inicial (Fundo)</label>
+          <div class="pfx-wrap"><span class="pfx">R$</span>
+            <input type="number" id="troco-ini" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label req">Troco Sobra (Final)</label>
+          <div class="pfx-wrap"><span class="pfx">R$</span>
+            <input type="number" id="troco-sob" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">PIX e Prêmios</div>
+      <div class="g3">
+        <div class="field">
+          <label class="field-label req">PIX CNPJ Recebido</label>
+          <div class="pfx-wrap"><span class="pfx">R$</span>
+            <input type="number" id="pix-cnpj" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label req">Diferença de PIX</label>
+          <div class="pfx-wrap"><span class="pfx">R$</span>
+            <input type="number" id="pix-dif" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label req">Prêmio Raspadinha</label>
+          <div class="pfx-wrap"><span class="pfx">R$</span>
+            <input type="number" id="premio-rasp" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;max-width:300px">
+        <div class="field">
+          <label class="field-label req">Resgate Telesena</label>
+          <div class="pfx-wrap"><span class="pfx">R$</span>
+            <input type="number" id="resgate-tele" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ÁREA DO CLIENTE (substitui "Dívidas de Clientes") ── -->
+    <div class="section" id="section-area-cliente">
+      <div class="section-label">Área do Cliente</div>
+      <button
+          type="button"
+          class="btn-area-cliente"
+          id="btn-abrir-area-cliente">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+        </svg>
+        Área do Cliente
+      </button>
+    </div>
+
+    <div class="form-footer">
+      <div style="font-size:10px;color:var(--dim);font-style:italic">
+        <span style="color:var(--accent)">*</span> Campos obrigatórios
+      </div>
+      <button class="btn-next" onclick="avancarStep(2)">
+        Avançar para Tela 2
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+      </button>
+    </div>
+  </div><!-- /step1 -->
+
+  <!-- ═══════════════════════════════════════════════════════ TELA 2 ══ -->
+  <div class="step-content" id="step2">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Produtos e Federais</div>
+        <div class="page-sub">Quantidades vendidas de produtos físicos e bilhetes federais do dia</div>
+      </div>
+      <div class="step-badge">Tela 2 de 4</div>
+    </div>
+
+    <div class="section">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+        <div class="section-label" style="margin-bottom:0">Produtos Físicos</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <select id="prod-filtro-tipo" class="sel" style="min-width:160px">
+            <option value="">Todos</option>
+            <option value="RASPADINHA">Raspadinha</option>
+            <option value="TELESENA">Tele Sena</option>
+          </select>
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);cursor:pointer">
+            <input type="checkbox" id="toggle-produtos-todos">
+            <span>Mostrar sem estoque</span>
+          </label>
+        </div>
+      </div>
+      <div class="prod-grid" id="produtos-grid"></div>
+      <div class="prod-footer" style="margin-top:12px">
+        <span class="prod-tot-lbl">Total Produtos</span>
+        <span class="prod-tot-val" id="produtos-tot">R$ 0,00</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Bilhetes Federais</div>
+      <button class="btn-buscar-fed" id="btn-fed" onclick="buscarFederais()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        Buscar Federais
+      </button>
+      <div id="fs-inicial" class="state-box">
+        <div class="spinner"></div>
+        <div class="state-title">Carregando...</div>
+        <div class="state-sub">Buscando federais automaticamente</div>
+      </div>
+      <div id="fs-loading" class="state-box" style="display:none">
+        <div class="spinner"></div>
+        <div class="state-title">Buscando federais...</div>
+        <div class="state-sub" id="fs-load-sub">Consultando</div>
+      </div>
+      <div id="fs-erro" class="state-box" style="display:none">
+        <div class="state-title" style="color:var(--err)">Erro ao buscar federais</div>
+        <div class="state-sub" id="fs-err-msg">Verifique e tente novamente.</div>
+      </div>
+      <div id="fs-vazio" class="state-box" style="display:none">
+        <div class="state-title">Nenhum federal encontrado</div>
+        <div class="state-sub">Nenhum bilhete vigente para este período.</div>
+      </div>
+      <div id="fs-lista" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim)">
+            <strong id="fed-count" style="color:var(--purple)">0</strong> federais
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--purple)">
+            Total: <strong id="fed-tot-lbl">R$ 0,00</strong>
+          </div>
+        </div>
+        <div class="fed-table-wrap">
+          <table class="fed-table">
+            <thead><tr>
+              <th>Modalidade</th><th>Concurso</th><th>Sorteio</th>
+              <th>Valor</th><th>Frações</th>
+              <th style="text-align:center;min-width:120px">Qtd Vendida</th>
+            </tr></thead>
+            <tbody id="fed-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="totais-bar">
+      <div class="tot-item"><div class="tot-lbl">Raspadinha</div><div class="tot-val tv-a" id="t2-rasp">R$ 0,00</div></div>
+      <div class="tot-item"><div class="tot-lbl">Telesena</div><div class="tot-val tv-g" id="t2-tele">R$ 0,00</div></div>
+      <div class="tot-item"><div class="tot-lbl">Federais</div><div class="tot-val tv-p" id="t2-fed">R$ 0,00</div></div>
+      <div class="tot-item"><div class="tot-lbl">Total Geral</div><div class="tot-val tv-b" id="t2-geral">R$ 0,00</div></div>
+    </div>
+
+    <div class="form-footer">
+      <button class="btn-back" onclick="avancarStep(1)">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M13 8H3M7 12l-4-4 4-4"/>
+        </svg>
+        Voltar
+      </button>
+      <button class="btn-next" onclick="avancarStep(3)">
+        Avançar para Tela 3
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+      </button>
+    </div>
+  </div><!-- /step2 -->
+
+  <!-- ═══════════════════════════════════════════════════════ TELA 3 ══ -->
+  <div class="step-content" id="step3">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Bolões Vigentes</div>
+        <div class="page-sub">Internos e externos — cotas vendidas no dia</div>
+      </div>
+      <div class="step-badge">Tela 3 de 4</div>
+    </div>
+
+    <div id="b3-inicial" class="state-box">
+      <div class="spinner"></div>
+      <div class="state-title">Carregando bolões...</div>
+    </div>
+    <div id="b3-loading" class="state-box" style="display:none">
+      <div class="spinner"></div>
+      <div class="state-title">Buscando bolões vigentes...</div>
+    </div>
+    <div id="b3-erro" class="state-box" style="display:none">
+      <div class="state-title" style="color:var(--err)">Erro ao buscar bolões</div>
+      <div class="state-sub" id="b3-err-msg">Verifique e tente novamente.</div>
+      <button class="btn-next" style="font-size:12px;padding:8px 16px;margin-top:8px" onclick="carregarBoloes()">Tentar novamente</button>
+    </div>
+    <div id="b3-vazio" class="state-box" style="display:none">
+      <div class="state-title">Nenhum bolão vigente</div>
+      <div class="state-sub">Não há bolões ativos para a data informada.</div>
+    </div>
+
+    <div id="b3-lista" style="display:none">
+      <div id="boloes-wrap"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(0,200,150,.1),rgba(0,200,150,.04));border:1px solid rgba(0,200,150,.3);border-radius:10px;padding:14px 20px;margin-top:20px;margin-bottom:10px;gap:16px">
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:2px">Total Bolões Vendidos</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:300"><span id="tot-cotas">0</span> cotas vendidas</div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;color:var(--accent)" id="tot-bol-geral">R$ 0,00</div>
+      </div>
+      <div class="totais-bar">
+        <div class="tot-item"><div class="tot-lbl">🟢 Internos</div><div class="tot-val tv-ic" id="tot-int">R$ 0,00</div></div>
+        <div class="tot-item"><div class="tot-lbl">🔵 Externos</div><div class="tot-val tv-ec" id="tot-ext">R$ 0,00</div></div>
+        <div class="tot-item"><div class="tot-lbl">Total</div><div class="tot-val tv-b" id="tot-bol">R$ 0,00</div></div>
+      </div>
+      <div class="vendas-list" id="vendas-registradas">
+        <div class="vendas-list-title">Cotas vendidas registradas</div>
+        <div id="vendas-items"></div>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <button class="btn-back" onclick="avancarStep(2)">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M13 8H3M7 12l-4-4 4-4"/>
+        </svg>
+        Voltar
+      </button>
+      <button class="btn-next" onclick="avancarStep(4)">
+        Avançar para Resumo
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+      </button>
+    </div>
+  </div><!-- /step3 -->
+
+  <!-- ═══════════════════════════════════════════════════════ TELA 4 ══ -->
+  <div class="step-content" id="step4">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Resumo Final</div>
+        <div class="page-sub">Conferência de débitos e créditos — apuração da quebra</div>
+      </div>
+      <div class="step-badge">Tela 4 de 4</div>
+    </div>
+
+    <div class="modo-banner" id="modo-banner"></div>
+
+    <div class="info-bar">
+      <div class="info-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+        Funcionário: <strong id="r-func">—</strong>
+      </div>
+      <div class="info-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Data: <strong id="r-data">—</strong>
+      </div>
+      <div class="info-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        Loteria: <strong id="r-loteria">—</strong>
+      </div>
+    </div>
+
+    <div class="grade">
+      <!-- BLOCO DÉBITOS -->
+      <div class="bloco bloco-deb">
+        <div class="bloco-head">
+          <div class="bloco-head-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff5252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+            </svg>
+          </div>
+          <span class="bloco-head-title">Débitos</span>
+          <span class="bloco-head-tot" id="r-tot-deb">R$ 0,00</span>
+        </div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>Troco Inicial</div><div class="linha-val" id="r-troco-ini">R$ 0,00</div></div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>Total Produtos</div><div class="linha-val" id="r-produtos">R$ 0,00</div></div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>Total Federais</div><div class="linha-val" id="r-federais">R$ 0,00</div></div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>Total Bolões</div><div class="linha-val" id="r-boloes">R$ 0,00</div></div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>Relatório Diário</div><div class="linha-val" id="r-relatorio">R$ 0,00</div></div>
+      </div>
+
+      <!-- BLOCO CRÉDITOS -->
+      <div class="bloco bloco-cred">
+        <div class="bloco-head">
+          <div class="bloco-head-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00c896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+            </svg>
+          </div>
+          <span class="bloco-head-title">Créditos</span>
+          <span class="bloco-head-tot" id="r-tot-cred">R$ 0,00</span>
+        </div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>Troco Sobra</div><div class="linha-val" id="r-troco-sob">R$ 0,00</div></div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>Depósito Bancário</div><div class="linha-val" id="r-deposito">R$ 0,00</div></div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>PIX CNPJ</div><div class="linha-val" id="r-pix">R$ 0,00</div></div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>Diferença PIX</div><div class="linha-val" id="r-pix-dif">R$ 0,00</div></div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>Prêmio Raspadinha</div><div class="linha-val" id="r-rasp">R$ 0,00</div></div>
+        <div class="linha"><div class="linha-label"><div class="linha-dot"></div>Resgate Telesena</div><div class="linha-val" id="r-tele">R$ 0,00</div></div>
+        <!-- CF: Crédito Cliente (débitos do cliente → crédito no fechamento) -->
+        <div class="linha" id="cf-r-credito">
+          <div class="linha-label">
+            <div class="linha-dot"></div>
+            Crédito Cliente
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;
+                         padding:1px 6px;border-radius:3px;
+                         background:rgba(167,139,250,.1);
+                         border:1px solid rgba(167,139,250,.2);
+                         color:var(--purple);margin-left:4px"
+                  id="cf-r-credito-badge">0</span>
+          </div>
+          <div class="linha-val" id="cf-r-credito-val">R$ 0,00</div>
+        </div>
+      </div>
+    </div><!-- /grade -->
+
+    <div class="quebra-card q-eq" id="quebra-card">
+      <div class="q-icon" id="q-icon">✓</div>
+      <div class="q-info">
+        <div class="q-titulo" id="q-titulo">Caixa Equilibrado</div>
+        <div class="q-desc" id="q-desc">Créditos e débitos estão balanceados.</div>
+      </div>
+      <div>
+        <div class="q-valor" id="q-valor">R$ 0,00</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);text-align:right;margin-top:3px" id="q-detalhe">Créditos − Débitos</div>
+      </div>
+    </div>
+
+    <div class="just-wrap" id="just-wrap">
+      <div class="just-label">⚠ Justificativa obrigatória — quebra identificada</div>
+      <textarea id="justificativa" maxlength="500" placeholder="Descreva o motivo da diferença..."></textarea>
+      <div class="just-counter"><span id="just-cnt">0</span> / 500</div>
+    </div>
+
+    <div class="form-footer">
+      <button class="btn-back" onclick="avancarStep(3)">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M13 8H3M7 12l-4-4 4-4"/>
+        </svg>
+        Voltar
+      </button>
+      <button class="btn-finalizar salvar" id="btn-final" onclick="finalizar()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span id="btn-final-txt">Finalizar Fechamento</span>
+      </button>
+    </div>
+  </div><!-- /step4 -->
+
+</main>
+
+<!-- ═══════════════════════════════════════════════ MODAIS SISTEMA ══ -->
+<div class="overlay" id="m-inicio">
+  <div class="modal-box">
+    <div class="modal-icon">🏠</div>
+    <div class="modal-title">Voltar ao menu?</div>
+    <div class="modal-desc">Você sairá da tela de fechamento e retornará ao menu principal.</div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="fecharModal('m-inicio')">Cancelar</button>
+      <button class="modal-ok verde" onclick="executarInicio()">Sim, voltar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-sair">
+  <div class="modal-box">
+    <div class="modal-icon">🔒</div>
+    <div class="modal-title">Sair do sistema?</div>
+    <div class="modal-desc">Sua sessão será encerrada.</div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="fecharModal('m-sair')">Cancelar</button>
+      <button class="modal-ok vermelho" onclick="executarSair()">Sim, sair</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-sucesso-fechamento">
+  <div class="modal-box">
+    <div class="modal-icon">✅</div>
+    <div class="modal-title">Fechamento salvo</div>
+    <div class="modal-desc" id="m-sucesso-fechamento-msg">O fechamento foi salvo com sucesso.</div>
+    <div class="modal-btns">
+      <button class="modal-ok verde" onclick="confirmarSucessoFechamento()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-token">
+  <div class="modal-box" style="text-align:left">
+    <div class="modal-title" style="color:var(--amber);margin-bottom:6px">Token de autorização</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5">
+      Para sobrescrever um fechamento existente, informe o token gerado por um sócio ou administrador.
+    </div>
+    <div class="admin-field">
+      <input  type="text"  id="token-autorizacao"  inputmode="numeric"  maxlength="6"  placeholder="Ex: 123456"
+>
+    </div>
+    <div class="admin-err" id="token-err">Token inválido.</div>
+    <div class="modal-btns" style="justify-content:flex-end;margin-top:14px">
+      <button class="modal-cancel" onclick="FECHAMENTO_RULES.cancelarToken()">Cancelar</button>
+      <button class="modal-ok amber" onclick="  FECHAMENTO_RULES.confirmarToken({    loteriaId: window.loteriaAtiva?.id,    funcionarioId: document.getElementById('funcionario')?.value,    dataRef: document.getElementById('data-ref')?.value
+  })
+">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-gravando">
+  <div class="modal-box modal-gravando">
+    <div class="spinner-lg"></div>
+    <div class="modal-title" id="m-grav-titulo">Gravando fechamento...</div>
+    <div style="font-size:11px;color:var(--muted)" id="m-grav-sub">Aguarde</div>
+    <div class="prog-bar-wrap"><div class="prog-bar" id="m-prog"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ MODAL ÁREA DO CLIENTE ══ -->
+<!-- ══════════════════════════════════════════ MODAL ÁREA DO CLIENTE ══
+     Substitua o bloco <div class="modal-cf" id="m-area-cliente"> completo
+     pelo conteúdo abaixo no seu fechamento-caixa.html
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<div class="modal-cf" id="m-area-cliente">
+  <div class="modal-cf-box">
+
+    <!-- ── HEADER ──────────────────────────────────────────────────── -->
+    <div class="modal-cf-header">
+      <div class="modal-cf-title">
+        <div class="modal-cf-title-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+          </svg>
+        </div>
+        Área do Cliente
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;
+                     background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.2);
+                     padding:2px 8px;border-radius:10px;color:var(--purple);
+                     letter-spacing:.14em">SISLOT</span>
+      </div>
+      <button type="button" class="modal-cf-close" onclick="CF.closeModal()" title="Fechar">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+    <path d="M18 6 6 18M6 6l12 12"/>
+  </svg>
+</button>
+    </div>
+
+    <!-- ── LAYOUT BI-COLUNA ────────────────────────────────────────── -->
+    <div class="cf-layout">
+
+      <!-- SIDEBAR ESQUERDA -->
+      <aside class="cf-sidebar" id="cf-sidebar">
+
+        <!-- Avatar animado -->
+        <div class="cf-avatar-wrap" id="cf-avatar-wrap">
+          <div class="cf-avatar-ring" id="cf-avatar-ring">
+            <!-- Anel SVG animado -->
+            <svg class="cf-ring-svg" viewBox="0 0 72 72"
+                 fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="36" cy="36" r="33" stroke="rgba(167,139,250,0.15)"
+                      stroke-width="1.5" stroke-dasharray="4 6"
+                      stroke-linecap="round"/>
+              <circle cx="36" cy="36" r="33" stroke="rgba(167,139,250,0.5)"
+                      stroke-width="1.5" stroke-dasharray="24 180"
+                      stroke-linecap="round"/>
+            </svg>
+            <div class="cf-avatar-circle" id="cf-avatar-iniciais">—</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+            <div class="cf-cliente-nome-sb" id="cf-sb-nome">Nenhum cliente</div>
+            <div class="cf-cliente-tel-sb" id="cf-sb-tel">—</div>
+            <div class="cf-status-dot" id="cf-sb-status">inativo</div>
+          </div>
+        </div>
+
+        <!-- Saldo devedor -->
+        <div class="cf-saldo-sb" id="cf-saldo-sb">
+          <div class="cf-saldo-sb-label">Saldo devedor</div>
+          <div class="cf-saldo-sb-val zerado" id="cf-saldo-sb-val">R$ 0,00</div>
+          <div class="cf-saldo-sb-sub" id="cf-saldo-sb-sub">Sem pendências</div>
+        </div>
+
+        <!-- Nav de contexto -->
+        <nav class="cf-sb-nav" id="cf-sb-nav">
+          <button class="cf-sb-nav-item ativo" id="cf-nav-lista"
+                  onclick="CF.openModal()">
+            <svg class="cf-sb-nav-icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+            </svg>
+            Lista
+          </button>
+          <button class="cf-sb-nav-item" id="cf-nav-extrato"
+                  onclick="CF._navExtrato && CF._navExtrato()">
+            <svg class="cf-sb-nav-icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <path d="M8 21h8M12 17v4"/>
+            </svg>
+            Extrato
+          </button>
+          <button class="cf-sb-nav-item" id="cf-nav-debito"
+                  onclick="CF.abrirCarrinho && CF.abrirCarrinho()">
+            <svg class="cf-sb-nav-icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            Débito
+          </button>
+        </nav>
+
+      </aside>
+
+      <!-- PAINEL DIREITO -->
+      <div class="cf-content">
+      <div id="cf-view-picker" class="cf-view">
+  <div class="modal-cf-body">
+
+    <button class="cf-btn-back" onclick="CF.abrirCarrinho()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Voltar ao carrinho
+    </button>
+
+    <!-- Título dinâmico + busca -->
+    <div style="display:flex;align-items:center;justify-content:space-between;
+                gap:12px;margin-bottom:14px;flex-wrap:wrap">
+      <div class="cf-sec-titulo" style="margin-bottom:0;flex:1" id="cf-picker-titulo">
+        Selecionar item
+      </div>
+    </div>
+
+    <div style="position:relative;margin-bottom:14px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           style="position:absolute;left:11px;top:50%;transform:translateY(-50%);
+                  color:var(--dim);pointer-events:none">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input class="cf-inp" id="cf-picker-busca" type="text"
+             placeholder="Filtrar itens..."
+             oninput="CF._filtrarPicker()"
+             style="padding-left:34px;width:100%">
+    </div>
+
+    <!-- Lista de itens disponíveis -->
+    <div id="cf-picker-lista"
+         style="display:flex;flex-direction:column;gap:6px;
+                max-height:340px;overflow-y:auto;padding-right:2px;
+                scrollbar-width:thin;scrollbar-color:rgba(167,139,250,0.15) transparent">
+    </div>
+
+  </div>
+
+  <div class="modal-cf-footer">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim)">
+      Clique no item para adicioná-lo ao carrinho
+    </div>
+    <button class="cf-btn-secondary" onclick="CF.abrirCarrinho()">Cancelar</button>
+  </div>
+</div>
+        <!-- ── VIEW: LISTA DE CLIENTES ──────────────────────────── -->
+        <div id="cf-view-lista" class="cf-view cf-ativo">
+          <div class="modal-cf-body">
+
+            <!-- Resumo da sessão (aparece quando há lançamentos) -->
+            <div class="cf-resumo-sessao" id="cf-resumo-sessao">
+              <div class="cf-resumo-titulo">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Sessão atual
+              </div>
+              <div id="cf-resumo-sessao-inner"></div>
+            </div>
+
+            <!-- Lançamentos da sessão -->
+            <div class="cf-lista-lancamentos" id="cf-lista-lancamentos"></div>
+
+            <!-- Busca -->
+            <div class="cf-search-wrap">
+              <div class="cf-search-input-wrap">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text" id="cf-busca-cliente"
+                       placeholder="Nome, telefone ou documento..."
+                       oninput="CF.filtrarClientes()">
+              </div>
+              <button class="cf-btn-novo" onclick="CF.iniciarNovoCadastro()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Novo
+              </button>
+            </div>
+
+            <!-- Lista de clientes -->
+            <div class="cf-clientes-lista" id="cf-clientes-lista">
+              <div class="cf-empty">
+                <div class="spinner" style="margin-bottom:6px"></div>
+                <div>Carregando clientes...</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-cf-footer">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim)">
+              <span id="cf-total-clientes" style="color:var(--purple)">—</span> clientes cadastrados
+            </div>
+            <button class="cf-btn-secondary" onclick="CF.closeModal()">Fechar</button>
+          </div>
+        </div>
+
+        <!-- ── VIEW: CLIENTE SELECIONADO ────────────────────────── -->
+        <div id="cf-view-cliente" class="cf-view">
+          <div class="modal-cf-body">
+            <button class="cf-btn-back" onclick="CF.openModal()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+              </svg>
+              Voltar à lista
+            </button>
+
+            <div class="cf-cliente-header-box">
+              <div id="cf-cliente-header"></div>
+              <div class="cf-saldo-info" id="cf-saldo-pendente"></div>
+            </div>
+
+            <div class="cf-acoes">
+              <button type="button" class="cf-btn-acao debito" onclick="CF.abrirCarrinho()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                </svg>
+                Lançar Débito
+              </button>
+            </div>
+
+            <div class="cf-sec-titulo">Lançamentos desta sessão</div>
+            <div class="cf-extrato-sessao" id="cf-extrato-sessao"></div>
+          </div>
+
+          <div class="modal-cf-footer">
+            <button class="cf-btn-secondary" onclick="CF.openModal()">Voltar</button>
+          </div>
+        </div>
+
+        <!-- ── VIEW: CARRINHO DE DÉBITO ─────────────────────────── -->
+        <div id="cf-view-carrinho" class="cf-view">
+          <div class="modal-cf-body">
+            <button class="cf-btn-back"
+                    onclick="CF.selecionarCliente(window._cfClienteAtual)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+              </svg>
+              Voltar ao cliente
+            </button>
+
+            <div class="cf-sec-titulo">Adicionar itens ao débito</div>
+
+            <div class="cf-tipos-wrap">
+              <button class="cf-btn-tipo" onclick="CF.adicionarItemCarrinho('BOLAO')">
+                <span class="cf-btn-tipo-icon">🎰</span>
+                Bolão
+              </button>
+              <button class="cf-btn-tipo" onclick="CF.adicionarItemCarrinho('FEDERAL')">
+                <span class="cf-btn-tipo-icon">🎟</span>
+                Federal
+              </button>
+              <button class="cf-btn-tipo" onclick="CF.adicionarItemCarrinho('PRODUTO')">
+                <span class="cf-btn-tipo-icon">🏷</span>
+                Produto
+              </button>
+              <button class="cf-btn-tipo" onclick="CF.adicionarItemCarrinho('CONTA')">
+                <span class="cf-btn-tipo-icon">📋</span>
+                Conta
+              </button>
+            </div>
+
+            <div class="cf-carrinho-itens" id="cf-carrinho-itens">
+              <div class="cf-empty" style="padding:20px">
+                <div class="cf-empty-icon">🛒</div>
+                <div style="font-size:12px;color:var(--muted)">
+                  Carrinho vazio
+                </div>
+                <small>Use os botões acima para adicionar itens</small>
+              </div>
+            </div>
+
+            <div class="cf-obs-field">
+              <label style="font-family:'IBM Plex Mono',monospace;font-size:9px;
+                            text-transform:uppercase;letter-spacing:.12em;
+                            color:var(--dim);display:block;margin-bottom:5px">
+                Observação (opcional)
+              </label>
+              <textarea id="cf-obs-debito" maxlength="300"
+                        placeholder="Anotação sobre este lançamento..."></textarea>
+            </div>
+
+            <div class="cf-total-bar">
+              <div>
+                <div class="cf-total-label">Total do Débito</div>
+                <div style="font-size:10px;color:var(--dim);margin-top:2px"
+                     id="cf-carrinho-qtd-itens">0 itens</div>
+              </div>
+              <div class="cf-total-val" id="cf-total-carrinho">R$ 0,00</div>
+            </div>
+          </div>
+
+          <div class="modal-cf-footer">
+            <button class="cf-btn-secondary" onclick="CF.openModal()">Cancelar</button>
+            <button class="cf-btn-primary" id="cf-btn-confirmar-debito"
+                    disabled onclick="CF.confirmarDebito()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                   style="margin-right:4px">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Confirmar Débito
+            </button>
+          </div>
+        </div>
+
+        <!-- ── VIEW: NOVO CADASTRO ───────────────────────────────── -->
+        <div id="cf-view-novo-cliente" class="cf-view">
+          <div class="modal-cf-body">
+            <button class="cf-btn-back" onclick="CF.openModal()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+              </svg>
+              Voltar à lista
+            </button>
+
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+              <div style="width:40px;height:40px;border-radius:10px;
+                          background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);
+                          display:flex;align-items:center;justify-content:center;font-size:18px">
+                👤
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:600;color:var(--bright)">Novo Cliente</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:1px">Preencha os dados para cadastrar</div>
+              </div>
+            </div>
+
+            <div class="cf-novo-form">
+              <div class="cf-novo-campo req">
+                <label>Nome do Cliente</label>
+                <input type="text" id="cf-novo-nome" class="cf-inp"
+                       placeholder="Nome completo">
+              </div>
+              <div class="cf-novo-campo">
+                <label>Telefone</label>
+                <input type="text" id="cf-novo-tel" class="cf-inp"
+                       placeholder="(00) 00000-0000">
+              </div>
+              <div class="cf-novo-campo">
+                <label>CPF / Documento</label>
+                <input type="text" id="cf-novo-doc" class="cf-inp"
+                       placeholder="Opcional">
+              </div>
+              <div class="cf-novo-campo">
+                <label>Observação</label>
+                <textarea id="cf-novo-obs" class="cf-inp"
+                          style="min-height:56px;resize:none;font-size:12px;
+                                 line-height:1.5;font-family:'IBM Plex Sans',sans-serif"
+                          placeholder="Notas internas..."></textarea>
+              </div>
+              <div class="cf-err" id="cf-novo-err"></div>
+            </div>
+          </div>
+
+          <div class="modal-cf-footer">
+            <button class="cf-btn-secondary" onclick="CF.openModal()">Cancelar</button>
+            <button class="cf-btn-primary" id="cf-btn-salvar-novo"
+                    onclick="CF.salvarNovoCadastro()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                   style="margin-right:4px">
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+              Cadastrar Cliente
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /cf-content -->
+    </div><!-- /cf-layout -->
+
+  </div><!-- /modal-cf-box -->
+</div><!-- /modal-cf -->
+
+
+
+
+
+
+<!-- ══════════════════════════════════════════════════════ SCRIPTS ══ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./sislot-config.js"></script>
+<script src="./sislot-security.js"></script>
+<script src="./js/fechamento-rules.js"></script>
+<script src="./js/cliente-fechamento.js"></script>
+<script src="./js/fechamento-caixa.js"></script>
+
+</body>
+</html>

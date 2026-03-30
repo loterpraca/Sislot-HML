@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>SISLOT — [NOME DO MÓDULO]</title>
+
+  <!-- Fontes -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Design System — sempre nesta ordem -->
+  <link rel="stylesheet" href="./css/sislot-base.css" />
+  <link rel="stylesheet" href="./css/sislot-components.css" />
+
+  <!-- CSS específico do módulo (só o que não existe nos componentes) -->
+  <link rel="stylesheet" href="./css/[MODULO].css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HEADER — padrão para todos os módulos
+       Copie este bloco inteiro. Não altere as classes sl-*.
+  ═════════════════════════════════════════════════════════ -->
+  <header class="sl-header">
+    <div class="sl-header-inner">
+
+      <!-- Logo da loja (troca via sislot-theme.js) -->
+      <div class="sl-loja-logo" id="btnLojaLogo" title="Trocar loja">
+        <img src="./icons/todas.png" alt="Loja" />
+      </div>
+
+      <!-- Nome e sub -->
+      <div class="sl-header-info">
+        <div class="sl-header-nome" id="headerNome">Carregando…</div>
+        <div class="sl-header-sub">SISLOT · [NOME DO MÓDULO]</div>
+      </div>
+
+      <!-- Seletor de loja explícito (recomendado pela spec) -->
+      <div class="sl-loja-select">
+        <select id="sl-loja-select" aria-label="Selecionar loja"></select>
+      </div>
+
+      <!-- Relógio -->
+      <div class="sl-header-clock" id="relogio">--:--:--</div>
+
+      <!-- Botão voltar ao menu -->
+      <a href="./menu.html" class="sl-btn-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Menu
+      </a>
+
+    </div>
+  </header>
+  <!-- ═════════════════════════════════════════════════════ -->
+
+  <!-- Conteúdo do módulo -->
+  <main class="sl-main">
+
+    <div class="sl-page-header">
+      <div>
+        <h1 class="sl-page-title">[Título da página]</h1>
+        <p class="sl-page-sub">[Subtítulo ou instrução breve]</p>
+      </div>
+      <div>
+        <!-- Ações do topo, ex: botão primário -->
+        <button class="sl-btn sl-btn--primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span class="sl-btn-text">Nova ação</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Exemplo de seção com separador -->
+    <div class="sl-section-sep">
+      <div class="sl-section-label">Seção</div>
+      <div class="sl-section-line"></div>
+    </div>
+
+    <!-- Exemplo de status bar -->
+    <div class="sl-status-bar" id="statusBar"></div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="sl-footer">SISLOT v3.0 · Sistema de Gestão de Lotéricas</footer>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SCRIPTS — sempre nesta ordem
+  ═════════════════════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="./sislot-config.js"></script>
+  <script src="./sislot-security.js"></script>
+  <script src="./js/sislot-utils.js"></script>
+  <script src="./js/sislot-theme.js"></script>
+
+  <script>
+    // Inicializa tema ao carregar
+    document.addEventListener('DOMContentLoaded', () => {
+      SISLOT_THEME.init();
+
+      // Escuta troca de loja para recarregar dados
+      document.addEventListener('sislot:tema', e => {
+        const loja = e.detail;
+        console.log('Loja ativa:', loja.nome);
+        // carregarDados(loja.slug); ← chame sua função aqui
+      });
+    });
+  </script>
+
+  <!-- JS específico do módulo -->
+  <script src="./js/[MODULO].js"></script>
+
+</body>
+</html>

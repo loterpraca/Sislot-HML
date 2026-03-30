@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-loja="centro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SISLOT • Produto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="./css/produto.css" />
+</head>
+<body data-loja="centro" data-role="ADMIN">
+
+  <!-- ══════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+
+      <div class="loja-tree" id="lojaTreeWrap" title="Trocar loja">
+        <img src="" alt="Loja" id="lojaLogo" />
+      </div>
+
+      <div class="header-info">
+        <div class="header-nome" id="headerNome">Centro</div>
+        <div class="header-sub">SISLOT · PRODUTO</div>
+      </div>
+
+      <button type="button" class="btn-menu" id="btnInicio">
+        <i class="fas fa-home"></i><span>Início</span>
+      </button>
+      <button type="button" class="btn-menu" id="btnSair">
+        <i class="fas fa-sign-out-alt"></i><span>Sair</span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════
+       WRAP
+  ══════════════════════════════════════════ -->
+  <main class="wrap">
+
+    <!-- QUICKBAR — 4 telas -->
+    <nav class="quickbar" aria-label="Módulos">
+      <div class="quickbar-grid">
+        <button class="qmod qmod-text active" data-screen="cadastro">
+          <i class="fas fa-layer-group"></i>
+          <span>Cadastro</span>
+        </button>
+        <button class="qmod qmod-text" data-screen="movimentacao">
+          <i class="fas fa-arrows-alt-h"></i>
+          <span>Movimentação</span>
+        </button>
+        <button class="qmod qmod-text" data-screen="estoque">
+          <i class="fas fa-boxes"></i>
+          <span>Estoque</span>
+        </button>
+        <button class="qmod qmod-text" data-screen="mestra" id="btnMestra" data-perm="ADMIN,SOCIO">
+          <i class="fas fa-chart-line"></i>
+          <span>Mestra</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- ══════════════════════════════════════
+         TELA 1 — CADASTRO
+    ══════════════════════════════════════ -->
+    <section class="screen active" id="screen-cadastro">
+
+      <!-- Chips de tipo -->
+      <div class="tipo-switcher">
+        <button class="tipo-chip active" data-aba="raspadinha">
+          <i class="fas fa-ticket-alt"></i>
+          <span>Raspadinha</span>
+        </button>
+        <button class="tipo-chip" data-aba="telesena">
+          <i class="fas fa-star"></i>
+          <span>Tele Sena</span>
+        </button>
+        <div class="tipo-hint" id="tipoHint">
+          <i class="fas fa-hand-pointer"></i>
+          Clique em uma aba para abrir o formulário de cadastro
+        </div>
+      </div>
+
+      <!-- PANE — Raspadinha -->
+      <div class="cadastro-pane" id="pane-raspadinha">
+        <div class="card">
+          <div class="section-header">
+            <div class="section-icon"><i class="fas fa-ticket-alt"></i></div>
+            <h2 class="section-title">
+              Cadastro · Raspadinha
+              <span class="pane-close" data-aba="raspadinha" title="Fechar formulário">
+                <i class="fas fa-chevron-up"></i>
+              </span>
+            </h2>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label><i class="fas fa-tag"></i> Nome da raspadinha</label>
+              <input id="raspNome" placeholder="Ex: Jogo da Velha" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label><i class="fas fa-money-bill-wave"></i> Valor de venda (R$)</label>
+              <input id="raspValorVenda" type="number" step="0.01" min="0" placeholder="0,00" />
+            </div>
+            <div class="field">
+              <label>
+                <i class="fas fa-calculator"></i> Valor de custo
+                <span class="field-badge">auto · 80%</span>
+              </label>
+              <input id="raspValorCusto" type="number" step="0.01" min="0" placeholder="0,00" disabled />
+            </div>
+            <div class="field">
+              <label><i class="fas fa-sort-numeric-up"></i> Ordem de exibição</label>
+              <input id="raspOrdem" type="number" min="0" placeholder="0" />
+            </div>
+          </div>
+
+          <div class="status muted" id="statusRasp">
+            <i class="fas fa-info-circle"></i>
+            <span>Margem fixa de 20% — custo calculado automaticamente.</span>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" id="btnSalvarRasp">
+              <i class="fas fa-check"></i> Salvar raspadinha
+            </button>
+            <button class="btn-danger" id="btnInativarRasp">
+              <i class="fas fa-ban"></i> Inativar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE — Tele Sena -->
+      <div class="cadastro-pane" id="pane-telesena">
+        <div class="card">
+          <div class="section-header">
+            <div class="section-icon"><i class="fas fa-star"></i></div>
+            <h2 class="section-title">
+              Cadastro · Tele Sena
+              <span class="pane-close" data-aba="telesena" title="Fechar formulário">
+                <i class="fas fa-chevron-up"></i>
+              </span>
+            </h2>
+          </div>
+
+          <!-- Campanha -->
+          <div class="form-block">
+            <div class="form-block-label">
+              <i class="fas fa-folder-open"></i> Campanha
+            </div>
+            <div class="grid-2">
+              <div class="field grid-span-2">
+                <label><i class="fas fa-tag"></i> Nome da campanha</label>
+                <input id="teleCampanha" placeholder="Ex: Mães 2026" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label><i class="fas fa-calendar-day"></i> Data inicial</label>
+                <input id="teleDataInicio" type="date" />
+              </div>
+              <div class="field">
+                <label><i class="fas fa-calendar-check"></i> Data final</label>
+                <input id="teleDataFim" type="date" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Item -->
+          <div class="form-block">
+            <div class="form-block-label">
+              <i class="fas fa-cube"></i> Item da campanha
+            </div>
+            <div class="grid-2">
+              <div class="field grid-span-2">
+                <label><i class="fas fa-tag"></i> Nome do item</label>
+                <input id="teleItem" placeholder="Ex: Completa" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label><i class="fas fa-money-bill-wave"></i> Valor de venda (R$)</label>
+                <input id="teleValorVenda" type="number" step="0.01" min="0" placeholder="0,00" />
+              </div>
+              <div class="field">
+                <label><i class="fas fa-receipt"></i> Valor de custo (R$)</label>
+                <input id="teleValorCusto" type="number" step="0.01" min="0" placeholder="0,00" />
+              </div>
+            </div>
+          </div>
+
+          <div class="status muted" id="statusTele">
+            <i class="fas fa-info-circle"></i>
+            <span>Campanha e item podem ser inativados para não aparecer nos selects.</span>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" id="btnSalvarTele">
+              <i class="fas fa-check"></i> Salvar Tele Sena
+            </button>
+            <button class="btn-danger" id="btnInativarTele">
+              <i class="fas fa-ban"></i> Inativar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTOQUE RÁPIDO -->
+      <div class="stock-header">
+        <div class="stock-header-title">
+          <i class="fas fa-boxes"></i>
+          <span>Estoque da loja</span>
+          <span class="stock-badge" id="stockBadge">—</span>
+        </div>
+        <div class="stock-filter-chips" id="stockFilterChips">
+          <button class="filter-chip active" data-filter="todos">Todos</button>
+          <button class="filter-chip" data-filter="RASPADINHA">Raspadinha</button>
+          <button class="filter-chip" data-filter="TELESENA">Tele Sena</button>
+        </div>
+      </div>
+
+      <!-- Métricas resumidas -->
+      <div class="metrics-strip" id="metricsStrip">
+        <div class="metric-pill">
+          <span>Saldo total</span>
+          <strong id="mSaldoTotal">—</strong>
+        </div>
+        <div class="metric-pill">
+          <span>Vendidas 7d</span>
+          <strong id="mVendidas7d">—</strong>
+        </div>
+        <div class="metric-pill">
+          <span>Média/dia</span>
+          <strong id="mMediaDia">—</strong>
+        </div>
+        <div class="metric-pill metric-pill-destaque">
+          <span>Duração média</span>
+          <strong id="mDuracao">—</strong>
+        </div>
+      </div>
+
+      <!-- Cards de estoque -->
+      <div class="prod-grid" id="cardsCadastro"></div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════
+         TELA 2 — MOVIMENTAÇÃO ENTRE LOJAS
+    ══════════════════════════════════════ -->
+    <section class="screen" id="screen-movimentacao">
+
+      <div class="card">
+        <div class="section-header">
+          <div class="section-icon"><i class="fas fa-arrows-alt-h"></i></div>
+          <h2 class="section-title">Movimentação entre lojas</h2>
+        </div>
+
+        <!-- Resumo visual origem→destino -->
+        <div class="mov-route" id="movRoute">
+          <div class="mov-route-node" id="movRouteOrigem">
+            <div class="mrn-label">Origem</div>
+            <div class="mrn-name" id="movNomeOrigem">—</div>
+          </div>
+          <div class="mov-route-arrow">
+            <i class="fas fa-long-arrow-alt-right"></i>
+            <span class="mov-route-qty" id="movRouteQty">0 un.</span>
+          </div>
+          <div class="mov-route-node" id="movRouteDestino">
+            <div class="mrn-label">Destino</div>
+            <div class="mrn-name" id="movNomeDestino">—</div>
+          </div>
+        </div>
+
+        <div class="grid-3-2">
+          <div class="field">
+            <label><i class="fas fa-store"></i> Origem</label>
+            <select id="movOrigem"></select>
+          </div>
+          <div class="field">
+            <label><i class="fas fa-store-alt"></i> Destino</label>
+            <select id="movDestino"></select>
+          </div>
+          <div class="field">
+            <label><i class="fas fa-box"></i> Produto</label>
+            <select id="movProduto"></select>
+          </div>
+          <div class="field">
+            <label><i class="fas fa-sort-numeric-up"></i> Quantidade</label>
+            <div class="input-with-stepper">
+              <button type="button" class="stepper-btn" id="movQtdMinus"><i class="fas fa-minus"></i></button>
+              <input id="movQtd" type="number" min="0" placeholder="0" class="input-center" />
+              <button type="button" class="stepper-btn" id="movQtdPlus"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="field">
+            <label><i class="fas fa-receipt"></i> Custo unitário (R$)</label>
+            <input id="movCusto" type="number" step="0.01" min="0" placeholder="0,00" />
+          </div>
+          <div class="field">
+            <label><i class="fas fa-comment-alt"></i> Observação</label>
+            <input id="movObs" placeholder="Opcional" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="status muted" id="statusMov">
+          <i class="fas fa-info-circle"></i>
+          <span>Preencha os campos acima para registrar a movimentação.</span>
+        </div>
+
+        <div class="actions">
+          <button class="btn-primary" id="btnSalvarMov">
+            <i class="fas fa-paper-plane"></i> Registrar movimentação
+          </button>
+          <button class="btn-ghost" id="btnLimparMov">
+            <i class="fas fa-eraser"></i> Limpar
+          </button>
+        </div>
+      </div>
+
+      <!-- Histórico recente de movimentações -->
+      <div class="card" style="margin-top:0">
+        <div class="section-header">
+          <div class="section-icon"><i class="fas fa-history"></i></div>
+          <h2 class="section-title">Movimentações recentes</h2>
+        </div>
+        <div class="mov-history-list" id="movHistoryList">
+          <div class="empty-state">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Nenhuma movimentação registrada ainda.</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════
+         TELA 3 — ESTOQUE
+    ══════════════════════════════════════ -->
+    <section class="screen" id="screen-estoque">
+
+      <div class="card">
+        <div class="section-header">
+          <div class="section-icon"><i class="fas fa-boxes"></i></div>
+          <h2 class="section-title">
+            Estoque
+            <span class="origem-chip" id="estoqueLoja">
+              <i class="fas fa-store"></i>
+              <span id="estoqueLojaNome">—</span>
+            </span>
+          </h2>
+        </div>
+
+        <div class="estoque-controls">
+          <div class="estoque-search">
+            <i class="fas fa-search"></i>
+            <input type="search" id="estoqueSearch" placeholder="Buscar produto…" />
+          </div>
+          <div class="estoque-filter-chips" id="estoqueFilterChips">
+            <button class="filter-chip active" data-filter="todos">Todos</button>
+            <button class="filter-chip" data-filter="RASPADINHA">Raspadinha</button>
+            <button class="filter-chip" data-filter="TELESENA">Tele Sena</button>
+            <button class="filter-chip filter-chip-alert" data-filter="baixo">Crítico</button>
+          </div>
+        </div>
+
+        <!-- Sumário do estoque -->
+        <div class="estoque-summary" id="estoqueSummary">
+          <div class="es-item">
+            <span>Itens ativos</span>
+            <strong id="esItens">—</strong>
+          </div>
+          <div class="es-sep"></div>
+          <div class="es-item">
+            <span>Saldo total</span>
+            <strong id="esSaldo">—</strong>
+          </div>
+          <div class="es-sep"></div>
+          <div class="es-item">
+            <span>Vendas 7d</span>
+            <strong id="esVendas">—</strong>
+          </div>
+          <div class="es-sep"></div>
+          <div class="es-item es-alert" id="esAlertItem">
+            <span>Críticos</span>
+            <strong id="esCriticos">—</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="prod-grid" id="cardsEstoque"></div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════
+         TELA 4 — MESTRA
+    ══════════════════════════════════════ -->
+    <section class="screen" id="screen-mestra">
+
+      <div class="card">
+        <div class="section-header">
+          <div class="section-icon"><i class="fas fa-chart-line"></i></div>
+          <h2 class="section-title">Mestra de Produtos</h2>
+        </div>
+
+        <div class="mestra-filters">
+          <div class="field">
+            <label><i class="fas fa-calendar-alt"></i> Período</label>
+            <select id="mestraPeriodo">
+              <option value="7">Últimos 7 dias</option>
+              <option value="30" selected>Últimos 30 dias</option>
+              <option value="90">Últimos 90 dias</option>
+            </select>
+          </div>
+          <div class="field">
+            <label><i class="fas fa-filter"></i> Tipo</label>
+            <select id="mestraTipo">
+              <option value="">Todos</option>
+              <option value="RASPADINHA">Raspadinha</option>
+              <option value="TELESENA">Tele Sena</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs da Mestra -->
+      <div class="mestra-kpis" id="mestraKpis">
+        <div class="kpi-card">
+          <div class="kpi-icon"><i class="fas fa-ticket-alt"></i></div>
+          <div class="kpi-body">
+            <span>Vendas</span>
+            <strong id="kpiVendas">—</strong>
+          </div>
+        </div>
+        <div class="kpi-card kpi-card-destaque">
+          <div class="kpi-icon"><i class="fas fa-dollar-sign"></i></div>
+          <div class="kpi-body">
+            <span>Faturamento</span>
+            <strong id="kpiFat">—</strong>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon"><i class="fas fa-receipt"></i></div>
+          <div class="kpi-body">
+            <span>Custo</span>
+            <strong id="kpiCusto">—</strong>
+          </div>
+        </div>
+        <div class="kpi-card kpi-card-positivo">
+          <div class="kpi-icon"><i class="fas fa-chart-bar"></i></div>
+          <div class="kpi-body">
+            <span>Lucro bruto</span>
+            <strong id="kpiLucro">—</strong>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon"><i class="fas fa-percent"></i></div>
+          <div class="kpi-body">
+            <span>Margem</span>
+            <strong id="kpiMargem">—</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela mestra -->
+      <div class="card">
+        <div class="section-header">
+          <div class="section-icon"><i class="fas fa-table"></i></div>
+          <h2 class="section-title">Detalhamento por produto</h2>
+        </div>
+        <div class="mestra-table-wrap">
+          <table class="mestra-table" id="mestraTable">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Campanha / Item</th>
+                <th class="num">Vendas</th>
+                <th class="num">Faturamento</th>
+                <th class="num">Custo</th>
+                <th class="num">Lucro</th>
+                <th class="num">Margem</th>
+              </tr>
+            </thead>
+            <tbody id="mestraTbody">
+              <tr><td colspan="7" class="table-empty">Nenhum dado disponível.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════
+       PAINEL DESLIZANTE DE MOVIMENTAÇÃO RÁPIDA
+  ══════════════════════════════════════════ -->
+  <aside class="mov-panel" id="movPanel" aria-hidden="true">
+    <div class="mov-panel-inner">
+
+      <!-- Header do painel -->
+      <div class="mov-panel-header">
+        <div class="mpanel-produto-info">
+          <div class="mpanel-tipo-badge" id="panelTipoBadge">RASPADINHA</div>
+          <div class="mpanel-nome" id="panelNome">Item</div>
+          <div class="mpanel-sub" id="panelSub">—</div>
+        </div>
+        <button class="btn-fechar-panel" id="btnFecharPanel" aria-label="Fechar">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Saldo atual destacado -->
+      <div class="mpanel-saldo-destaque">
+        <div class="msd-label">Saldo atual</div>
+        <div class="msd-value" id="panelSaldoAtual">0</div>
+        <div class="msd-bar-wrap">
+          <div class="msd-bar" id="panelSaldoBar"></div>
+        </div>
+      </div>
+
+      <!-- Tipo de movimento -->
+      <div class="mpanel-tipo-toggle">
+        <button class="tipo-toggle-btn active" data-tipo="ENTRADA" id="toggleEntrada">
+          <i class="fas fa-plus-circle"></i> Entrada
+        </button>
+        <button class="tipo-toggle-btn" data-tipo="REDUCAO" id="toggleReducao">
+          <i class="fas fa-minus-circle"></i> Redução
+        </button>
+      </div>
+
+      <!-- Quantidade com stepper visual -->
+      <div class="mpanel-qtd-field">
+        <button class="mpanel-stepper-btn" id="panelQtdMinus" aria-label="Diminuir">
+          <i class="fas fa-minus"></i>
+        </button>
+        <div class="mpanel-qtd-wrap">
+          <input type="number" id="panelQtd" min="0" placeholder="0" class="mpanel-qtd-input" />
+          <div class="mpanel-qtd-label">unidades</div>
+        </div>
+        <button class="mpanel-stepper-btn mpanel-stepper-plus" id="panelQtdPlus" aria-label="Aumentar">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+
+      <!-- Preview do saldo final -->
+      <div class="mpanel-preview">
+        <div class="mprev-item">
+          <span>Saldo atual</span>
+          <strong id="prevAtual">0</strong>
+        </div>
+        <div class="mprev-arrow">
+          <i class="fas fa-arrow-right" id="prevArrowIcon"></i>
+        </div>
+        <div class="mprev-item mprev-final">
+          <span>Saldo final</span>
+          <strong id="panelSaldoPrev">0</strong>
+        </div>
+      </div>
+
+      <!-- Observação -->
+      <div class="field" style="margin-top:12px">
+        <label><i class="fas fa-comment-alt"></i> Observação</label>
+        <input id="panelObs" placeholder="Opcional" autocomplete="off" />
+      </div>
+
+      <div class="status muted" id="statusPanel" style="margin-top:10px;display:none">
+        <i class="fas fa-info-circle"></i>
+        <span id="statusPanelMsg"></span>
+      </div>
+
+      <!-- Ação -->
+      <div class="mpanel-actions">
+        <button class="btn-primary btn-full" id="btnAplicarPanel">
+          <i class="fas fa-check"></i> Aplicar
+        </button>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- Backdrop do panel -->
+  <div class="panel-backdrop" id="panelBackdrop"></div>
+
+  <!-- ══════════════════════════════════════════
+       MODAL — TROCAR LOJA
+  ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modalLoja">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-icon"><i class="fas fa-store"></i></div>
+        <h3 class="modal-title">Selecionar loja</h3>
+      </div>
+      <div class="modal-body" id="listaLojasModal" style="padding:0;background:none;border:none"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="btnFecharModalLoja">
+          <i class="fas fa-times"></i> Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="./sislot-config.js"></script>
+  <script src="./js/sislot-utils.js"></script>
+  <script src="./sislot-security.js"></script>
+  <script src="./js/produto.js"></script>
+</body>
+</html>
