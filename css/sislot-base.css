@@ -1,0 +1,195 @@
+/* ═══════════════════════════════════════════════════════════
+   SISLOT — BASE SYSTEM CSS
+   Arquivo único de variáveis, reset, temas e tipografia.
+   Substitui os blocos :root e body[data-loja] de todos os módulos.
+   Versão: 3.0
+════════════════════════════════════════════════════════════ */
+
+/* ── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Variáveis estruturais (imutáveis por tema) ─────────── */
+:root {
+  /* Fundo em camadas */
+  --bg:       #070d1a;
+  --bg2:      #0c1528;
+  --panel:    #101f38;
+  --panel2:   #132240;
+
+  /* Bordas */
+  --border:   #1a3060;
+  --border2:  #243d70;
+
+  /* Texto */
+  --text:     #dde8f8;
+  --text2:    #7a95c4;
+  --text3:    #3d5a8a;
+
+  /* Semântica */
+  --error:    #ff4f4f;
+  --success:  #00d4a0;
+  --amber:    #f5a623;
+  --sky:      #38bdf8;
+  --purple:   #a78bfa;
+  --wpp:      #25d366;
+
+  /* Input */
+  --input-bg: #0a1628;
+
+  /* Transição padrão */
+  --tr: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Tipografia */
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+
+  /* Aliases de compatibilidade com código legado */
+  --deep:        var(--bg);
+  --mid:         var(--bg2);
+  --blue-deep:   var(--bg);
+  --blue-mid:    var(--bg2);
+  --blue-panel:  var(--panel);
+  --blue-border: var(--border);
+  --text-bright: var(--text);
+  --text-mid:    var(--text2);
+  --text-dim:    var(--text3);
+  --muted:       var(--text2);
+  --dim:         var(--text3);
+  --bright:      var(--text);
+  --accent:      var(--t1);
+  --input-border: var(--border);
+
+  /* ── Cor de tema padrão: prata "Todas as Lojas" ───────── */
+  --t1: #94a3b8;
+  --t2: #64748b;
+  --t3: rgba(148, 163, 184, 0.10);
+  --t4: rgba(148, 163, 184, 0.25);
+  --t5: rgba(148, 163, 184, 0.05);
+}
+
+/* ── Temas por lotérica ──────────────────────────────────
+   Fonte canônica das cores — definida uma única vez aqui.
+   Aplicação: document.body.dataset.loja = 'boulevard'
+─────────────────────────────────────────────────────────── */
+body[data-loja="boulevard"] {
+  --t1: #3b82f6;
+  --t2: #1d4ed8;
+  --t3: rgba(59, 130, 246, 0.10);
+  --t4: rgba(59, 130, 246, 0.25);
+  --t5: rgba(59, 130, 246, 0.05);
+}
+
+body[data-loja="centro"] {
+  --t1: #00c896;
+  --t2: #00a07a;
+  --t3: rgba(0, 200, 150, 0.10);
+  --t4: rgba(0, 200, 150, 0.25);
+  --t5: rgba(0, 200, 150, 0.05);
+}
+
+body[data-loja="lotobel"] {
+  --t1: #ef4444;
+  --t2: #b91c1c;
+  --t3: rgba(239, 68, 68, 0.10);
+  --t4: rgba(239, 68, 68, 0.25);
+  --t5: rgba(239, 68, 68, 0.05);
+}
+
+body[data-loja="santa-tereza"] {
+  --t1: #a855f7;
+  --t2: #7e22ce;
+  --t3: rgba(168, 85, 247, 0.10);
+  --t4: rgba(168, 85, 247, 0.25);
+  --t5: rgba(168, 85, 247, 0.05);
+}
+
+body[data-loja="via-brasil"] {
+  --t1: #eab308;
+  --t2: #a16207;
+  --t3: rgba(234, 179, 8, 0.10);
+  --t4: rgba(234, 179, 8, 0.25);
+  --t5: rgba(234, 179, 8, 0.05);
+}
+
+body[data-loja="todas"] {
+  --t1: #94a3b8;
+  --t2: #64748b;
+  --t3: rgba(148, 163, 184, 0.10);
+  --t4: rgba(148, 163, 184, 0.25);
+  --t5: rgba(148, 163, 184, 0.05);
+}
+
+/* ── Body base ──────────────────────────────────────────── */
+body {
+  background: var(--bg);
+  font-family: var(--sans);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image:
+    radial-gradient(ellipse 100% 50% at 50% -10%, var(--t3) 0%, transparent 65%),
+    repeating-linear-gradient(0deg, transparent, transparent 47px, rgba(26, 48, 96, 0.18) 47px, rgba(26, 48, 96, 0.18) 48px),
+    repeating-linear-gradient(90deg, transparent, transparent 47px, rgba(26, 48, 96, 0.10) 47px, rgba(26, 48, 96, 0.10) 48px);
+  transition: background-image var(--tr);
+}
+
+/* ── Tipografia base ────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--sans);
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: var(--sans);
+}
+
+/* ── Animações globais ──────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Utilitários ────────────────────────────────────────── */
+.is-hidden  { display: none !important; }
+.text-mono  { font-family: var(--mono); }
+.text-dim   { color: var(--text3); }
+.text-mid   { color: var(--text2); }
+.text-theme { color: var(--t1); }
+.text-error { color: var(--error); }
+.text-ok    { color: var(--success); }
+.text-amber { color: var(--amber); }
