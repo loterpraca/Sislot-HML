@@ -1,38 +1,13 @@
 'use strict';
 
 /* ════════════════════════════════════════════════════════════
-   SISLOT — Conferência de Caixa  |  JS v3.0
-   ─────────────────────────────────────────────────────────
-   Estrutura:
-     1. BOOTSTRAP
-     2. LOJA_CONFIG — tema por loja
-     3. ESTADO GLOBAL
-     4. API — queries reestruturadas
-        4a. Infraestrutura
-        4b. qResumoEsquerda  → vw_fechamentos_html
-        4c. qProdutosDireita → fechamento_produtos
-        4d. qFederaisDireita → federal_vendas + federais
-        4e. qBoloesDireita   → fechamento_boloes enriquecido
-        4f. qClientesDireita → cliente_fechamento_cadastro+extrato
-        4g. qClienteLancamentos → cliente_fechamento_extrato
-        4h. qClienteItens    → cliente_fechamento_itens
-     5. LOJA_CTRL — tema e troca cíclica
-     6. VIEWER — módulo principal de UI
-        6a. init
-        6b. Relógio e período
-        6c. Filtros e eventos
-        6d. Carregamento de dados
-        6e. Abas de dias
-        6f. Seleção e carregamento
-        6g. Renderização esquerda
-        6h. Renderização direita — Produtos + Federais
-        6i. Renderização direita — Bolões
-        6j. Renderização direita — Dívidas/Clientes
-        6k. Estados da UI
-        6l. Accordion
-        6m. Edição / ações
-        6n. Modais e toast
-        6o. Utilitários
+   SISLOT — Conferência de Caixa  |  JS v4.0
+   Mudanças v4:
+   - Coluna esquerda: Débitos / Balanço / Fechamento / Créditos
+   - Bolões: split INTERNO × EXTERNO com tabela premium
+   - Origem nos bolões externos: badge colorido por loja
+   - Itens de cliente: expansão rica para bolões
+   - Filtros: pré-seleção por loja principal, contraste
 ════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════
@@ -68,23 +43,54 @@ document.addEventListener('DOMContentLoaded', _bootstrap);
 
 
 /* ════════════════════════════════════════════════════════════
-   2. LOJA_CONFIG — mapeamento de slug → metadados de tema
+   2. LOJA_CONFIG
 ════════════════════════════════════════════════════════════ */
 const LOJA_CONFIG = {
-  'boulevard':   { nome: 'Boulevard',   slug: 'boulevard',   acento: '#00c896' },
-  'centro':      { nome: 'Centro',      slug: 'centro',      acento: '#f0a732' },
-  'lotobel':     { nome: 'Lotobel',     slug: 'lotobel',     acento: '#b09eff' },
-  'santa-tereza':{ nome: 'Sta. Tereza', slug: 'santa-tereza',acento: '#ff7eb3' },
-  'via-brasil':  { nome: 'Via Brasil',  slug: 'via-brasil',  acento: '#4da6ff' },
+  'boulevard':    { nome: 'Boulevard',   slug: 'boulevard',    acento: '#00c896' },
+  'centro':       { nome: 'Centro',      slug: 'centro',       acento: '#f0a732' },
+  'lotobel':      { nome: 'Lotobel',     slug: 'lotobel',      acento: '#b09eff' },
+  'santa-tereza': { nome: 'Sta. Tereza', slug: 'santa-tereza', acento: '#ff7eb3' },
+  'via-brasil':   { nome: 'Via Brasil',  slug: 'via-brasil',   acento: '#4da6ff' },
 };
 
-// Converte nome da loja em slug para CSS
+/* Mapeamento de abreviação de loja → cores para badges de origem */
+const ORIGEM_TEMAS = {
+  BLD: { cor: '#00c896', bg: 'rgba(0,200,150,.14)',   label: 'BLD' },
+  CNT: { cor: '#f0a732', bg: 'rgba(240,167,50,.14)',  label: 'CNT' },
+  VIA: { cor: '#4da6ff', bg: 'rgba(77,166,255,.14)',  label: 'VIA' },
+  STZ: { cor: '#ff7eb3', bg: 'rgba(255,126,179,.14)', label: 'STZ' },
+  LTB: { cor: '#b09eff', bg: 'rgba(176,158,255,.14)', label: 'LTB' },
+};
+
 function _slugificar(nome) {
   if (!nome) return '';
   return nome.toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '');
+}
+
+/* Deriva abreviação de loja a partir dos campos disponíveis no bolão */
+function _derivarOrigem(b) {
+  const cod = String(b.codigo_loterico || b.loja_abrev || b.origem_slug || '').toUpperCase().trim();
+
+  // Tenta match direto
+  if (ORIGEM_TEMAS[cod]) return cod;
+
+  // Tenta primeiros 3 chars
+  const cod3 = cod.slice(0, 3);
+  if (ORIGEM_TEMAS[cod3]) return cod3;
+
+  // Tenta por nome da loja
+  const nome = String(b.loja_nome || b.loteria_nome || b.origem_loja || '').toLowerCase();
+  if (nome.includes('boulevard')) return 'BLD';
+  if (nome.includes('centro'))    return 'CNT';
+  if (nome.includes('via'))       return 'VIA';
+  if (nome.includes('tereza'))    return 'STZ';
+  if (nome.includes('lotobel') || nome.includes('bel')) return 'LTB';
+
+  // Fallback: 3 primeiros chars do que tiver
+  return (cod3 || '???');
 }
 
 
@@ -102,26 +108,23 @@ const ESTADO = {
   fechamentoAtual:  null,
   fechamentoIdx:    0,
 
-  // Dados da direita
   produtosAtuais:   [],
   federaisAtuais:   [],
-  boloesAtuais:     [],   // shape: { grupos[], total_geral_boloes }
-  clientesAtuais:   [],   // shape: qClientesDireita
+  boloesAtuais:     {},
+  clientesAtuais:   [],
 
   modoEdicao: false,
 };
 
 
 /* ════════════════════════════════════════════════════════════
-   4. API — queries reestruturadas
+   4. API
 ════════════════════════════════════════════════════════════ */
 const API = {
 
-  /* ── 4a. Infraestrutura ── */
-
   async buscarLojasDoUsuario() {
     if (_ctx?.lojasPermitidas?.length) {
-      return _ctx.lojasPermitidas.map(l => ({ id: l.loteria_id, nome: l.nome }));
+      return _ctx.lojasPermitidas.map(l => ({ id: l.loteria_id, nome: l.loteria_nome || l.nome }));
     }
     const { data, error } = await _supabase
       .from('view_usuarios_acesso')
@@ -143,8 +146,7 @@ const API = {
       .map(u => ({ id: u.usuario_id, nome: u.usuario_nome }));
   },
 
-  /* ── 4b. qResumoEsquerda — fonte: vw_fechamentos_html ── */
-
+  /* ── qResumoEsquerda ── */
   async qResumoEsquerda(mes, ano, lojaId, usuarioId) {
     const mesStr  = String(mes).padStart(2, '0');
     const dataIni = `${ano}-${mesStr}-01`;
@@ -199,8 +201,7 @@ const API = {
     };
   },
 
-  /* ── 4c. qProdutosDireita ── */
-
+  /* ── qProdutosDireita ── */
   async qProdutosDireita(fechamentoId) {
     const { data, error } = await _supabase
       .from('fechamento_produtos')
@@ -208,18 +209,16 @@ const API = {
       .eq('fechamento_id', fechamentoId);
     if (error) throw error;
     return (data || []).map(p => ({
-      item_id:       p.id,
-      tipo:          p.tipo,
-      titulo:        p.descricao || '—',
-      descricao:     p.descricao,
-      quantidade:    Number(p.qtd_vendida   || 0),
-      valor_unitario:Number(p.valor_unitario|| 0),
-      subtotal:      Number(p.total        || 0),
+      item_id:        p.id,
+      tipo:           p.tipo,
+      titulo:         p.descricao || '—',
+      quantidade:     Number(p.qtd_vendida    || 0),
+      valor_unitario: Number(p.valor_unitario || 0),
+      subtotal:       Number(p.total          || 0),
     }));
   },
 
-  /* ── 4d. qFederaisDireita ── */
-
+  /* ── qFederaisDireita ── */
   async qFederaisDireita(fechamentoId) {
     const { data: vendas, error: ev } = await _supabase
       .from('federal_vendas')
@@ -229,37 +228,32 @@ const API = {
 
     const fedIds = [...new Set((vendas || []).map(f => f.federal_id).filter(Boolean))];
     let fedMap   = {};
-
     if (fedIds.length) {
       const { data: feds, error: ef } = await _supabase
-        .from('federais')
-        .select('id, modalidade, concurso')
-        .in('id', fedIds);
+        .from('federais').select('id, modalidade, concurso').in('id', fedIds);
       if (ef) throw ef;
       fedMap = Object.fromEntries((feds || []).map(f => [String(f.id), f]));
     }
 
     return (vendas || []).map(v => {
-      const fed      = fedMap[String(v.federal_id)] || {};
+      const fed       = fedMap[String(v.federal_id)] || {};
       const modalidade = fed.modalidade || 'Federal';
       const concurso   = fed.concurso   || '';
       return {
-        item_id:       v.id,
-        federal_id:    v.federal_id,
+        item_id:        v.id,
+        federal_id:     v.federal_id,
         modalidade,
         concurso,
-        titulo:        concurso ? `${modalidade} #${concurso}` : modalidade,
-        quantidade:    Number(v.qtd_vendida    || 0),
-        valor_unitario:Number(v.valor_unitario || 0),
-        subtotal:      Number(v.valor_liquido  || 0),
+        titulo:         concurso ? `${modalidade} #${concurso}` : modalidade,
+        quantidade:     Number(v.qtd_vendida    || 0),
+        valor_unitario: Number(v.valor_unitario || 0),
+        subtotal:       Number(v.valor_liquido  || 0),
       };
     });
   },
 
-  /* ── 4e. qBoloesDireita ── */
-
+  /* ── qBoloesDireita (v4 — retorna internos/externos separados) ── */
   async qBoloesDireita(fechamentoId) {
-    // Tenta usar view enriquecida; se não existir, faz JOIN manual
     let rows;
     try {
       const { data, error } = await _supabase
@@ -269,7 +263,6 @@ const API = {
       if (error) throw error;
       rows = data || [];
     } catch (_) {
-      // Fallback: dados básicos de fechamento_boloes
       const { data, error } = await _supabase
         .from('fechamento_boloes')
         .select('id, bolao_id, tipo, modalidade, concurso, qtd_vendida, valor_cota, subtotal')
@@ -278,70 +271,68 @@ const API = {
       rows = (data || []).map(r => ({ ...r, codigo_loterico: null, qtd_jogos: null, qtd_dezenas: null }));
     }
 
-    // Agrupa por modalidade
-    const gruposMap = new Map();
-    let totalGeral  = 0;
-
-    rows.forEach(b => {
-      const modalidade = b.modalidade || 'Outros';
-      const subtotal   = Number(b.subtotal || (b.qtd_vendida * b.valor_cota) || 0);
-      totalGeral += subtotal;
-
-      if (!gruposMap.has(modalidade)) gruposMap.set(modalidade, { modalidade, total_modalidade: 0, itens: [] });
-      const grupo = gruposMap.get(modalidade);
-      grupo.total_modalidade += subtotal;
-      grupo.itens.push({
-        item_id:        b.id,
-        bolao_id:       b.bolao_id,
-        modalidade:     b.modalidade,
-        concurso:       b.concurso,
-        tipo:           b.tipo,
-        codigo_loterico:b.codigo_loterico,
-        qtd_jogos:      b.qtd_jogos,
-        qtd_dezenas:    b.qtd_dezenas,
-        valor_cota:     Number(b.valor_cota  || 0),
-        cotas_vendidas: Number(b.qtd_vendida || 0),
-        subtotal,
-        });
+    // Normaliza e separa por tipo
+    const normalizar = b => ({
+      item_id:         b.id,
+      bolao_id:        b.bolao_id,
+      modalidade:      b.modalidade || 'Outros',
+      concurso:        b.concurso   || '',
+      tipo:            (b.tipo || '').toUpperCase(),
+      codigo_loterico: b.codigo_loterico,
+      loja_nome:       b.loja_nome || b.loteria_nome || '',
+      qtd_jogos:       b.qtd_jogos,
+      qtd_dezenas:     b.qtd_dezenas,
+      valor_cota:      Number(b.valor_cota  || 0),
+      cotas_vendidas:  Number(b.qtd_vendida || 0),
+      subtotal:        Number(b.subtotal || (Number(b.qtd_vendida||0) * Number(b.valor_cota||0)) || 0),
     });
 
+    const _sort = arr => arr.sort((a, b) => {
+      const m = a.modalidade.localeCompare(b.modalidade, 'pt-BR');
+      return m !== 0 ? m : a.valor_cota - b.valor_cota;
+    });
+
+    const internos = _sort(rows.filter(b => (b.tipo||'').toUpperCase() === 'INTERNO').map(normalizar));
+    const externos = _sort(rows.filter(b => (b.tipo||'').toUpperCase() === 'EXTERNO').map(normalizar));
+    // Itens sem tipo definido: considera interno
+    const semTipo  = _sort(rows.filter(b => !['INTERNO','EXTERNO'].includes((b.tipo||'').toUpperCase())).map(normalizar));
+    internos.push(...semTipo);
+
+    const total_interno = internos.reduce((s, b) => s + b.subtotal, 0);
+    const total_externo = externos.reduce((s, b) => s + b.subtotal, 0);
+
     return {
-      grupos: [...gruposMap.values()],
-      total_geral_boloes: totalGeral,
+      internos,
+      externos,
+      total_interno,
+      total_externo,
+      total_geral_boloes: total_interno + total_externo,
     };
   },
 
-  /* ── 4f. qClientesDireita ── */
-
+  /* ── qClientesDireita ── */
   async qClientesDireita(fechamentoId) {
-  const { data, error } = await _supabase
-    .from('vw_clientes_fechamento')
-    .select('*')
-    .eq('fechamento_id', fechamentoId)
-    .order('total_cliente_no_fechamento', { ascending: false });
+    const { data, error } = await _supabase
+      .from('vw_clientes_fechamento')
+      .select('*')
+      .eq('fechamento_id', fechamentoId)
+      .order('total_cliente_no_fechamento', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(c => ({
+      cliente_id:                  c.cliente_id,
+      cliente_nome:                c.cliente_nome || '—',
+      telefone:                    c.telefone,
+      documento:                   c.documento,
+      total_cliente_no_fechamento: Number(c.total_cliente_no_fechamento || 0),
+      qtd_lancamentos:             Number(c.qtd_lancamentos || 0),
+    }));
+  },
 
-  if (error) throw error;
-
-  return (data || []).map(c => {
-    const total = Number(c.total_cliente_no_fechamento || 0);
-    return {
-      cliente_id: c.cliente_id,
-      cliente_nome: c.cliente_nome || '—',
-      telefone: c.telefone,
-      documento: c.documento,
-      observacao_cliente: c.observacao_cliente,
-      total_cliente_no_fechamento: total,
-      qtd_lancamentos: Number(c.qtd_lancamentos || 0),
-      status_visual: total > 200 ? 'alto' : total > 50 ? 'medio' : 'baixo',
-    };
-  });
-},
-  /* ── 4g. qClienteLancamentos ── */
-
+  /* ── qClienteLancamentos ── */
   async qClienteLancamentos(fechamentoId, clienteId) {
     const { data, error } = await _supabase
       .from('cliente_fechamento_extrato')
-      .select('id, cliente_id, tipo_movimento, forma_pagamento, status, valor_total, observacao, data_movimento, gera_credito_fechamento, gera_abatimento_divida, gera_pix_quitacao')
+      .select('id, cliente_id, tipo_movimento, forma_pagamento, status, valor_total, observacao, data_movimento')
       .eq('fechamento_id', fechamentoId)
       .eq('cliente_id', clienteId)
       .order('data_movimento', { ascending: true });
@@ -349,8 +340,7 @@ const API = {
     return data || [];
   },
 
-  /* ── 4h. qClienteItens ── */
-
+  /* ── qClienteItens ── */
   async qClienteItens(extratoId) {
     const { data, error } = await _supabase
       .from('cliente_fechamento_itens')
@@ -366,36 +356,27 @@ const API = {
 
 
 /* ════════════════════════════════════════════════════════════
-   5. LOJA_CTRL — tema e troca cíclica
+   5. LOJA_CTRL
 ════════════════════════════════════════════════════════════ */
 const LOJA_CTRL = {
   loteriaAtiva: null,
   todasLojas:   [],
 
-  // Recebe array de { id, nome } e armazena
-  setLojas(lojas) {
-    this.todasLojas = lojas;
-  },
+  setLojas(lojas) { this.todasLojas = lojas; },
 
-  // Resolve qual loja inicial usar
   resolverLojaInicial(fechamento) {
     if (fechamento?.loja_nome) {
       const slug = _slugificar(fechamento.loja_nome);
       if (LOJA_CONFIG[slug]) { this.trocarLoja(slug); return; }
     }
-    // Fallback: primeira loja disponível
     if (this.todasLojas.length) {
       const slug = _slugificar(this.todasLojas[0].nome);
       this.trocarLoja(slug);
     }
   },
 
-  // Aplica tema visual ao body via data-loja
-  aplicarTemaLoja(slug) {
-    document.body.setAttribute('data-loja', slug || '');
-  },
+  aplicarTemaLoja(slug) { document.body.setAttribute('data-loja', slug || ''); },
 
-  // Troca para a loja com o slug dado
   trocarLoja(slug) {
     const cfg = LOJA_CONFIG[slug];
     this.loteriaAtiva = cfg ? { slug, ...cfg } : null;
@@ -403,7 +384,6 @@ const LOJA_CTRL = {
     this.sincronizarUIComLojaAtiva();
   },
 
-  // Avança para a próxima loja em ciclo
   trocarLojaPorOffset(offset = 1) {
     const slugs   = Object.keys(LOJA_CONFIG);
     const idx     = this.loteriaAtiva ? slugs.indexOf(this.loteriaAtiva.slug) : -1;
@@ -411,32 +391,21 @@ const LOJA_CTRL = {
     this.trocarLoja(proximo);
   },
 
-  // Atualiza os elementos da UI com a loja ativa
   sincronizarUIComLojaAtiva() {
     const cfg  = this.loteriaAtiva;
     const nome = cfg?.nome || 'SISLOT';
-
-    // Chip da loja no header
     const chipNome = document.getElementById('loja-chip-nome');
     if (chipNome) chipNome.textContent = nome;
-
-    // Nome na brand
-    const brandNome = document.querySelector('.brand-name');
-    if (brandNome) brandNome.textContent = 'SISLOT';
-
-    // Logo (opcional — mantém o original)
-    // document.getElementById('logoImg')?.setAttribute('src', `./icons/${cfg?.slug || 'loterpraca'}.png`);
   },
 };
 
 
 /* ════════════════════════════════════════════════════════════
-   6. VIEWER — módulo principal de UI
+   6. VIEWER
 ════════════════════════════════════════════════════════════ */
 const VIEWER = {
 
   /* ── 6a. init ── */
-
   async init() {
     this._initRelogio();
     this._initPeriodo();
@@ -446,6 +415,10 @@ const VIEWER = {
       const lojas = await API.buscarLojasDoUsuario();
       LOJA_CTRL.setLojas(lojas);
       this._popularSelectLojas(lojas);
+
+      // Pré-seleciona loja principal do usuário
+      this._preselecionarLojaPrincipal(lojas);
+
       await this._carregarFuncionarios();
       await this.recarregar();
     } catch (err) {
@@ -454,33 +427,50 @@ const VIEWER = {
     }
   },
 
-  /* ── 6b. Relógio e período ── */
+  /* Pré-seleciona a loteria principal do contexto do usuário */
+  _preselecionarLojaPrincipal(lojas) {
+    // Se já tem filtro definido, mantém
+    if (ESTADO.lojaFiltro) return;
 
+    const principal = (_ctx?.lojasPermitidas || []).find(l => l.principal);
+    if (principal) {
+      ESTADO.lojaFiltro = String(principal.loteria_id);
+      const sel = document.getElementById('sel-loja');
+      if (sel) sel.value = ESTADO.lojaFiltro;
+      return;
+    }
+
+    // Sócio com uma única loja: pré-seleciona
+    if (lojas.length === 1) {
+      ESTADO.lojaFiltro = String(lojas[0].id);
+      const sel = document.getElementById('sel-loja');
+      if (sel) sel.value = ESTADO.lojaFiltro;
+    }
+  },
+
+  /* ── 6b. Relógio e período ── */
   _initRelogio() {
-    const el   = document.getElementById('app-clock');
+    const el = document.getElementById('app-clock');
     const tick = () => { if (el) el.textContent = new Date().toLocaleTimeString('pt-BR'); };
     tick();
     setInterval(tick, 1000);
   },
 
   _initPeriodo() {
-    const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-                   'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
     const selMes = document.getElementById('sel-mes');
     MESES.forEach((nome, i) => {
       const op = document.createElement('option');
-      op.value       = i + 1;
+      op.value = i + 1;
       op.textContent = nome;
       if (i + 1 === ESTADO.mes) op.selected = true;
       selMes.appendChild(op);
     });
-
     const selAno = document.getElementById('sel-ano');
     const anoAtual = new Date().getFullYear();
     for (let a = anoAtual - 3; a <= anoAtual + 1; a++) {
       const op = document.createElement('option');
-      op.value       = a;
-      op.textContent = a;
+      op.value = a; op.textContent = a;
       if (a === ESTADO.ano) op.selected = true;
       selAno.appendChild(op);
     }
@@ -488,14 +478,12 @@ const VIEWER = {
   },
 
   _atualizarPeriodoLabel() {
-    const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-                   'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
     const el = document.getElementById('periodo-label');
     if (el) el.textContent = `${MESES[ESTADO.mes - 1]} / ${ESTADO.ano}`;
   },
 
   /* ── 6c. Filtros e eventos ── */
-
   _initEventos() {
     document.getElementById('sel-mes').addEventListener('change', e => {
       ESTADO.mes = parseInt(e.target.value);
@@ -503,34 +491,25 @@ const VIEWER = {
       this._atualizarPeriodoLabel();
       this.recarregar();
     });
-
     document.getElementById('sel-ano').addEventListener('change', e => {
       ESTADO.ano = parseInt(e.target.value);
       ESTADO.diaAtivo = null;
       this._atualizarPeriodoLabel();
       this.recarregar();
     });
-
     document.getElementById('sel-loja').addEventListener('change', async e => {
       ESTADO.lojaFiltro = e.target.value;
       ESTADO.diaAtivo   = null;
       await this._carregarFuncionarios();
       this.recarregar();
     });
-
     document.getElementById('sel-func').addEventListener('change', e => {
       ESTADO.funcFiltro = e.target.value;
       this.recarregar();
     });
-
     document.getElementById('btn-inicio').addEventListener('click', () => this.abrirModal('modal-inicio'));
     document.getElementById('btn-sair'  ).addEventListener('click', () => this.abrirModal('modal-sair'));
-
-    // Clique cíclico no chip da loja
-    document.getElementById('loja-chip')?.addEventListener('click', () => {
-      LOJA_CTRL.trocarLojaPorOffset(1);
-    });
-
+    document.getElementById('loja-chip')?.addEventListener('click', () => LOJA_CTRL.trocarLojaPorOffset(1));
     document.querySelectorAll('.modal-overlay').forEach(m => {
       m.addEventListener('click', e => { if (e.target === m) this.fecharModal(m.id); });
     });
@@ -541,14 +520,9 @@ const VIEWER = {
     while (sel.options.length > 1) sel.remove(1);
     lojas.forEach(l => {
       const op = document.createElement('option');
-      op.value       = l.id;
-      op.textContent = l.nome;
+      op.value = l.id; op.textContent = l.nome;
       sel.appendChild(op);
     });
-    if (lojas.length === 1) {
-      sel.value = lojas[0].id;
-      ESTADO.lojaFiltro = String(lojas[0].id);
-    }
   },
 
   async _carregarFuncionarios() {
@@ -556,17 +530,12 @@ const VIEWER = {
       ? [ESTADO.lojaFiltro]
       : (_ctx.lojasPermitidas || []).map(l => String(l.loteria_id));
     let funcionarios = [];
-    try {
-      funcionarios = await API.buscarFuncionarios(lojaIds);
-    } catch (err) {
-      console.error('[_carregarFuncionarios]', err);
-    }
+    try { funcionarios = await API.buscarFuncionarios(lojaIds); } catch (err) { console.error(err); }
     const sel = document.getElementById('sel-func');
     while (sel.options.length > 1) sel.remove(1);
     funcionarios.forEach(f => {
       const op = document.createElement('option');
-      op.value       = f.id;
-      op.textContent = f.nome;
+      op.value = f.id; op.textContent = f.nome;
       sel.appendChild(op);
     });
     const ids = funcionarios.map(f => String(f.id));
@@ -576,8 +545,7 @@ const VIEWER = {
     }
   },
 
-  /* ── 6d. Carregamento de dados ── */
-
+  /* ── 6d. Carregamento ── */
   async recarregar() {
     const btn = document.getElementById('btn-atualizar');
     if (btn) btn.classList.add('girando');
@@ -600,15 +568,13 @@ const VIEWER = {
   },
 
   /* ── 6e. Abas de dias ── */
-
   _gerarAbasDias() {
     const container   = document.getElementById('dias-scroll');
     const DIAS_SEMANA = ['D','S','T','Q','Q','S','S'];
     const DIAS_FULL   = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-
-    const totalDias  = new Date(ESTADO.ano, ESTADO.mes, 0).getDate();
-    const hoje       = new Date();
-    const ehMesAtual = hoje.getMonth() + 1 === ESTADO.mes && hoje.getFullYear() === ESTADO.ano;
+    const totalDias   = new Date(ESTADO.ano, ESTADO.mes, 0).getDate();
+    const hoje        = new Date();
+    const ehMesAtual  = hoje.getMonth() + 1 === ESTADO.mes && hoje.getFullYear() === ESTADO.ano;
 
     const diasComDados = {};
     ESTADO.fechamentosDoMes.forEach(f => {
@@ -618,12 +584,11 @@ const VIEWER = {
     });
 
     container.innerHTML = '';
-
     for (let d = 1; d <= totalDias; d++) {
-      const data    = new Date(ESTADO.ano, ESTADO.mes - 1, d);
-      const dow     = data.getDay();
-      const ehFds   = dow === 0 || dow === 6;
-      const ehHoje  = ehMesAtual && d === hoje.getDate();
+      const data     = new Date(ESTADO.ano, ESTADO.mes - 1, d);
+      const dow      = data.getDay();
+      const ehFds    = dow === 0 || dow === 6;
+      const ehHoje   = ehMesAtual && d === hoje.getDate();
       const temDados = !!diasComDados[d];
       const temQuebra= temDados && diasComDados[d].some(f => Math.abs(f.quebra) > 0.01);
       const ehAtivo  = d === ESTADO.diaAtivo;
@@ -652,11 +617,9 @@ const VIEWER = {
   },
 
   /* ── 6f. Seleção e carregamento ── */
-
   async _selecionarDia(dia, silencioso = false) {
     ESTADO.diaAtivo      = dia;
     ESTADO.fechamentoIdx = 0;
-
     document.querySelectorAll('.dia-tab').forEach(t => t.classList.toggle('ativo', parseInt(t.dataset.dia) === dia));
 
     const diaStr  = String(dia).padStart(2, '0');
@@ -679,23 +642,17 @@ const VIEWER = {
   async _carregarFechamento(lista, idx) {
     const fech = lista[idx];
     ESTADO.fechamentoAtual = fech;
-
-    // Busca dados da direita em paralelo
     const [produtos, federais, boloes, clientes] = await Promise.all([
       API.qProdutosDireita(fech.id),
       API.qFederaisDireita(fech.id),
       API.qBoloesDireita(fech.id),
       API.qClientesDireita(fech.id),
     ]);
-
     ESTADO.produtosAtuais = produtos;
     ESTADO.federaisAtuais = federais;
     ESTADO.boloesAtuais   = boloes;
     ESTADO.clientesAtuais = clientes;
-
-    // Aplica tema da loja do fechamento
     LOJA_CTRL.resolverLojaInicial(fech);
-
     this._renderizarPainelEsq(fech, lista);
     this._renderizarPainelDir(fech, produtos, federais, boloes, clientes);
   },
@@ -709,8 +666,7 @@ const VIEWER = {
     this._carregarFechamento(lista, idx);
   },
 
-  /* ── 6g. Renderização esquerda ── */
-
+  /* ── 6g. Renderização esquerda (v4) ── */
   _renderizarPainelEsq(fech, lista) {
     const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     const DIAS  = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
@@ -723,11 +679,10 @@ const VIEWER = {
     led.className = 'status-led ' + (fech.status !== 'fechado' ? fech.status : '');
     document.getElementById('fech-status-txt').textContent = statusMap[fech.status] || fech.status;
 
-    // Hora
     const hora = fech.criado_em ? new Date(fech.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—';
     document.getElementById('fech-hora').textContent = hora;
 
-    // Múltiplos fechamentos
+    // Multi-fechamentos
     const multiFech = document.getElementById('multi-fech');
     if (lista.length > 1) {
       multiFech.style.display = 'block';
@@ -739,40 +694,39 @@ const VIEWER = {
     }
 
     // Identificação
-    const inicial = fech.funcionario_nome ? fech.funcionario_nome.charAt(0).toUpperCase() : '?';
-    document.getElementById('func-avatar').textContent   = inicial;
+    document.getElementById('func-avatar').textContent   = fech.funcionario_nome?.charAt(0)?.toUpperCase() || '?';
     document.getElementById('func-nome').textContent     = fech.funcionario_nome;
     document.getElementById('func-loja-txt').textContent = fech.loja_nome;
 
-    // Data
     const dataObj = new Date(fech.data + 'T12:00:00');
     document.getElementById('data-dia').textContent = String(dataObj.getDate()).padStart(2, '0');
     document.getElementById('data-mes').textContent = MESES[dataObj.getMonth()];
     document.getElementById('data-dow').textContent = DIAS[dataObj.getDay()];
 
-    // Totais — valores já calculados pelo banco, não recalcular
-    document.getElementById('rc-relatorio').textContent   = this._moeda(fech.relatorio);
-    document.getElementById('rc-deposito').textContent    = this._moeda(fech.deposito);
-    document.getElementById('rc-pix').textContent         = this._moeda(fech.pix_cnpj + fech.pix_dif);
-    document.getElementById('rc-produtos').textContent    = this._moeda(fech.total_produtos);
-    document.getElementById('rc-federais').textContent    = this._moeda(fech.total_federais);
-    document.getElementById('rc-boloes').textContent      = this._moeda(fech.total_boloes);
-    document.getElementById('rc-dividas').textContent     = this._moeda(fech.total_fiado);
+    // ── Débitos ──
+    document.getElementById('rc-relatorio').textContent  = this._moeda(fech.relatorio);
+    document.getElementById('rc-troco-ini').textContent  = this._moeda(fech.troco_ini);
+    document.getElementById('rc-produtos').textContent   = this._moeda(fech.total_produtos);
+    document.getElementById('rc-boloes').textContent     = this._moeda(fech.total_boloes);
+    document.getElementById('rc-federais').textContent   = this._moeda(fech.total_federais);
 
-    // Balanço
+    // Subtotal débitos = total_debitos do banco (não recalcular)
+    document.getElementById('rc-subtotal-deb').textContent = this._moeda(fech.total_debitos);
+
+    // ── Balanço ──
     document.getElementById('bl-deb').textContent  = this._moeda(fech.total_debitos);
     document.getElementById('bl-cred').textContent = this._moeda(fech.total_creditos);
 
-    // Quebra
+    // ── Fechamento ──
     const quebra   = fech.quebra;
     const quebraEl = document.getElementById('quebra-card');
     document.getElementById('qc-valor').textContent = this._moeda(Math.abs(quebra));
     quebraEl.className = 'quebra-card';
-    document.getElementById('qc-desc').textContent = Math.abs(quebra) < 0.01 ? 'Caixa equilibrado' : quebra < 0 ? 'Caixa negativo' : 'Caixa positivo';
+    document.getElementById('qc-desc').textContent =
+      Math.abs(quebra) < 0.01 ? 'Caixa equilibrado' : quebra < 0 ? 'Caixa negativo' : 'Caixa positivo';
     if (quebra < 0 && Math.abs(quebra) >= 0.01) quebraEl.classList.add('negativa');
     if (quebra > 0 && Math.abs(quebra) >= 0.01) quebraEl.classList.add('positiva');
 
-    // Justificativa
     const justBox = document.getElementById('justificativa-box');
     if (fech.justificativa?.trim()) {
       justBox.style.display = 'block';
@@ -781,33 +735,32 @@ const VIEWER = {
       justBox.style.display = 'none';
     }
 
-    // Campos adicionais
-    document.getElementById('ca-troco-ini').textContent    = this._moeda(fech.troco_ini);
-    document.getElementById('ca-troco-sob').textContent    = this._moeda(fech.troco_sob);
-    document.getElementById('ca-pix-dif').textContent      = this._moeda(fech.pix_dif);
-    document.getElementById('ca-premio-rasp').textContent  = this._moeda(fech.premio_rasp);
-    document.getElementById('ca-resgate-tele').textContent = this._moeda(fech.resgate_tele);
-    document.getElementById('ca-canal').textContent        = fech.canal_venda || '—';
-    document.getElementById('ca-sobrescrito').textContent  = fech.sobrescrito_por || '—';
-    document.getElementById('ca-id').textContent           = '#' + fech.id;
+    // ── Créditos ──
+    document.getElementById('rc-deposito').textContent      = this._moeda(fech.deposito);
+    document.getElementById('rc-troco-sob').textContent     = this._moeda(fech.troco_sob);
+    document.getElementById('rc-pix-dif').textContent       = this._moeda(fech.pix_dif);
+    document.getElementById('rc-premio-rasp').textContent   = this._moeda(fech.premio_rasp);
+    document.getElementById('rc-resgate-tele').textContent  = this._moeda(fech.resgate_tele);
+    document.getElementById('rc-boloes-terminal').textContent = '—';
+    document.getElementById('rc-dividas').textContent       = this._moeda(fech.total_fiado);
+    document.getElementById('rc-subtotal-cred').textContent = this._moeda(fech.total_creditos);
+
+    // Detalhes técnicos
+    document.getElementById('ca-canal').textContent       = fech.canal_venda || '—';
+    document.getElementById('ca-sobrescrito').textContent = fech.sobrescrito_por || '—';
+    document.getElementById('ca-id').textContent          = '#' + fech.id;
   },
 
-  /* ── 6h. Renderização direita — Produtos + Federais lado a lado ── */
-
+  /* ── 6h. Produtos + Federais ── */
   _renderizarProdutosFederais(produtos, federais) {
-    const countP   = document.getElementById('count-produtos-fed');
-    const stotalP  = document.getElementById('stotal-produtos-fed');
-    const colProd  = document.getElementById('col-produtos');
-    const colFed   = document.getElementById('col-federais');
-
     const totalP = produtos.reduce((s, p) => s + p.subtotal, 0);
     const totalF = federais.reduce((s, f) => s + f.subtotal, 0);
     const total  = totalP + totalF;
 
-    countP.textContent  = `${produtos.length + federais.length} itens`;
-    stotalP.textContent = this._moeda(total);
+    document.getElementById('count-produtos-fed').textContent  = `${produtos.length + federais.length} itens`;
+    document.getElementById('stotal-produtos-fed').textContent = this._moeda(total);
 
-    // Renderiza produtos
+    const colProd = document.getElementById('col-produtos');
     if (produtos.length) {
       colProd.innerHTML = `
         <div class="pf-col-titulo">Produtos (${produtos.length})</div>
@@ -815,13 +768,12 @@ const VIEWER = {
         <div class="pf-total-row">
           <span class="pf-total-label">Total</span>
           <span class="pf-total-val">${this._moeda(totalP)}</span>
-        </div>
-      `;
+        </div>`;
     } else {
-      colProd.innerHTML = '<div class="pf-col-titulo">Produtos</div><div class="pf-vazio">Sem produtos registrados</div>';
+      colProd.innerHTML = '<div class="pf-col-titulo">Produtos</div><div class="pf-vazio">Sem produtos</div>';
     }
 
-    // Renderiza federais
+    const colFed = document.getElementById('col-federais');
     if (federais.length) {
       colFed.innerHTML = `
         <div class="pf-col-titulo">Federais (${federais.length})</div>
@@ -829,18 +781,16 @@ const VIEWER = {
         <div class="pf-total-row">
           <span class="pf-total-label">Total</span>
           <span class="pf-total-val">${this._moeda(totalF)}</span>
-        </div>
-      `;
+        </div>`;
     } else {
-      colFed.innerHTML = '<div class="pf-col-titulo">Federais</div><div class="pf-vazio">Sem federais registrados</div>';
+      colFed.innerHTML = '<div class="pf-col-titulo">Federais</div><div class="pf-vazio">Sem federais</div>';
     }
   },
 
   _htmlPfCard(item, isFederal) {
     let tipoBadge, tipoClass;
-    if (isFederal) {
-      tipoBadge = 'FED'; tipoClass = 'pf-tipo-fed';
-    } else {
+    if (isFederal) { tipoBadge = 'FED'; tipoClass = 'pf-tipo-fed'; }
+    else {
       const t = (item.tipo || '').toUpperCase();
       if (t === 'RASPADINHA') { tipoBadge = 'RSP'; tipoClass = 'pf-tipo-rasp'; }
       else if (t === 'TELESENA') { tipoBadge = 'TEL'; tipoClass = 'pf-tipo-tele'; }
@@ -858,91 +808,111 @@ const VIEWER = {
           </div>
         </div>
         <div class="pf-subtotal">${this._moeda(item.subtotal)}</div>
-      </div>
-    `;
+      </div>`;
   },
 
-  /* ── 6i. Renderização direita — Bolões ── */
-
+  /* ── 6i. Bolões v4 — Split INTERNO × EXTERNO ── */
   _renderizarBoloes(boloesData) {
-    const { grupos, total_geral_boloes } = boloesData;
-    const count  = document.getElementById('count-boloes');
-    const stotal = document.getElementById('stotal-boloes');
-    const body   = document.getElementById('boloes-body');
+    const { internos, externos, total_interno, total_externo, total_geral_boloes } = boloesData;
+    const totalItens = internos.length + externos.length;
 
-    const totalItens = grupos.reduce((s, g) => s + g.itens.length, 0);
-    count.textContent  = `${totalItens} itens`;
-    stotal.textContent = this._moeda(total_geral_boloes);
+    document.getElementById('count-boloes').textContent  = `${totalItens} itens`;
+    document.getElementById('stotal-boloes').textContent = this._moeda(total_geral_boloes);
+
+    const body = document.getElementById('boloes-body');
 
     if (!totalItens) {
-      body.innerHTML = '<div class="boloes-vazio">Nenhum bolão registrado</div>';
+      body.className = 'boloes-vazio';
+      body.innerHTML = 'Nenhum bolão registrado neste fechamento';
       return;
     }
 
-    body.innerHTML = grupos.map(g => `
-      <div class="bolao-grupo">
-        <div class="bolao-grupo-header">
-          <span class="bolao-grupo-titulo">${this._esc(g.modalidade)}</span>
-          <span class="bolao-grupo-total">${this._moeda(g.total_modalidade)}</span>
-        </div>
-        <div class="bolao-grupo-grid">
-          ${g.itens.map(b => this._htmlBolaoCard(b)).join('')}
-        </div>
+    body.className = '';
+
+    const htmlInterno = this._htmlBoloesTabelaSetor(internos, 'INTERNO', total_interno);
+    const htmlExterno = this._htmlBoloesTabelaSetor(externos, 'EXTERNO', total_externo);
+
+    body.innerHTML = `
+      <div class="boloes-split">
+        ${htmlInterno}
+        ${htmlExterno}
       </div>
-    `).join('') + `
       <div class="boloes-total-geral">
         <span class="btg-label">Total Geral — Bolões</span>
         <span class="btg-val">${this._moeda(total_geral_boloes)}</span>
-      </div>
-    `;
+      </div>`;
   },
 
-  _htmlBolaoCard(b) {
-    const tipo     = (b.tipo || '').toUpperCase();
-    const tipoClass = tipo === 'INTERNO' ? 'bc-tipo-int' : 'bc-tipo-ext';
-    const concurso = b.concurso ? `Concurso ${b.concurso}` : 'Concurso —';
+  _htmlBoloesTabelaSetor(itens, tipo, total) {
+    const ehExterno = tipo === 'EXTERNO';
+    const dotClass  = ehExterno ? 'externo' : 'interno';
+    const titulo    = ehExterno ? 'Bolão Externo' : 'Bolão Interno';
 
-    const detalhes = [];
-    if (b.cotas_vendidas)  detalhes.push(['Cotas Vendidas', b.cotas_vendidas]);
-    if (b.valor_cota)      detalhes.push(['Valor/Cota',     this._moeda(b.valor_cota)]);
-    if (b.qtd_jogos)       detalhes.push(['Jogos',          b.qtd_jogos]);
-    if (b.qtd_dezenas)     detalhes.push(['Dezenas',        b.qtd_dezenas]);
-    if (!detalhes.length)  detalhes.push(['Cotas', b.cotas_vendidas || '—'], ['Valor', this._moeda(b.valor_cota)]);
+    const colunaOrigem = ehExterno
+      ? '<th class="col-origem">Orig.</th>'
+      : '';
+
+    const linhas = itens.length
+      ? itens.map(b => {
+          const origemCell = ehExterno
+            ? `<td class="col-origem">${this._htmlOrigemBadge(b)}</td>`
+            : '';
+          return `
+            <tr>
+              ${origemCell}
+              <td class="col-modalidade">${this._esc(b.modalidade)}</td>
+              <td class="col-concurso">${this._esc(b.concurso || '—')}</td>
+              <td class="col-valor">${this._moeda(b.valor_cota)}</td>
+              <td class="col-qtd">${b.cotas_vendidas}</td>
+              <td class="col-subtotal">${this._moeda(b.subtotal)}</td>
+            </tr>`;
+        }).join('')
+      : `<tr class="boloes-empty-row"><td colspan="${ehExterno ? 6 : 5}">Sem registros</td></tr>`;
 
     return `
-      <div class="bolao-card" data-tipo="${this._esc(tipo)}">
-        <div class="bc-header">
-          <span class="bc-modalidade">${this._esc(b.modalidade || '—')}</span>
-          <span class="bc-tipo-chip ${tipoClass}">${tipo || '—'}</span>
+      <div class="boloes-setor">
+        <div class="boloes-setor-head">
+          <span class="bsh-titulo">
+            <span class="bsh-tipo-dot ${dotClass}"></span>
+            ${titulo}
+          </span>
+          <span class="bsh-total">${this._moeda(total)}</span>
         </div>
-        <div class="bc-concurso">${this._esc(concurso)}</div>
-        <div class="bc-details">
-          ${detalhes.slice(0, 4).map(([l, v]) => `
-            <div class="bc-detail">
-              <span class="bc-detail-label">${l}</span>
-              <span class="bc-detail-val">${v}</span>
-            </div>
-          `).join('')}
+        <div class="boloes-table-wrap">
+          <table class="boloes-table">
+            <thead>
+              <tr>
+                ${colunaOrigem}
+                <th>Modalidade</th>
+                <th>Concurso</th>
+                <th>Valor</th>
+                <th>Qtd</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>${linhas}</tbody>
+          </table>
         </div>
-        <div class="bc-footer">
-          <span class="bc-footer-label">Subtotal</span>
-          <span class="bc-subtotal">${this._moeda(b.subtotal)}</span>
+        <div class="boloes-setor-footer">
+          <span class="bsf-label">Subtotal ${tipo === 'INTERNO' ? 'Internos' : 'Externos'}</span>
+          <span class="bsf-val">${this._moeda(total)}</span>
         </div>
-      </div>
-    `;
+      </div>`;
   },
 
-  /* ── 6j. Renderização direita — Clientes/Dívidas ── */
+  _htmlOrigemBadge(b) {
+    const abbrev = _derivarOrigem(b);
+    const tema   = ORIGEM_TEMAS[abbrev] || { cor: '#5b6e8a', bg: 'rgba(91,110,138,.12)' };
+    return `<span class="origem-badge" style="color:${tema.cor};background:${tema.bg};border-color:${tema.cor}30">${this._esc(abbrev)}</span>`;
+  },
 
+  /* ── 6j. Clientes / Dívidas ── */
   _renderizarClientes(clientes) {
-    const count  = document.getElementById('count-clientes');
-    const stotal = document.getElementById('stotal-clientes');
-    const body   = document.getElementById('clientes-body');
-
     const totalGeral = clientes.reduce((s, c) => s + c.total_cliente_no_fechamento, 0);
-    count.textContent  = `${clientes.length} clientes`;
-    stotal.textContent = this._moeda(totalGeral);
+    document.getElementById('count-clientes').textContent  = `${clientes.length} clientes`;
+    document.getElementById('stotal-clientes').textContent = this._moeda(totalGeral);
 
+    const body = document.getElementById('clientes-body');
     if (!clientes.length) {
       body.innerHTML = '<div class="clientes-vazio">Nenhuma dívida de cliente registrada</div>';
       return;
@@ -952,10 +922,8 @@ const VIEWER = {
       <div class="dividas-total-geral">
         <span class="dtg-label">Total Dívidas</span>
         <span class="dtg-val">${this._moeda(totalGeral)}</span>
-      </div>
-    `;
+      </div>`;
 
-    // Bind eventos de expansão
     body.querySelectorAll('.cliente-header').forEach(el => {
       el.addEventListener('click', () => this._toggleCliente(el.closest('.cliente-card')));
     });
@@ -984,25 +952,20 @@ const VIEWER = {
         <div class="cliente-detalhe" id="detalhe-cliente-${c.cliente_id}">
           <div class="cliente-loading"><div class="mini-ring"></div><span>Carregando...</span></div>
         </div>
-      </div>
-    `;
+      </div>`;
   },
 
   async _toggleCliente(card) {
     const isExpandido = card.classList.contains('expandido');
-    // Fecha todos
     document.querySelectorAll('.cliente-card.expandido').forEach(c => c.classList.remove('expandido'));
-
     if (!isExpandido) {
       card.classList.add('expandido');
       const clienteId = card.dataset.clienteId;
       const detalhe   = card.querySelector('.cliente-detalhe');
-
-      // Só carrega se ainda estiver no estado de loading
       if (detalhe.querySelector('.cliente-loading')) {
         try {
           const lancamentos = await API.qClienteLancamentos(ESTADO.fechamentoAtual.id, clienteId);
-          this._renderizarLancamentosCliente(detalhe, lancamentos, clienteId);
+          this._renderizarLancamentosCliente(detalhe, lancamentos);
         } catch (err) {
           detalhe.innerHTML = '<div class="cliente-loading" style="color:var(--red)">Erro ao carregar lançamentos.</div>';
         }
@@ -1010,22 +973,17 @@ const VIEWER = {
     }
   },
 
-  _renderizarLancamentosCliente(detalhe, lancamentos, clienteId) {
+  _renderizarLancamentosCliente(detalhe, lancamentos) {
     if (!lancamentos.length) {
       detalhe.innerHTML = '<div class="cliente-loading" style="font-style:italic">Nenhum lançamento encontrado.</div>';
       return;
     }
-
     const totalCliente = lancamentos.reduce((s, l) => s + Number(l.valor_total || 0), 0);
-
     detalhe.innerHTML = lancamentos.map(l => this._htmlLancamentoCard(l)).join('') + `
       <div class="cliente-total-rodape">
         <span class="ctr-label">Total do Cliente</span>
         <span class="ctr-val">${this._moeda(totalCliente)}</span>
-      </div>
-    `;
-
-    // Bind eventos de expansão de lançamentos
+      </div>`;
     detalhe.querySelectorAll('.lancamento-header').forEach(el => {
       el.addEventListener('click', () => this._toggleLancamento(el.closest('.lancamento-card')));
     });
@@ -1047,13 +1005,17 @@ const VIEWER = {
           <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="var(--text-dim)" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-left:4px;transition:transform .2s"><path d="M3 6l5 5 5-5"/></svg>
         </div>
         <div class="lancamento-itens"></div>
-      </div>
-    `;
+      </div>`;
   },
 
   async _toggleLancamento(card) {
-    const isAberto = card.classList.contains('aberto');
-    card.querySelectorAll('.lancamento-card.aberto').forEach(c => c.classList.remove('aberto'));
+    const isAberto  = card.classList.contains('aberto');
+    // Fecha os demais dentro do mesmo detalhe
+    card.closest('.cliente-detalhe')?.querySelectorAll('.lancamento-card.aberto').forEach(c => {
+      c.classList.remove('aberto');
+      const ch = c.querySelector('.lancamento-header svg');
+      if (ch) ch.style.transform = '';
+    });
 
     if (!isAberto) {
       card.classList.add('aberto');
@@ -1069,16 +1031,12 @@ const VIEWER = {
           itensEl.innerHTML = '<div style="padding:8px 12px;font-size:10px;color:var(--red)">Erro ao carregar itens.</div>';
         }
       }
-
-      // Anima chevron
       const chevron = card.querySelector('.lancamento-header svg');
       if (chevron) chevron.style.transform = 'rotate(180deg)';
-    } else {
-      const chevron = card.querySelector('.lancamento-header svg');
-      if (chevron) chevron.style.transform = '';
     }
   },
 
+  /* ── Renderização de itens — v4: rico para bolões ── */
   _renderizarItensLancamento(container, itens) {
     if (!itens.length) {
       container.innerHTML = '<div style="padding:8px 12px;font-size:10px;color:var(--text-dim);font-style:italic">Sem itens detalhados.</div>';
@@ -1086,38 +1044,94 @@ const VIEWER = {
     }
 
     const ICO_MAP = {
-      BOLAO:     { cls: 'ico-bolao',   txt: 'BOL' },
-      FEDERAL:   { cls: 'ico-federal', txt: 'FED' },
-      RASPADINHA:{ cls: 'ico-rasp',    txt: 'RSP' },
-      TELESENA:  { cls: 'ico-tele',    txt: 'TEL' },
-      CONTA:     { cls: 'ico-conta',   txt: 'CON' },
+      BOLAO:      { cls: 'ico-bolao',   txt: 'BOL' },
+      FEDERAL:    { cls: 'ico-federal', txt: 'FED' },
+      RASPADINHA: { cls: 'ico-rasp',    txt: 'RSP' },
+      TELESENA:   { cls: 'ico-tele',    txt: 'TEL' },
+      CONTA:      { cls: 'ico-conta',   txt: 'CON' },
     };
 
     container.innerHTML = itens.map(i => {
-      const ico   = ICO_MAP[(i.tipo_origem || '').toUpperCase()] || { cls: 'ico-conta', txt: 'OUT' };
-      const meta  = [i.modalidade, i.concurso, i.produto].filter(Boolean).join(' · ');
+      const tipo = (i.tipo_origem || '').toUpperCase();
+
+      // Item de bolão: exibição rica
+      if (tipo === 'BOLAO') {
+        return this._htmlItemBolaoRico(i);
+      }
+
+      // Demais itens: card simples
+      const ico  = ICO_MAP[tipo] || { cls: 'ico-conta', txt: 'OUT' };
+      const meta = [i.modalidade, i.concurso, i.produto].filter(Boolean).join(' · ');
       return `
         <div class="item-card">
-          <div class="item-tipo-ico ${ico.cls}">${ico.txt}</div>
-          <div class="item-info">
-            <div class="item-descricao">${this._esc(i.descricao || meta || '—')}</div>
-            ${meta ? `<div class="item-meta">${this._esc(meta)}</div>` : ''}
+          <div class="item-card-simples">
+            <div class="item-tipo-ico ${ico.cls}">${ico.txt}</div>
+            <div class="item-info">
+              <div class="item-descricao">${this._esc(i.descricao || meta || '—')}</div>
+              ${meta ? `<div class="item-meta">${this._esc(meta)}</div>` : ''}
+            </div>
+            <div class="item-subtotal">${this._moeda(i.subtotal)}</div>
           </div>
-          <div class="item-subtotal">${this._moeda(i.subtotal)}</div>
-        </div>
-      `;
+        </div>`;
     }).join('');
   },
 
-  /* ── 6h→k: renderizarPainelDir (orquestra tudo) ── */
+  _htmlItemBolaoRico(i) {
+    const tipo    = (i.tipo || '').toUpperCase();
+    const chipCls = tipo === 'EXTERNO' ? 'chip-ext' : 'chip-int';
+    const chipTxt = tipo || 'BOL';
+    const titulo  = i.descricao || [i.modalidade, i.concurso].filter(Boolean).join(' · ') || 'Bolão';
 
+    // Células de detalhe principais
+    const cells = [];
+    if (i.modalidade)   cells.push({ l: 'Modalidade', v: i.modalidade });
+    if (i.concurso)     cells.push({ l: 'Concurso',   v: i.concurso });
+    if (i.valor_unitario !== undefined) cells.push({ l: 'Valor/Cota', v: this._moeda(i.valor_unitario) });
+    if (i.qtd_vendida !== undefined)    cells.push({ l: 'Qtd Vendida', v: i.qtd_vendida });
+    if (!cells.length) cells.push({ l: 'Item', v: titulo });
+
+    // Garante pelo menos 3 células para o grid
+    while (cells.length < 3 && cells.length > 0) cells.push({ l: '', v: '' });
+    const grid3 = cells.slice(0, 3);
+
+    // Extra info
+    const extras = [];
+    if (i.qtd_jogos)   extras.push({ l: 'Jogos',   v: i.qtd_jogos });
+    if (i.qtd_dezenas) extras.push({ l: 'Dezenas', v: i.qtd_dezenas });
+
+    return `
+      <div class="item-card item-bolao-rico">
+        <div class="item-bolao-head">
+          <div class="item-tipo-ico ico-bolao">BOL</div>
+          <div class="item-bolao-titulo">${this._esc(titulo)}</div>
+          ${tipo ? `<span class="item-bolao-chip ${chipCls}">${this._esc(chipTxt)}</span>` : ''}
+          <span class="item-bolao-subtotal">${this._moeda(i.subtotal)}</span>
+        </div>
+        <div class="item-bolao-grid">
+          ${grid3.map(c => `
+            <div class="item-bolao-cell">
+              <span class="ibc-label">${this._esc(c.l)}</span>
+              <span class="ibc-val">${this._esc(String(c.v))}</span>
+            </div>`).join('')}
+        </div>
+        ${extras.length ? `
+          <div class="item-bolao-extra">
+            ${extras.map(x => `
+              <div class="item-bolao-extra-item">
+                <span class="ibx-label">${this._esc(x.l)}:</span>
+                <span class="ibx-val">${this._esc(String(x.v))}</span>
+              </div>`).join('')}
+          </div>` : ''}
+      </div>`;
+  },
+
+  /* ── 6k. renderizarPainelDir (orquestra) ── */
   _renderizarPainelDir(fech, produtos, federais, boloes, clientes) {
-    document.getElementById('detalhe-area').style.display   = 'flex';
+    document.getElementById('detalhe-area').style.display = 'flex';
     document.getElementById('detalhe-area').classList.add('fade-in');
     document.getElementById('dir-grid-bg').classList.add('oculto');
     document.getElementById('dir-vazio-center').classList.add('oculto');
 
-    // Barra de contexto
     const dataObj = new Date(fech.data + 'T12:00:00');
     document.getElementById('ctx-data').textContent = dataObj.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
     document.getElementById('ctx-func').textContent = fech.funcionario_nome;
@@ -1125,14 +1139,12 @@ const VIEWER = {
     const totGeral = fech.total_produtos + fech.total_federais + fech.total_boloes + fech.total_fiado;
     document.getElementById('ctx-total-geral').textContent = this._moeda(totGeral);
 
-    // Renderiza as três seções
     this._renderizarProdutosFederais(produtos, federais);
     this._renderizarBoloes(boloes);
     this._renderizarClientes(clientes);
   },
 
-  /* ── 6k. Estados da UI ── */
-
+  /* ── 6l. Estados da UI ── */
   _setPainelEsqEstado(estado) {
     ['esq-vazio','esq-loading','esq-sem-dados','esq-dados'].forEach(id => {
       const el = document.getElementById(id);
@@ -1158,20 +1170,18 @@ const VIEWER = {
   _mostrarSemDados(dia) {
     this._setPainelEsqEstado('sem');
     const d = String(dia).padStart(2,'0'), m = String(ESTADO.mes).padStart(2,'0');
-    document.getElementById('esq-sem-dados-txt').textContent = `Nenhum fechamento registrado para ${d}/${m}/${ESTADO.ano}.`;
+    document.getElementById('esq-sem-dados-txt').textContent = `Nenhum fechamento para ${d}/${m}/${ESTADO.ano}.`;
     document.getElementById('detalhe-area').style.display = 'none';
     document.getElementById('dir-grid-bg').classList.remove('oculto');
     document.getElementById('dir-vazio-center').classList.add('oculto');
   },
 
-  /* ── 6l. Accordion ── */
-
+  /* ── 6m. Accordion ── */
   toggleSecao(headerEl) {
     headerEl.closest('.sec').classList.toggle('collapsed');
   },
 
-  /* ── 6m. Edição / ações ── */
-
+  /* ── 6n. Edição / ações ── */
   toggleEdicao() {
     ESTADO.modoEdicao = !ESTADO.modoEdicao;
     const btn = document.getElementById('btn-editar');
@@ -1187,11 +1197,9 @@ const VIEWER = {
 
   imprimir() { window.print(); },
 
-  /* ── 6n. Modais e toast ── */
-
+  /* ── 6o. Modais e toast ── */
   abrirModal(id)  { document.getElementById(id).classList.add('aberto'); },
   fecharModal(id) { document.getElementById(id).classList.remove('aberto'); },
-
   irInicio() { this.fecharModal('modal-inicio'); window.location.href = './menu.html'; },
 
   async sair() {
@@ -1201,7 +1209,6 @@ const VIEWER = {
   },
 
   _toastTimer: null,
-
   toast(msg, tipo = 'ok') {
     const el  = document.getElementById('toast');
     const ico = document.getElementById('toast-ico');
@@ -1214,8 +1221,7 @@ const VIEWER = {
     this._toastTimer = setTimeout(() => el.classList.remove('visivel'), 3000);
   },
 
-  /* ── 6o. Utilitários ── */
-
+  /* ── 6p. Utilitários ── */
   _moeda(val) {
     return (parseFloat(val) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   },
