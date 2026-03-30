@@ -335,7 +335,7 @@ const API = {
       status_visual: total > 200 ? 'alto' : total > 50 ? 'medio' : 'baixo',
     };
   });
-}
+},
   /* ── 4g. qClienteLancamentos ── */
 
   async qClienteLancamentos(fechamentoId, clienteId) {
