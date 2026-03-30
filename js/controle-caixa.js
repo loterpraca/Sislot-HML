@@ -1192,7 +1192,7 @@ const VIEWER = {
   abrirModal(id)  { document.getElementById(id).classList.add('aberto'); },
   fecharModal(id) { document.getElementById(id).classList.remove('aberto'); },
 
-  irInicio() { this.fecharModal('modal-inicio'); window.location.href = './index.html'; },
+  irInicio() { this.fecharModal('modal-inicio'); window.location.href = './menu.html'; },
 
   async sair() {
     this.fecharModal('modal-sair');
