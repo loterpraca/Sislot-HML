@@ -275,7 +275,7 @@ const API = {
         .select('id, bolao_id, tipo, modalidade, concurso, qtd_vendida, valor_cota, subtotal')
         .eq('fechamento_id', fechamentoId);
       if (error) throw error;
-      rows = (data || []).map(r => ({ ...r, origem_nome: null, codigo_loterico: null, qtd_jogos: null, qtd_dezenas: null, tipo_perspectiva: null }));
+      rows = (data || []).map(r => ({ ...r, codigo_loterico: null, qtd_jogos: null, qtd_dezenas: null }));
     }
 
     // Agrupa por modalidade
@@ -296,15 +296,13 @@ const API = {
         modalidade:     b.modalidade,
         concurso:       b.concurso,
         tipo:           b.tipo,
-        origem_nome:    b.origem_nome,
         codigo_loterico:b.codigo_loterico,
         qtd_jogos:      b.qtd_jogos,
         qtd_dezenas:    b.qtd_dezenas,
         valor_cota:     Number(b.valor_cota  || 0),
         cotas_vendidas: Number(b.qtd_vendida || 0),
         subtotal,
-        tipo_perspectiva: b.tipo_perspectiva,
-      });
+        });
     });
 
     return {
