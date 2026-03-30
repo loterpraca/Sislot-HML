@@ -15,7 +15,6 @@
 ════════════════════════════════════════════════════ -->
 <header class="app-header">
 
-  <!-- Brand + chip de loja clicável -->
   <div class="header-brand" id="loja-chip" title="Clique para trocar de loja">
     <img src="./icons/loterpraca.png" alt="Logo" id="logoImg" class="brand-logo" onerror="this.style.display='none'">
     <div class="brand-text">
@@ -24,7 +23,6 @@
     </div>
   </div>
 
-  <!-- Chip visual da loja ativa -->
   <div class="loja-chip" onclick="LOJA_CTRL.trocarLojaPorOffset(1)" title="Trocar loja">
     <div class="loja-chip-dot"></div>
     <span class="loja-chip-nome" id="loja-chip-nome">—</span>
@@ -101,7 +99,7 @@
       <button class="btn-novo-fech" onclick="VIEWER.iniciarNovo()"><i class="fas fa-plus"></i> Iniciar fechamento</button>
     </div>
 
-    <!-- ── CONTEÚDO DO FECHAMENTO ── -->
+    <!-- ── CONTEÚDO DO FECHAMENTO (v4) ── -->
     <div id="esq-dados" style="display:none">
 
       <!-- Status e hora -->
@@ -113,15 +111,13 @@
           </div>
           <div class="fech-hora" id="fech-hora">—</div>
         </div>
-
-        <!-- Múltiplos fechamentos -->
         <div class="multi-fech" id="multi-fech" style="display:none">
           <div class="mf-label">Fechamentos do dia</div>
           <div class="mf-tabs" id="mf-tabs"></div>
         </div>
       </div>
 
-      <!-- Identificação: Funcionário + Loja + Data -->
+      <!-- Identificação -->
       <div class="fech-ident">
         <div class="func-avatar" id="func-avatar">A</div>
         <div class="func-info">
@@ -139,55 +135,57 @@
 
       <div class="esq-divisor"></div>
 
-      <!-- ── Seção: Entradas e Totais ── -->
-      <div class="esq-sec">
-        <div class="esq-sec-titulo">Entradas</div>
-        <div class="resumo-grid">
+      <!-- ══ DÉBITOS ══ -->
+      <div class="esq-bloco">
+        <div class="esq-bloco-titulo">Débitos</div>
+
+        <!-- L1: Relatório do Dia -->
+        <div class="resumo-grid" style="margin-bottom:3px">
           <div class="rg-card rg-card-full destaque">
             <div class="rg-label">Relatório do Dia</div>
             <div class="rg-val rg-val-main" id="rc-relatorio">R$ 0,00</div>
           </div>
-          <div class="rg-card">
-            <div class="rg-label">Depósito Bancário</div>
-            <div class="rg-val" id="rc-deposito">R$ 0,00</div>
-          </div>
-          <div class="rg-card">
-            <div class="rg-label">PIX CNPJ</div>
-            <div class="rg-val rg-val-green" id="rc-pix">R$ 0,00</div>
-          </div>
         </div>
-      </div>
 
-      <div class="esq-divisor"></div>
-
-      <!-- ── Seção: Composição dos totais ── -->
-      <div class="esq-sec">
-        <div class="esq-sec-titulo">Composição</div>
+        <!-- L2: Troco Inicial | Produtos -->
         <div class="resumo-grid">
+          <div class="rg-card">
+            <div class="rg-label">Troco Inicial</div>
+            <div class="rg-val" id="rc-troco-ini">R$ 0,00</div>
+          </div>
           <div class="rg-card">
             <div class="rg-label">Produtos</div>
             <div class="rg-val rg-val-blue" id="rc-produtos">R$ 0,00</div>
           </div>
-          <div class="rg-card">
-            <div class="rg-label">Federais</div>
-            <div class="rg-val rg-val-purple" id="rc-federais">R$ 0,00</div>
-          </div>
+        </div>
+
+        <!-- L3: Bolões | Federal -->
+        <div class="resumo-grid" style="margin-bottom:3px">
           <div class="rg-card">
             <div class="rg-label">Bolões</div>
             <div class="rg-val rg-val-green" id="rc-boloes">R$ 0,00</div>
           </div>
           <div class="rg-card">
-            <div class="rg-label">Dívidas / Fiado</div>
-            <div class="rg-val rg-val-amber" id="rc-dividas">R$ 0,00</div>
+            <div class="rg-label">Federal</div>
+            <div class="rg-val rg-val-purple" id="rc-federais">R$ 0,00</div>
+          </div>
+        </div>
+
+        <!-- L4: Subtotal Débitos -->
+        <div class="resumo-grid">
+          <div class="rg-card rg-card-full rg-card-subtotal">
+            <div class="rg-label">Subtotal Débitos</div>
+            <div class="rg-val rg-val-red" id="rc-subtotal-deb">R$ 0,00</div>
           </div>
         </div>
       </div>
 
       <div class="esq-divisor"></div>
 
-      <!-- ── Balanço Débitos × Créditos ── -->
-      <div class="esq-sec">
-        <div class="esq-sec-titulo">Balanço</div>
+      <!-- ══ BALANÇO ══ -->
+      <div class="esq-bloco">
+        <div class="esq-bloco-titulo">Balanço</div>
+        <!-- L5: Débitos | Créditos -->
         <div class="balanco-bar">
           <div class="balanco-lado">
             <div class="bl-label">↓ Débitos</div>
@@ -203,47 +201,95 @@
 
       <div class="esq-divisor"></div>
 
-      <!-- ── Quebra de Caixa ── -->
-      <div class="quebra-card" id="quebra-card">
-        <div>
-          <div class="qc-label">Quebra de Caixa</div>
-          <div class="qc-desc" id="qc-desc">—</div>
-        </div>
-        <div class="qc-valor" id="qc-valor">R$ 0,00</div>
-      </div>
+      <!-- ══ FECHAMENTO ══ -->
+      <div class="esq-bloco">
+        <div class="esq-bloco-titulo">Fechamento</div>
 
-      <!-- ── Justificativa ── -->
-      <div class="justificativa-box" id="justificativa-box" style="display:none">
-        <div class="just-header"><i class="fas fa-exclamation-triangle"></i> Justificativa</div>
-        <div class="just-content" id="just-content"></div>
+        <!-- L6: Quebra de Caixa -->
+        <div class="quebra-card" id="quebra-card">
+          <div>
+            <div class="qc-label">Quebra de Caixa</div>
+            <div class="qc-desc" id="qc-desc">—</div>
+          </div>
+          <div class="qc-valor" id="qc-valor">R$ 0,00</div>
+        </div>
+
+        <!-- L7: Justificativa (condicional) -->
+        <div class="justificativa-box" id="justificativa-box" style="display:none">
+          <div class="just-header"><i class="fas fa-exclamation-triangle"></i> Justificativa</div>
+          <div class="just-content" id="just-content"></div>
+        </div>
       </div>
 
       <div class="esq-divisor"></div>
 
-      <!-- ── Campos adicionais ── -->
-      <div class="esq-sec">
-        <div class="esq-sec-titulo">Detalhes</div>
-        <div class="campos-adicionais">
-          <div class="ca-row">
-            <span class="ca-label">Troco Inicial</span>
-            <span class="ca-val" id="ca-troco-ini">—</span>
+      <!-- ══ CRÉDITOS ══ -->
+      <div class="esq-bloco">
+        <div class="esq-bloco-titulo">Créditos</div>
+
+        <!-- L8: Depósito Bancário -->
+        <div class="resumo-grid" style="margin-bottom:3px">
+          <div class="rg-card rg-card-full">
+            <div class="rg-label">Depósito Bancário</div>
+            <div class="rg-val" id="rc-deposito">R$ 0,00</div>
           </div>
-          <div class="ca-row">
-            <span class="ca-label">Troco Sobra</span>
-            <span class="ca-val" id="ca-troco-sob">—</span>
+        </div>
+
+        <!-- L9: Troco Sobra | Diferença de PIX -->
+        <div class="resumo-grid">
+          <div class="rg-card">
+            <div class="rg-label">Troco Sobra</div>
+            <div class="rg-val" id="rc-troco-sob">R$ 0,00</div>
           </div>
-          <div class="ca-row">
-            <span class="ca-label">Diferença PIX</span>
-            <span class="ca-val" id="ca-pix-dif">—</span>
+          <div class="rg-card">
+            <div class="rg-label">Dif. PIX</div>
+            <div class="rg-val rg-val-green" id="rc-pix-dif">R$ 0,00</div>
           </div>
-          <div class="ca-row">
-            <span class="ca-label">Prêmio Raspadinha</span>
-            <span class="ca-val ca-val-pos" id="ca-premio-rasp">—</span>
+        </div>
+
+        <!-- L10: Prêmio Raspadinha | Resgate Telesena -->
+        <div class="resumo-grid" style="margin-bottom:3px">
+          <div class="rg-card">
+            <div class="rg-label">Prêmio Rasp.</div>
+            <div class="rg-val ca-val-pos" id="rc-premio-rasp">R$ 0,00</div>
           </div>
-          <div class="ca-row">
-            <span class="ca-label">Resgate Telesena</span>
-            <span class="ca-val ca-val-pos" id="ca-resgate-tele">—</span>
+          <div class="rg-card">
+            <div class="rg-label">Resgate Tele.</div>
+            <div class="rg-val ca-val-pos" id="rc-resgate-tele">R$ 0,00</div>
           </div>
+        </div>
+
+        <!-- L11: Bolões Terminal | Dívidas / Fiado -->
+        <div class="resumo-grid" style="margin-bottom:3px">
+          <div class="rg-card rg-card-preview">
+            <div class="rg-label">Bolões Terminal</div>
+            <div class="rg-val rg-val-amber" id="rc-boloes-terminal">—</div>
+            <div class="rg-sub">Em desenvolvimento</div>
+          </div>
+          <div class="rg-card">
+            <div class="rg-label">Dívidas / Fiado</div>
+            <div class="rg-val rg-val-amber" id="rc-dividas">R$ 0,00</div>
+          </div>
+        </div>
+
+        <!-- L12: Subtotal Créditos -->
+        <div class="resumo-grid">
+          <div class="rg-card rg-card-full rg-card-subtotal">
+            <div class="rg-label">Subtotal Créditos</div>
+            <div class="rg-val rg-val-green" id="rc-subtotal-cred">R$ 0,00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="esq-divisor"></div>
+
+      <!-- ══ DETALHES técnicos (collapsível) ══ -->
+      <div class="esq-sec collapsed">
+        <div class="esq-sec-head" onclick="this.closest('.esq-sec').classList.toggle('collapsed')">
+          <span class="esq-sec-titulo">Detalhes técnicos</span>
+          <button class="esq-sec-toggle"><i class="fas fa-chevron-down" style="font-size:9px"></i></button>
+        </div>
+        <div class="esq-sec-body campos-adicionais">
           <div class="ca-row">
             <span class="ca-label">Canal de Venda</span>
             <span class="ca-val" id="ca-canal">—</span>
@@ -253,7 +299,7 @@
             <span class="ca-val" id="ca-sobrescrito">—</span>
           </div>
           <div class="ca-row">
-            <span class="ca-label">ID</span>
+            <span class="ca-label">ID do Fechamento</span>
             <span class="ca-val" id="ca-id" style="font-size:10px;color:var(--text-dim)">—</span>
           </div>
         </div>
@@ -275,7 +321,7 @@
   </aside>
 
   <!-- ════════════════════════════════════════
-       PAINEL DIREITO — Detalhamento Premium
+       PAINEL DIREITO — Detalhamento
   ═════════════════════════════════════════════ -->
   <main class="painel-dir">
 
@@ -331,12 +377,10 @@
         </div>
         <div class="sec-body">
           <div class="prod-fed-grid">
-            <!-- Coluna Produtos -->
             <div class="prod-fed-col" id="col-produtos">
               <div class="pf-col-titulo">Produtos</div>
               <div class="pf-vazio">Carregando...</div>
             </div>
-            <!-- Coluna Federais -->
             <div class="prod-fed-col" id="col-federais">
               <div class="pf-col-titulo">Federais</div>
               <div class="pf-vazio">Carregando...</div>
@@ -363,9 +407,8 @@
           </div>
         </div>
         <div class="sec-body">
-          <div class="boloes-body" id="boloes-body">
-            <div class="boloes-vazio">Carregando...</div>
-          </div>
+          <!-- JS renderiza .boloes-split + .boloes-total-geral aqui -->
+          <div id="boloes-body" class="boloes-vazio">Carregando...</div>
         </div>
       </section>
 
@@ -439,7 +482,6 @@
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast">
   <span id="toast-ico">✓</span>
   <span id="toast-msg">Mensagem</span>
