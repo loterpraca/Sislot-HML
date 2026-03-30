@@ -314,50 +314,28 @@ const API = {
   /* ── 4f. qClientesDireita ── */
 
   async qClientesDireita(fechamentoId) {
-    // Fonte principal: cliente_fechamento_cadastro
-    const { data: cads, error: ec } = await _supabase
-      .from('cliente_fechamento_cadastro')
-      .select('cliente_id, cliente_nome, telefone, documento, observacao_cliente')
-      .eq('fechamento_id', fechamentoId);
-    if (ec) throw ec;
+  const { data, error } = await _supabase
+    .from('vw_clientes_fechamento')
+    .select('*')
+    .eq('fechamento_id', fechamentoId)
+    .order('total_cliente_no_fechamento', { ascending: false });
 
-    if (!cads?.length) return [];
+  if (error) throw error;
 
-    const clienteIds = cads.map(c => c.cliente_id);
-
-    // Busca totais por cliente via extrato
-    const { data: exts, error: ee } = await _supabase
-      .from('cliente_fechamento_extrato')
-      .select('cliente_id, valor_total, id')
-      .eq('fechamento_id', fechamentoId)
-      .in('cliente_id', clienteIds);
-    if (ee) throw ee;
-
-    // Agrega totais por cliente
-    const totaisMap = {};
-    const qtdMap    = {};
-    (exts || []).forEach(e => {
-      const cid = String(e.cliente_id);
-      totaisMap[cid] = (totaisMap[cid] || 0) + Number(e.valor_total || 0);
-      qtdMap[cid]    = (qtdMap[cid]    || 0) + 1;
-    });
-
-    return cads.map(c => {
-      const cid   = String(c.cliente_id);
-      const total = totaisMap[cid] || 0;
-      return {
-        cliente_id:                c.cliente_id,
-        cliente_nome:              c.cliente_nome || '—',
-        telefone:                  c.telefone,
-        documento:                 c.documento,
-        observacao_cliente:        c.observacao_cliente,
-        total_cliente_no_fechamento: total,
-        qtd_lancamentos:           qtdMap[cid] || 0,
-        status_visual:             total > 200 ? 'alto' : total > 50 ? 'medio' : 'baixo',
-      };
-    }).sort((a, b) => b.total_cliente_no_fechamento - a.total_cliente_no_fechamento);
-  },
-
+  return (data || []).map(c => {
+    const total = Number(c.total_cliente_no_fechamento || 0);
+    return {
+      cliente_id: c.cliente_id,
+      cliente_nome: c.cliente_nome || '—',
+      telefone: c.telefone,
+      documento: c.documento,
+      observacao_cliente: c.observacao_cliente,
+      total_cliente_no_fechamento: total,
+      qtd_lancamentos: Number(c.qtd_lancamentos || 0),
+      status_visual: total > 200 ? 'alto' : total > 50 ? 'medio' : 'baixo',
+    };
+  });
+}
   /* ── 4g. qClienteLancamentos ── */
 
   async qClienteLancamentos(fechamentoId, clienteId) {
