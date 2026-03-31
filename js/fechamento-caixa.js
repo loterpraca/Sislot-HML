@@ -1304,8 +1304,14 @@ function renderBoloes() {
                     metas.push(`<span class="meta-tag">interno</span>`);
                 }
 
-                const infoSaldo = `<div style="font-size:10px;color:var(--muted);margin-top:6px">Base: ${saldoBase} · Vendido: ${qtdVendidaTotal}${qtdSalva > 0 ? ` · no fechamento: ${qtdSalva}` : ''}</div>`;
-
+               const infoSaldo = b.tipo === 'INTERNO' ? `<div style="font-size:10px;color:var(--muted);margin-top:6px">  Base: ${saldoBase} · Operacional: ${Number(b.qtd_vendida_operacional || 0)} · Marketplace: ${Number(b.qtd_marketplace || 0)}
+          ${qtdSalva > 0 ? ` · no fechamento: ${qtdSalva}` : ''}
+       </div>`
+    : `<div style="font-size:10px;color:var(--muted);margin-top:6px">
+          Base: ${saldoBase}
+          · Vendido: ${Number(b.qtd_vendida_operacional || 0)}
+          ${qtdSalva > 0 ? ` · no fechamento: ${qtdSalva}` : ''}
+       </div>`;
                 const card = document.createElement('div');
                 card.className = `bolao-card is-${b.tipo === 'INTERNO' ? 'int' : 'ext'} ${semSaldo ? 'is-off' : ''}`;
                 card.dataset.idx = gi;
