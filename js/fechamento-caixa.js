@@ -375,17 +375,18 @@ async function avancarStep(para) {
 }
 function validarStep1() {
     const reqs = [
-        'funcionario',
-        'data-ref',
-        'relatorio',
-        'deposito',
-        'troco-ini',
-        'troco-sob',
-        'pix-cnpj',
-        'pix-dif',
-        'premio-rasp',
-        'resgate-tele'
-    ];
+    'funcionario',
+    'data-ref',
+    'relatorio',
+    'deposito',
+    'troco-ini',
+    'troco-sob',
+    'pix-cnpj',
+    'pix-dif',
+    'boloes-terminal',
+    'premio-rasp',
+    'resgate-tele'
+];
 
     let ok = true;
 
@@ -680,12 +681,11 @@ function montarTela1DoFechamento(fech) {
         troco_sobra: Number(fech.troco_sobra || 0),
         pix_cnpj: Number(fech.pix_cnpj || 0),
         diferenca_pix: Number(fech.diferenca_pix || 0),
+        boloes_terminal: Number(fech.boloes_terminal || 0),
         premio_raspadinha: Number(fech.premio_raspadinha || 0),
         resgate_telesena: Number(fech.resgate_telesena || 0)
-        // dividas removidas — substituídas pelo módulo CF
     };
 }
-
 function montarTela2DoFechamento(fech, federaisCarregados = []) {
     const produtos = (fech.fechamento_produtos || []).map(p => ({
         produto_id: p.produto_id || null,
@@ -739,6 +739,7 @@ function preencherTela1(fech) {
     set('troco-sob', fech.troco_sobra);
     set('pix-cnpj', fech.pix_cnpj);
     set('pix-dif', fech.diferenca_pix);
+    set('boloes-terminal', fech.boloes_terminal);
     set('premio-rasp', fech.premio_raspadinha);
     set('resgate-tele', fech.resgate_telesena);
     // Seção de dívidas removida — módulo CF carrega o histórico pelo próprio modal
@@ -809,6 +810,7 @@ function coletarTela1() {
         troco_sobra: n('troco-sob'),
         pix_cnpj: n('pix-cnpj'),
         diferenca_pix: n('pix-dif'),
+        boloes_terminal: n('boloes-terminal'),
         premio_raspadinha: n('premio-rasp'),
         resgate_telesena: n('resgate-tele'),
         // clienteFechamento é mantido pelo módulo CF dentro de ESTADO.tela1
@@ -1547,6 +1549,7 @@ function montarResumo() {
         + Number(t1.deposito || 0)
         + Number(t1.pix_cnpj || 0)
         + Number(t1.diferenca_pix || 0)
+        + Number(t1.boloes_terminal || 0)
         + Number(t1.premio_raspadinha || 0)
         + Number(t1.resgate_telesena || 0)
         + totCFCredito;
@@ -1556,6 +1559,7 @@ function montarResumo() {
     s('r-deposito', t1.deposito);
     s('r-pix', t1.pix_cnpj);
     s('r-pix-dif', t1.diferenca_pix);
+    s('r-boloes-terminal', t1.boloes_terminal);
     s('r-rasp', t1.premio_raspadinha);
     s('r-tele', t1.resgate_telesena);
     s('r-tot-cred', totCred);
@@ -1831,6 +1835,7 @@ async function finalizar() {
             + Number(t1.deposito || 0)
             + Number(t1.pix_cnpj || 0)
             + Number(t1.diferenca_pix || 0)
+            + Number(t1.boloes_terminal || 0)
             + Number(t1.premio_raspadinha || 0)
             + Number(t1.resgate_telesena || 0)
             + totCFCredito;
@@ -1850,6 +1855,7 @@ async function finalizar() {
             deposito:           Number(t1.deposito || 0),
             pix_cnpj:           Number(t1.pix_cnpj || 0),
             diferenca_pix:      Number(t1.diferenca_pix || 0),
+            boloes_terminal:   Number(t1.boloes_terminal || 0),
             premio_raspadinha:  Number(t1.premio_raspadinha || 0),
             resgate_telesena:   Number(t1.resgate_telesena || 0),
             total_produtos:     Number(totalProd || 0),
