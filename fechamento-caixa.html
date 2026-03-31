@@ -85,47 +85,46 @@
     </div>
 
     <div class="section">
-      <div class="section-label">Relatório e Movimentação Bancária</div>
-      <div class="g2">
-        <div class="field">
-          <label class="field-label req">Valor do Relatório</label>
-          <div class="pfx-wrap"><span class="pfx">R$</span>
-            <input type="number" id="relatorio" placeholder="0,00" step="0.01" oninput="autoFill(this)">
-          </div>
-        </div>
-        <div class="field">
-          <label class="field-label req">Depósito Bancário</label>
-          <div class="pfx-wrap"><span class="pfx">R$</span>
-            <input type="number" id="deposito" placeholder="0,00" step="0.01" oninput="autoFill(this)">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-label">Controle de Troco</div>
-      <div class="g2">
-        <div class="field">
-          <label class="field-label req">Troco Inicial (Fundo)</label>
-          <div class="pfx-wrap"><span class="pfx">R$</span>
-            <input type="number" id="troco-ini" placeholder="0,00" step="0.01" oninput="autoFill(this)">
-          </div>
-        </div>
-        <div class="field">
-          <label class="field-label req">Troco Sobra (Final)</label>
-          <div class="pfx-wrap"><span class="pfx">R$</span>
-            <input type="number" id="troco-sob" placeholder="0,00" step="0.01" oninput="autoFill(this)">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-  <div class="section-label">PIX e Prêmios</div>
-
+  <div class="section-label">Relatório e Troco Inicial</div>
   <div class="g2">
     <div class="field">
-      <label class="field-label req">PIX CNPJ Recebido</label>
+      <label class="field-label req">Valor do Relatório</label>
+      <div class="pfx-wrap"><span class="pfx">R$</span>
+        <input type="number" id="relatorio" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label req">Troco Inicial (Fundo)</label>
+      <div class="pfx-wrap"><span class="pfx">R$</span>
+        <input type="number" id="troco-ini" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+      </div>
+    </div>
+  </div>
+</div>
+
+    <<div class="section">
+  <div class="section-label">Controle de Troco</div>
+  <div class="g2">
+    <div class="field">
+      <label class="field-label req">Depósito Bancário</label>
+      <div class="pfx-wrap"><span class="pfx">R$</span>
+        <input type="number" id="deposito" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label req">Troco Sobra (Final)</label>
+      <div class="pfx-wrap"><span class="pfx">R$</span>
+        <input type="number" id="troco-sob" placeholder="0,00" step="0.01" oninput="autoFill(this)">
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="section">
+  <div class="section-label">PIX, Prêmios e Ajuste</div>
+
+  <div class="g3">
+    <div class="field">
+      <label class="field-label req">PIX CNPJ</label>
       <div class="pfx-wrap"><span class="pfx">R$</span>
         <input type="number" id="pix-cnpj" placeholder="0,00" step="0.01" oninput="autoFill(this)">
       </div>
@@ -137,25 +136,23 @@
         <input type="number" id="pix-dif" placeholder="0,00" step="0.01" oninput="autoFill(this)">
       </div>
     </div>
-  </div>
 
-  <div class="g2" style="margin-top:12px">
     <div class="field">
-      <label class="field-label req">Bolões Terminais</label>
+      <label class="field-label req">Bolões Terminal</label>
       <div class="pfx-wrap"><span class="pfx">R$</span>
         <input type="number" id="boloes-terminal" placeholder="0,00" step="0.01" oninput="autoFill(this)">
       </div>
     </div>
+  </div>
 
+  <div class="g2" style="margin-top:12px">
     <div class="field">
       <label class="field-label req">Prêmio Raspadinha</label>
       <div class="pfx-wrap"><span class="pfx">R$</span>
         <input type="number" id="premio-rasp" placeholder="0,00" step="0.01" oninput="autoFill(this)">
       </div>
     </div>
-  </div>
 
-  <div style="margin-top:12px;max-width:300px">
     <div class="field">
       <label class="field-label req">Resgate Telesena</label>
       <div class="pfx-wrap"><span class="pfx">R$</span>
