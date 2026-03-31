@@ -362,7 +362,7 @@ async function avancarStep(para) {
         }
 
         if (para === 3) {
-            await s();
+            await carregarBoloes();
         }
 
         if (para === 4) {
@@ -373,7 +373,6 @@ async function avancarStep(para) {
         alert('Erro ao avançar de tela:\n\n' + (e.message || e));
     }
 }
-
 function validarStep1() {
     const reqs = [
         'funcionario',
