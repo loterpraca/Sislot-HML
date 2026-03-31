@@ -362,7 +362,7 @@ async function avancarStep(para) {
         }
 
         if (para === 3) {
-            await carregarBoloes();
+            await s();
         }
 
         if (para === 4) {
@@ -1143,74 +1143,80 @@ async function carregarBoloes() {
     setB3('b3-loading');
 
     try {
-        const [
-            { data: boloesInt, error: errInt },
-            { data: movsExt, error: errExt },
-            { data: vendasBolao, error: errVend }
-        ] = await Promise.all([
-            sb.from('boloes').select(`id,modalidade,concurso,valor_cota,qtd_cotas_total,qtd_jogos,qtd_dezenas,dt_inicial,dt_concurso,status,loteria_id`).eq('loteria_id', loteriaAtiva.id).eq('status', 'ATIVO').lte('dt_inicial', dataRef).gte('dt_concurso', dataRef),
-            sb.from('movimentacoes_cotas').select(`bolao_id,qtd_cotas,status,loteria_destino,boloes(id,loteria_id,modalidade,concurso,valor_cota,qtd_jogos,qtd_dezenas,dt_inicial,dt_concurso,status,loterias(nome,cod_loterico))`).eq('loteria_destino', loteriaAtiva.id).eq('status', 'ATIVO'),
-            sb.from('boloes_vendas').select(`bolao_id,qtd_vendida`).eq('loteria_vendedora_id', loteriaAtiva.id)
-        ]);
+        const { data, error } = await sb
+            .from('view_boloes_saldo_operacional_loja')
+            .select(`
+                bolao_id,
+                tipo,
+                loteria_id_exibicao,
+                origem_loteria_id,
+                origem_nome,
+                origem_cod_loterico,
+                loja_exibicao_nome,
+                loja_exibicao_cod_loterico,
+                modalidade,
+                concurso,
+                valor_cota,
+                qtd_jogos,
+                qtd_dezenas,
+                qtd_cotas_total,
+                dt_inicial,
+                dt_concurso,
+                status,
+                saldo_base,
+                qtd_vendida_operacional,
+                qtd_marketplace,
+                qtd_vendida_total,
+                saldo_atual
+            `)
+            .eq('loteria_id_exibicao', Number(loteriaAtiva.id))
+            .eq('status', 'ATIVO')
+            .lte('dt_inicial', dataRef)
+            .gte('dt_concurso', dataRef)
+            .order('tipo', { ascending: true })
+            .order('modalidade', { ascending: true })
+            .order('valor_cota', { ascending: true })
+            .order('concurso', { ascending: true });
 
-        if (errInt) throw errInt;
-        if (errExt) throw errExt;
-        if (errVend) throw errVend;
+        if (error) throw error;
 
-        const mapaVendido = {};
-        (vendasBolao || []).forEach(v => {
-            const bolaoId = Number(v.bolao_id || 0);
-            if (!bolaoId) return;
-            mapaVendido[bolaoId] = (mapaVendido[bolaoId] || 0) + Number(v.qtd_vendida || 0);
-        });
+        const lista = (data || []).map(r => ({
+            bolao_id: Number(r.bolao_id || 0),
+            tipo: r.tipo,
+            modalidade: r.modalidade,
+            concurso: r.concurso,
+            qtdJogos: Number(r.qtd_jogos || 0),
+            qtdDezenas: Number(r.qtd_dezenas || 0),
+            valorCota: Number(r.valor_cota || 0),
+            dtInicial: r.dt_inicial,
+            dtConcurso: r.dt_concurso,
+            saldo_base: Number(r.saldo_base || 0),
+            qtd_vendida_operacional: Number(r.qtd_vendida_operacional || 0),
+            qtd_marketplace: Number(r.qtd_marketplace || 0),
+            qtd_vendida_total: Number(r.qtd_vendida_total || 0),
+            saldo_atual: Number(r.saldo_atual || 0),
+            saldoEnviado: r.tipo === 'EXTERNO' ? Number(r.saldo_base || 0) : null,
+            origem: r.origem_nome || '',
+            origemCodLoterico: r.origem_cod_loterico || ''
+        }));
 
-        const mapaExt = {};
-        (movsExt || []).forEach(m => {
-            const b = Array.isArray(m.boloes) ? m.boloes[0] : m.boloes;
-            if (!b || b.status !== 'ATIVO') return;
-            if (b.dt_inicial > dataRef || b.dt_concurso < dataRef) return;
-            if (!mapaExt[m.bolao_id]) mapaExt[m.bolao_id] = { bolao: b, qtdCotas: 0 };
-            mapaExt[m.bolao_id].qtdCotas += Number(m.qtd_cotas || 0);
-        });
-
-        lstInt = aplicarContextoEdicaoBoloes(
-            (boloesInt || []).map(b => {
-                const saldoBase = Number(b.qtd_cotas_total || 0);
-                const qtdVendidaTotal = Number(mapaVendido[b.id] || 0);
-                return {
-                    bolao_id: b.id, modalidade: b.modalidade, concurso: b.concurso,
-                    qtdJogos: b.qtd_jogos, qtdDezenas: b.qtd_dezenas,
-                    valorCota: Number(b.valor_cota || 0), dtInicial: b.dt_inicial, dtConcurso: b.dt_concurso,
-                    saldo_base: saldoBase, qtd_vendida_total: qtdVendidaTotal,
-                    saldo_atual: Math.max(0, saldoBase - qtdVendidaTotal),
-                    saldoEnviado: null, origem: loteriaAtiva.nome, tipo: 'INTERNO'
-                };
-            })
-        );
-
-        lstExt = aplicarContextoEdicaoBoloes(
-            Object.values(mapaExt).map(({ bolao: b, qtdCotas }) => {
-                const saldoBase = Number(qtdCotas || 0);
-                const qtdVendidaTotal = Number(mapaVendido[b.id] || 0);
-                return {
-                    bolao_id: b.id, modalidade: b.modalidade, concurso: b.concurso,
-                    qtdJogos: b.qtd_jogos, qtdDezenas: b.qtd_dezenas,
-                    valorCota: Number(b.valor_cota || 0), dtInicial: b.dt_inicial, dtConcurso: b.dt_concurso,
-                    saldo_base: saldoBase, qtd_vendida_total: qtdVendidaTotal,
-                    saldo_atual: Math.max(0, saldoBase - qtdVendidaTotal),
-                    saldoEnviado: saldoBase, origem: b.loterias?.nome || '',
-                    origemCodLoterico: b.loterias?.cod_loterico || '', tipo: 'EXTERNO'
-                };
-            })
-        );
+        lstInt = aplicarContextoEdicaoBoloes(lista.filter(x => x.tipo === 'INTERNO'));
+        lstExt = aplicarContextoEdicaoBoloes(lista.filter(x => x.tipo === 'EXTERNO'));
 
         const total = lstInt.length + lstExt.length;
-        if (!total) { allBoloes = []; renderBoloes(); setB3('b3-vazio'); return; }
+        if (!total) {
+            allBoloes = [];
+            renderBoloes();
+            setB3('b3-vazio');
+            return;
+        }
 
         renderBoloes();
         setB3('b3-lista');
 
-        if (ESTADO.tela3.internos?.length || ESTADO.tela3.externos?.length) restaurarBoloes();
+        if (ESTADO.tela3.internos?.length || ESTADO.tela3.externos?.length) {
+            restaurarBoloes();
+        }
     } catch (e) {
         console.error(e);
         $('b3-err-msg').textContent = e.message || 'Erro ao carregar bolões.';
