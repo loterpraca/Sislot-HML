@@ -1855,7 +1855,7 @@ async function finalizar() {
             deposito:           Number(t1.deposito || 0),
             pix_cnpj:           Number(t1.pix_cnpj || 0),
             diferenca_pix:      Number(t1.diferenca_pix || 0),
-            boloes_terminal:   Number(t1.boloes_terminal || 0),
+            boloes_terminal:    Number(t1.boloes_terminal || 0),
             premio_raspadinha:  Number(t1.premio_raspadinha || 0),
             resgate_telesena:   Number(t1.resgate_telesena || 0),
             total_produtos:     Number(totalProd || 0),
