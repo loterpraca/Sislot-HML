@@ -188,6 +188,7 @@ const API = {
       troco_sob:        Number(f.troco_sobra       || 0),
       pix_cnpj:         Number(f.pix_cnpj          || 0),
       pix_dif:          Number(f.diferenca_pix     || 0),
+      boloes_terminal:  Number(f.boloes_terminal   || 0), 
       premio_rasp:      Number(f.premio_raspadinha || 0),
       resgate_tele:     Number(f.resgate_telesena  || 0),
       total_produtos:   Number(f.total_produtos    || 0),
