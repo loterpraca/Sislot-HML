@@ -741,7 +741,7 @@ const VIEWER = {
     document.getElementById('rc-pix-dif').textContent       = this._moeda(fech.pix_dif);
     document.getElementById('rc-premio-rasp').textContent   = this._moeda(fech.premio_rasp);
     document.getElementById('rc-resgate-tele').textContent  = this._moeda(fech.resgate_tele);
-    document.getElementById('rc-boloes-terminal').textContent = '—';
+    document.getElementById('rc-boloes-terminal').textContent = this._moeda(fech.boloes_terminal);
     document.getElementById('rc-dividas').textContent       = this._moeda(fech.total_fiado);
     document.getElementById('rc-subtotal-cred').textContent = this._moeda(fech.total_creditos);
 
