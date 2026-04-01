@@ -6,123 +6,67 @@
   <title>SISLOT — Configurações</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
       --blue-deep:#0a1628;--blue-mid:#0f2244;--blue-panel:#132952;--blue-border:#1e3a6e;
       --accent:#00c896;--text-bright:#e8eef8;--text-mid:#8fa3c8;--text-dim:#4a6491;
-      --error:#ff5252;--amber:#f5a623;--input-bg:#0d1e3a;
+      --error:#ff5252;--amber:#f5a623;--input-bg:#0d1e3a;--success:#12d18e;--cyan:#38bdf8;
     }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{background:var(--blue-deep);font-family:'IBM Plex Sans',sans-serif;color:var(--text-bright);min-height:100vh;display:flex;flex-direction:column;background-image:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(0,200,150,.08) 0%,transparent 65%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(30,58,110,.3) 39px,rgba(30,58,110,.3) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(30,58,110,.15) 39px,rgba(30,58,110,.15) 40px)}
     .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;background:rgba(15,34,68,.95);border-bottom:1px solid var(--blue-border);backdrop-filter:blur(8px);position:sticky;top:0;z-index:100}
-    .topbar-left{display:flex;align-items:center;gap:16px}
-    .topbar-brand{display:flex;align-items:center;gap:12px}
+    .topbar-left,.topbar-right,.topbar-brand{display:flex;align-items:center}.topbar-left{gap:16px}.topbar-brand{gap:12px}.topbar-right{gap:14px}
     .brand-icon{width:32px;height:32px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--blue-deep)}
-    .brand-name{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
-    .brand-sub{font-size:11px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase}
+    .brand-name{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}.brand-sub{font-size:11px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase}
     .btn-back{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--blue-border);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--text-mid);font-family:'IBM Plex Sans',sans-serif;transition:all .2s;text-decoration:none}
     .btn-back:hover{border-color:var(--accent);color:var(--accent)}
-    .topbar-right{display:flex;align-items:center;gap:14px}
     .user-pill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--blue-border);border-radius:6px;padding:5px 12px 5px 6px}
     .user-avatar{width:24px;height:24px;border-radius:4px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--blue-deep);flex-shrink:0}
-    .user-name{font-size:12px;font-weight:500}
-    .user-role{font-size:10px;color:var(--text-dim);letter-spacing:.05em;text-transform:uppercase}
-    .btn-logout{background:transparent;border:1px solid rgba(255,82,82,.2);border-radius:5px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:500;color:rgba(255,82,82,.6);display:flex;align-items:center;gap:5px;transition:all .2s;font-family:'IBM Plex Sans',sans-serif}
-    .btn-logout:hover{background:rgba(255,82,82,.08);border-color:var(--error);color:var(--error)}
-    .btn-logout svg{width:12px;height:12px}
+    .user-name{font-size:12px;font-weight:500}.user-role{font-size:10px;color:var(--text-dim);letter-spacing:.05em;text-transform:uppercase}
+    .btn-logout{background:transparent;border:1px solid rgba(255,82,82,.2);border-radius:5px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:500;color:rgba(255,82,82,.75);display:flex;align-items:center;gap:5px;transition:all .2s;font-family:'IBM Plex Sans',sans-serif}
+    .btn-logout:hover{background:rgba(255,82,82,.08);border-color:var(--error);color:var(--error)}.btn-logout svg{width:12px;height:12px}
     .page{display:flex;flex:1;min-height:calc(100vh - 56px)}
-    .sidebar{width:220px;flex-shrink:0;background:rgba(15,34,68,.6);border-right:1px solid var(--blue-border);padding:24px 12px;display:flex;flex-direction:column;gap:4px}
-    .sidebar-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);padding:0 8px;margin-bottom:8px;margin-top:16px}
-    .sidebar-label:first-child{margin-top:0}
-    .tab-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;border:none;background:transparent;font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text-mid);text-align:left;width:100%;transition:background .15s,color .15s}
-    .tab-btn svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
-    .tab-btn:hover{background:rgba(255,255,255,.04);color:var(--text-bright)}
-    .tab-btn.active{background:rgba(0,200,150,.1);color:var(--accent);border:1px solid rgba(0,200,150,.2)}
-    .tab-btn.active svg{opacity:1}
+    .sidebar{width:240px;flex-shrink:0;background:rgba(15,34,68,.6);border-right:1px solid var(--blue-border);padding:24px 12px;display:flex;flex-direction:column;gap:4px}
+    .sidebar-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);padding:0 8px;margin-bottom:8px;margin-top:16px}.sidebar-label:first-child{margin-top:0}
+    .tab-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;border:none;background:transparent;font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text-mid);text-align:left;width:100%;transition:background .15s,color .15s}
+    .tab-btn svg{width:15px;height:15px;flex-shrink:0;opacity:.7}.tab-btn:hover{background:rgba(255,255,255,.04);color:var(--text-bright)}.tab-btn.active{background:rgba(0,200,150,.1);color:var(--accent);border:1px solid rgba(0,200,150,.2)}.tab-btn.active svg{opacity:1}
     .content{flex:1;padding:32px;overflow-y:auto}
-    .panel{display:none;animation:fadeIn .25s ease both}
-    .panel.active{display:block}
+    .panel{display:none;animation:fadeIn .25s ease both}.panel.active{display:block}
     @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    .panel-header{margin-bottom:24px}
-    .panel-title{font-size:20px;font-weight:600;color:var(--text-bright);margin-bottom:4px}
-    .panel-sub{font-size:13px;color:var(--text-mid);font-weight:300}
-    .info-box{background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.2);border-radius:8px;padding:12px 16px;font-size:12px;color:#38bdf8;margin-bottom:20px;line-height:1.6;display:flex;align-items:flex-start;gap:10px}
-    .info-box svg{width:14px;height:14px;flex-shrink:0;margin-top:1px}
-    .sep{display:flex;align-items:center;gap:14px;margin:24px 0 16px}
-    .sep span{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);white-space:nowrap}
-    .sep-line{flex:1;height:1px;background:var(--blue-border)}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-    .form-row.triple{grid-template-columns:1fr 1fr 1fr}
-    .form-row.single{grid-template-columns:1fr}
-    .form-group{display:flex;flex-direction:column;gap:6px}
-    .form-label{font-size:11px;font-weight:500;color:var(--text-mid);letter-spacing:.05em;text-transform:uppercase}
+    .panel-header{margin-bottom:24px}.panel-title{font-size:20px;font-weight:600;color:var(--text-bright);margin-bottom:4px}.panel-sub{font-size:13px;color:var(--text-mid);font-weight:300}
+    .info-box,.warn-box{border-radius:8px;padding:12px 16px;font-size:12px;line-height:1.6;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px}
+    .info-box{background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.2);color:var(--cyan)}
+    .warn-box{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.22);color:var(--amber)}
+    .info-box svg,.warn-box svg{width:14px;height:14px;flex-shrink:0;margin-top:1px}
+    .sep{display:flex;align-items:center;gap:14px;margin:24px 0 16px}.sep span{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);white-space:nowrap}.sep-line{flex:1;height:1px;background:var(--blue-border)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}.form-row.triple{grid-template-columns:1fr 1fr 1fr}.form-row.single{grid-template-columns:1fr}.form-row.quad{grid-template-columns:1.15fr .85fr .9fr .9fr}
+    .form-group{display:flex;flex-direction:column;gap:6px}.form-label{font-size:11px;font-weight:500;color:var(--text-mid);letter-spacing:.05em;text-transform:uppercase}
     .form-input,.form-select{height:40px;background:var(--input-bg);border:1px solid var(--blue-border);border-radius:7px;padding:0 12px;font-size:13px;color:var(--text-bright);font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s}
-    .form-input:focus,.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,150,.1)}
-    .form-input::placeholder{color:var(--text-dim)}
+    .form-input:focus,.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,150,.1)}.form-input::placeholder{color:var(--text-dim)}
     .form-select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a6491' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-    .form-hint{font-size:11px;color:var(--text-dim);margin-top:2px}
-    .btn-row{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
-    .btn-primary{height:38px;padding:0 20px;background:var(--accent);border:none;border-radius:7px;font-size:13px;font-weight:600;color:var(--blue-deep);cursor:pointer;font-family:'IBM Plex Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:background .2s,transform .15s}
-    .btn-primary:hover{background:#00e8ad;transform:translateY(-1px)}
-    .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
-    .btn-secondary{height:38px;padding:0 16px;background:transparent;border:1px solid var(--blue-border);border-radius:7px;font-size:13px;color:var(--text-mid);cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:border-color .2s,color .2s}
-    .btn-secondary:hover{border-color:var(--text-mid);color:var(--text-bright)}
-    .table-wrap{background:var(--blue-panel);border:1px solid var(--blue-border);border-radius:10px;overflow:hidden}
-    .table-toolbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--blue-border);gap:12px}
-    .table-search{height:34px;background:var(--input-bg);border:1px solid var(--blue-border);border-radius:6px;padding:0 12px;font-size:12px;color:var(--text-bright);font-family:'IBM Plex Sans',sans-serif;outline:none;width:220px;transition:border-color .2s}
-    .table-search:focus{border-color:var(--accent)}
-    .table-search::placeholder{color:var(--text-dim)}
-    .table-count{font-size:12px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;white-space:nowrap}
-    table{width:100%;border-collapse:collapse}
+    .form-hint{font-size:11px;color:var(--text-dim);margin-top:2px}.form-hint code{color:var(--text-bright)}
+    .btn-row{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}.btn-primary,.btn-secondary{height:38px;border-radius:7px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:7px}
+    .btn-primary{padding:0 20px;background:var(--accent);border:none;font-weight:600;color:var(--blue-deep)}.btn-primary:hover{background:#00e8ad;transform:translateY(-1px)}.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .btn-secondary{padding:0 16px;background:transparent;border:1px solid var(--blue-border);color:var(--text-mid)}.btn-secondary:hover{border-color:var(--text-mid);color:var(--text-bright)}
+    .table-wrap{background:var(--blue-panel);border:1px solid var(--blue-border);border-radius:10px;overflow:hidden}.table-toolbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--blue-border);gap:12px;flex-wrap:wrap}
+    .table-search{height:34px;background:var(--input-bg);border:1px solid var(--blue-border);border-radius:6px;padding:0 12px;font-size:12px;color:var(--text-bright);font-family:'IBM Plex Sans',sans-serif;outline:none;width:240px;max-width:100%;transition:border-color .2s}.table-search:focus{border-color:var(--accent)}.table-search::placeholder{color:var(--text-dim)}
+    .table-count{font-size:12px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;white-space:nowrap}.table-scroll{overflow:auto}
+    table{width:100%;border-collapse:collapse;min-width:880px}.table-wrap.compact table{min-width:720px}.table-wrap.wide table{min-width:1040px}
     thead th{padding:10px 16px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--blue-border);white-space:nowrap}
-    tbody tr{border-bottom:1px solid rgba(30,58,110,.5);transition:background .15s}
-    tbody tr:last-child{border-bottom:none}
-    tbody tr:hover{background:rgba(255,255,255,.02)}
-    tbody td{padding:10px 16px;font-size:13px;color:var(--text-mid);vertical-align:middle}
-    tbody td.bright{color:var(--text-bright);font-weight:500}
-    .empty-row td{text-align:center;color:var(--text-dim);padding:32px;font-size:13px}
-    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
-    .badge-green{background:rgba(0,200,150,.12);color:var(--accent);border:1px solid rgba(0,200,150,.25)}
-    .badge-red{background:rgba(255,82,82,.12);color:#ff5252;border:1px solid rgba(255,82,82,.25)}
-    .badge-amber{background:rgba(245,166,35,.12);color:var(--amber);border:1px solid rgba(245,166,35,.25)}
-    .badge-blue{background:rgba(56,189,248,.12);color:#38bdf8;border:1px solid rgba(56,189,248,.25)}
-    .badge-purple{background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.25)}
-    .badge-teal{background:rgba(20,184,166,.12);color:#14b8a6;border:1px solid rgba(20,184,166,.25)}
-    .tbl-actions{display:flex;gap:6px;flex-wrap:wrap}
-    .tbl-btn{height:26px;padding:0 10px;border-radius:5px;font-size:11px;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;border:1px solid;transition:all .15s;white-space:nowrap}
-    .tbl-edit{background:transparent;border-color:rgba(56,189,248,.3);color:#38bdf8}
-    .tbl-edit:hover{background:rgba(56,189,248,.1)}
-    .tbl-del{background:transparent;border-color:rgba(255,82,82,.3);color:#ff5252}
-    .tbl-del:hover{background:rgba(255,82,82,.1)}
-    .tbl-toggle{background:transparent;border-color:rgba(245,166,35,.3);color:var(--amber)}
-    .tbl-toggle:hover{background:rgba(245,166,35,.1)}
-    .perm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .perm-card{background:var(--input-bg);border:1px solid var(--blue-border);border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .perm-name{font-size:12px;font-weight:500;color:var(--text-bright)}
-    .perm-desc{font-size:10px;color:var(--text-dim);margin-top:2px}
-    .toggle-wrap{position:relative;flex-shrink:0}
-    .toggle-input{position:absolute;opacity:0;width:0;height:0}
-    .toggle-track{display:block;width:36px;height:20px;background:var(--blue-border);border-radius:10px;cursor:pointer;transition:background .2s;position:relative}
-    .toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:var(--text-dim);border-radius:50%;transition:transform .2s,background .2s}
-    .toggle-input:checked+.toggle-track{background:rgba(0,200,150,.3)}
-    .toggle-input:checked+.toggle-track::after{transform:translateX(16px);background:var(--accent)}
-    .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--blue-panel);border:1px solid var(--blue-border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-bright);box-shadow:0 8px 24px rgba(0,0,0,.4);transform:translateY(80px);opacity:0;transition:transform .3s ease,opacity .3s ease;pointer-events:none}
-    .toast.show{transform:translateY(0);opacity:1}
-    .toast-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .toast-dot.green{background:var(--accent)}
-    .toast-dot.red{background:var(--error)}
-    .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
-    .modal-overlay.open{opacity:1;pointer-events:all}
-    .modal{background:var(--blue-mid);border:1px solid var(--blue-border);border-radius:14px;padding:28px;width:100%;max-width:460px;transform:translateY(16px);transition:transform .2s}
-    .modal-overlay.open .modal{transform:translateY(0)}
-    .modal-title{font-size:16px;font-weight:600;margin-bottom:12px}
-    .modal-body{font-size:13px;color:var(--text-mid);line-height:1.6;margin-bottom:20px}
-    .modal-footer{display:flex;gap:10px;justify-content:flex-end}
-    @media(max-width:700px){.sidebar{display:none}.content{padding:20px 14px}.form-row,.form-row.triple{grid-template-columns:1fr}.perm-grid{grid-template-columns:1fr 1fr}}
+    tbody tr{border-bottom:1px solid rgba(30,58,110,.5);transition:background .15s}tbody tr:last-child{border-bottom:none}tbody tr:hover{background:rgba(255,255,255,.02)}tbody td{padding:10px 16px;font-size:13px;color:var(--text-mid);vertical-align:middle}tbody td.bright{color:var(--text-bright);font-weight:500}
+    .empty-row td{text-align:center;color:var(--text-dim);padding:32px;font-size:13px}.muted{color:var(--text-dim)}
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:.05em;text-transform:uppercase}.badge-green{background:rgba(0,200,150,.12);color:var(--accent);border:1px solid rgba(0,200,150,.25)}.badge-red{background:rgba(255,82,82,.12);color:var(--error);border:1px solid rgba(255,82,82,.25)}.badge-amber{background:rgba(245,166,35,.12);color:var(--amber);border:1px solid rgba(245,166,35,.25)}.badge-blue{background:rgba(56,189,248,.12);color:var(--cyan);border:1px solid rgba(56,189,248,.25)}.badge-purple{background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.25)}.badge-teal{background:rgba(20,184,166,.12);color:#14b8a6;border:1px solid rgba(20,184,166,.25)}
+    .tbl-actions{display:flex;gap:6px;flex-wrap:wrap}.tbl-btn{height:26px;padding:0 10px;border-radius:5px;font-size:11px;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;border:1px solid;transition:all .15s;white-space:nowrap}.tbl-edit{background:transparent;border-color:rgba(56,189,248,.3);color:var(--cyan)}.tbl-edit:hover{background:rgba(56,189,248,.1)}.tbl-del{background:transparent;border-color:rgba(255,82,82,.3);color:var(--error)}.tbl-del:hover{background:rgba(255,82,82,.1)}.tbl-toggle{background:transparent;border-color:rgba(245,166,35,.3);color:var(--amber)}.tbl-toggle:hover{background:rgba(245,166,35,.1)}
+    .perm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.perm-card{background:var(--input-bg);border:1px solid var(--blue-border);border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}.perm-name{font-size:12px;font-weight:500;color:var(--text-bright)}.perm-desc{font-size:10px;color:var(--text-dim);margin-top:2px}
+    .toggle-wrap{position:relative;flex-shrink:0}.toggle-input{position:absolute;opacity:0;width:0;height:0}.toggle-track{display:block;width:36px;height:20px;background:var(--blue-border);border-radius:10px;cursor:pointer;transition:background .2s;position:relative}.toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:var(--text-dim);border-radius:50%;transition:transform .2s,background .2s}.toggle-input:checked+.toggle-track{background:rgba(0,200,150,.3)}.toggle-input:checked+.toggle-track::after{transform:translateX(16px);background:var(--accent)}
+    .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--blue-panel);border:1px solid var(--blue-border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-bright);box-shadow:0 8px 24px rgba(0,0,0,.4);transform:translateY(80px);opacity:0;transition:transform .3s ease,opacity .3s ease;pointer-events:none}.toast.show{transform:translateY(0);opacity:1}.toast-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.toast-dot.green{background:var(--accent)}.toast-dot.red{background:var(--error)}.toast-dot.amber{background:var(--amber)}
+    .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}.modal-overlay.open{opacity:1;pointer-events:all}.modal{background:var(--blue-mid);border:1px solid var(--blue-border);border-radius:14px;padding:28px;width:100%;max-width:520px;transform:translateY(16px);transition:transform .2s}.modal-overlay.open .modal{transform:translateY(0)}.modal-title{font-size:16px;font-weight:600;margin-bottom:12px}.modal-body{font-size:13px;color:var(--text-mid);line-height:1.6;margin-bottom:20px}.modal-footer{display:flex;gap:10px;justify-content:flex-end}
+    .mono{font-family:'IBM Plex Mono',monospace;font-size:11px}.stack{display:flex;flex-direction:column;gap:3px}
+    .auth-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    @media(max-width:980px){.sidebar{display:none}.content{padding:20px 14px}.perm-grid{grid-template-columns:1fr 1fr}.form-row,.form-row.triple,.form-row.quad{grid-template-columns:1fr}}
+    @media(max-width:640px){.perm-grid{grid-template-columns:1fr}.topbar{padding:0 14px}.topbar-left{gap:10px}.topbar-right{gap:8px}.btn-back span{display:none}}
   </style>
 </head>
 <body>
-
 <header class="topbar">
   <div class="topbar-left">
     <div class="topbar-brand">
@@ -131,7 +75,7 @@
     </div>
     <a href="./menu.html" class="btn-back">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      Menu
+      <span>Menu</span>
     </a>
   </div>
   <div class="topbar-right">
@@ -148,54 +92,52 @@
 
 <div class="page">
   <nav class="sidebar">
-    <div class="sidebar-label">Usuários</div>
-    <button class="tab-btn active" onclick="showTab(this,'usuarios')">
+    <div class="sidebar-label">Acesso</div>
+    <button class="tab-btn active" data-tab="usuarios">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Usuários
     </button>
-    <button class="tab-btn" onclick="showTab(this,'vinculos')">
+    <button class="tab-btn" data-tab="senhas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="16" r="1"/><path d="M7 11V8a5 5 0 0 1 10 0v3"/></svg>
+      Senhas
+    </button>
+    <button class="tab-btn" data-tab="vinculos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
       Vínculos Loteria
     </button>
     <div class="sidebar-label">Sistema</div>
-    <button class="tab-btn" onclick="showTab(this,'loterias')">
+    <button class="tab-btn" data-tab="loterias">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Loterias
     </button>
-    <button class="tab-btn" onclick="showTab(this,'permissoes')">
+    <button class="tab-btn" data-tab="permissoes">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Permissões de Menu
     </button>
   </nav>
 
   <main class="content">
-
-    <!-- ══ USUÁRIOS ══ -->
-    <div class="panel active" id="panel-usuarios">
+    <section class="panel active" id="panel-usuarios">
       <div class="panel-header">
         <div class="panel-title">Usuários</div>
-        <div class="panel-sub">Gerencie perfis, acesso e bloqueios</div>
+        <div class="panel-sub">Cadastro interno, perfis, bloqueio e vínculo com o Auth.</div>
       </div>
-      <div class="info-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Para criar um login novo, acesse o painel Supabase → Authentication → Users → Invite user. Depois cadastre aqui com o mesmo e-mail para ativar o perfil.
+
+      <div class="warn-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        <div>
+          <strong>Regra segura:</strong> para usuário com login, crie primeiro no Supabase Auth e cole o <span class="mono">auth_user_id</span> aqui. Para usuário sem login, deixe <span class="mono">Pode logar = Não</span>.
+        </div>
       </div>
 
       <div class="sep"><span>Cadastrar / editar usuário</span><div class="sep-line"></div></div>
-      <div class="form-row">
+      <div class="form-row quad">
         <div class="form-group">
           <label class="form-label">Nome completo</label>
           <input type="text" class="form-input" id="usr-nome" placeholder="Nome do funcionário"/>
         </div>
         <div class="form-group">
-          <label class="form-label">E-mail</label>
-          <input type="email" class="form-input" id="usr-email" placeholder="email@empresa.com"/>
-          <span class="form-hint">Mesmo e-mail do Supabase Auth</span>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Perfil de acesso</label>
+          <label class="form-label">Perfil</label>
           <select class="form-select" id="usr-perfil">
             <option value="OPERADOR">Operador</option>
             <option value="GERENTE">Gerente</option>
@@ -206,37 +148,94 @@
         <div class="form-group">
           <label class="form-label">Pode logar</label>
           <select class="form-select" id="usr-pode-logar">
-            <option value="true">Sim — acesso liberado</option>
-            <option value="false">Não — acesso bloqueado</option>
+            <option value="true">Sim</option>
+            <option value="false">Não</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ativo</label>
+          <select class="form-select" id="usr-ativo-form">
+            <option value="true">Sim</option>
+            <option value="false">Não</option>
           </select>
         </div>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" class="form-input" id="usr-email" placeholder="email@empresa.com"/>
+          <span class="form-hint">Obrigatório para quem vai logar.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">auth_user_id</label>
+          <input type="text" class="form-input mono" id="usr-auth-user-id" placeholder="UUID do usuário no Supabase Auth"/>
+          <span class="form-hint">Cole o UUID do Auth. Sem isso, login não casa com a tabela <code>usuarios</code>.</span>
+        </div>
+      </div>
       <div class="btn-row">
-        <button class="btn-primary" id="btnSalvarUsr">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          <span id="btnUsrLabel">Salvar Usuário</span>
-        </button>
+        <button class="btn-primary" id="btnSalvarUsr"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span id="btnUsrLabel">Salvar Usuário</span></button>
         <button class="btn-secondary" id="btnCancelarUsr" style="display:none">Cancelar</button>
       </div>
 
       <div class="sep"><span>Usuários cadastrados</span><div class="sep-line"></div></div>
-      <div class="table-wrap">
+      <div class="table-wrap wide">
         <div class="table-toolbar">
-          <input type="text" class="table-search" id="searchUsr" placeholder="Buscar por nome ou e-mail…" oninput="filtrarUsr()"/>
+          <input type="text" class="table-search" id="searchUsr" placeholder="Buscar por nome, e-mail ou auth_user_id…"/>
           <span class="table-count" id="countUsr">—</span>
         </div>
-        <table>
-          <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Pode logar</th><th>Ativo</th><th>Ações</th></tr></thead>
-          <tbody id="tbodyUsr"><tr class="empty-row"><td colspan="6">Carregando…</td></tr></tbody>
-        </table>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Auth</th><th>Pode logar</th><th>Ativo</th><th>Ações</th></tr></thead>
+            <tbody id="tbodyUsr"><tr class="empty-row"><td colspan="7">Carregando…</td></tr></tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ══ VÍNCULOS ══ -->
-    <div class="panel" id="panel-vinculos">
+    <section class="panel" id="panel-senhas">
+      <div class="panel-header">
+        <div class="panel-title">Senhas</div>
+        <div class="panel-sub">Troca manual via Edge Function, sem depender de recuperação por e-mail.</div>
+      </div>
+
+      <div class="info-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Esta aba usa a função <span class="mono">reset-user-password</span>. Ela precisa estar publicada no Supabase e o usuário alvo precisa ter <span class="mono">auth_user_id</span> preenchido.
+      </div>
+
+      <div class="form-row triple">
+        <div class="form-group">
+          <label class="form-label">Usuário</label>
+          <select class="form-select" id="pwd-usuario"><option value="">Selecione…</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nova senha</label>
+          <input type="password" class="form-input" id="pwd-senha" placeholder="Mínimo 8 caracteres"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar senha</label>
+          <input type="password" class="form-input" id="pwd-senha2" placeholder="Repita a senha"/>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" id="btnTrocarSenha"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Trocar Senha</button>
+      </div>
+
+      <div class="sep"><span>Usuários aptos para reset</span><div class="sep-line"></div></div>
+      <div class="table-wrap compact">
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Usuário</th><th>E-mail</th><th>Auth</th><th>Reset</th></tr></thead>
+            <tbody id="tbodyPwd"><tr class="empty-row"><td colspan="4">Carregando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-vinculos">
       <div class="panel-header">
         <div class="panel-title">Vínculos Loteria</div>
-        <div class="panel-sub">Define em qual(is) loteria(s) cada usuário trabalha</div>
+        <div class="panel-sub">Define em qual loteria cada usuário trabalha e qual é a principal.</div>
       </div>
 
       <div class="sep"><span>Novo vínculo</span><div class="sep-line"></div></div>
@@ -251,108 +250,82 @@
         </div>
         <div class="form-group">
           <label class="form-label">Loteria principal?</label>
-          <select class="form-select" id="vinc-principal">
-            <option value="false">Não</option>
-            <option value="true">Sim</option>
-          </select>
+          <select class="form-select" id="vinc-principal"><option value="false">Não</option><option value="true">Sim</option></select>
         </div>
       </div>
       <div class="form-row single">
         <div class="form-group">
           <label class="form-label">Papel na loja (opcional)</label>
-          <input type="text" class="form-input" id="vinc-papel" placeholder="Ex: Caixa, Gerente de loja…"/>
+          <input type="text" class="form-input" id="vinc-papel" placeholder="Ex: Caixa, Gerente, Atendimento"/>
         </div>
       </div>
-      <div class="btn-row">
-        <button class="btn-primary" id="btnSalvarVinc">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Vincular
-        </button>
-      </div>
+      <div class="btn-row"><button class="btn-primary" id="btnSalvarVinc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Vincular</button></div>
 
       <div class="sep"><span>Vínculos ativos</span><div class="sep-line"></div></div>
-      <div class="table-wrap">
+      <div class="table-wrap compact">
         <div class="table-toolbar">
-          <input type="text" class="table-search" id="searchVinc" placeholder="Buscar…" oninput="filtrarVinc()"/>
+          <input type="text" class="table-search" id="searchVinc" placeholder="Buscar usuário ou loteria…"/>
           <span class="table-count" id="countVinc">—</span>
         </div>
-        <table>
-          <thead><tr><th>Usuário</th><th>Loteria</th><th>Papel</th><th>Principal</th><th>Ações</th></tr></thead>
-          <tbody id="tbodyVinc"><tr class="empty-row"><td colspan="5">Carregando…</td></tr></tbody>
-        </table>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Usuário</th><th>Loteria</th><th>Papel</th><th>Principal</th><th>Ativo</th><th>Ações</th></tr></thead>
+            <tbody id="tbodyVinc"><tr class="empty-row"><td colspan="6">Carregando…</td></tr></tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ══ LOTERIAS ══ -->
-    <div class="panel" id="panel-loterias">
+    <section class="panel" id="panel-loterias">
       <div class="panel-header">
         <div class="panel-title">Loterias</div>
-        <div class="panel-sub">Cadastro e edição das unidades do grupo</div>
+        <div class="panel-sub">Cadastro e edição das unidades do grupo.</div>
       </div>
 
       <div class="sep"><span>Nova loteria</span><div class="sep-line"></div></div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Nome</label>
-          <input type="text" class="form-input" id="lot-nome" placeholder="Ex: Boulevard"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Slug</label>
-          <input type="text" class="form-input" id="lot-slug" placeholder="Ex: boulevard"/>
-          <span class="form-hint">Gerado automaticamente, sem espaços</span>
-        </div>
+        <div class="form-group"><label class="form-label">Nome</label><input type="text" class="form-input" id="lot-nome" placeholder="Ex: Boulevard"/></div>
+        <div class="form-group"><label class="form-label">Slug</label><input type="text" class="form-input" id="lot-slug" placeholder="Ex: boulevard"/><span class="form-hint">Gerado automaticamente ao digitar o nome.</span></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Código</label>
-          <input type="text" class="form-input" id="lot-codigo" placeholder="Ex: BVD"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Código lotérico (Caixa)</label>
-          <input type="text" class="form-input" id="lot-cod-loterico" placeholder="Código fornecido pela Caixa"/>
-        </div>
+        <div class="form-group"><label class="form-label">Código</label><input type="text" class="form-input" id="lot-codigo" placeholder="Ex: BVD"/></div>
+        <div class="form-group"><label class="form-label">Código lotérico (Caixa)</label><input type="text" class="form-input" id="lot-cod-loterico" placeholder="Código fornecido pela Caixa"/></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Aba externos (GAS)</label>
-          <input type="text" class="form-input" id="lot-aba" placeholder="Ex: D.Centro"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Cor primária (hex)</label>
-          <input type="text" class="form-input" id="lot-cor" placeholder="Ex: #00c896"/>
-        </div>
+        <div class="form-group"><label class="form-label">Aba externos (GAS)</label><input type="text" class="form-input" id="lot-aba" placeholder="Ex: D.Centro"/></div>
+        <div class="form-group"><label class="form-label">Cor primária (hex)</label><input type="text" class="form-input" id="lot-cor" placeholder="Ex: #00c896"/></div>
       </div>
       <div class="btn-row">
-        <button class="btn-primary" id="btnSalvarLot">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          <span id="btnLotLabel">Salvar Loteria</span>
-        </button>
+        <button class="btn-primary" id="btnSalvarLot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span id="btnLotLabel">Salvar Loteria</span></button>
         <button class="btn-secondary" id="btnCancelarLot" style="display:none">Cancelar</button>
       </div>
 
       <div class="sep"><span>Loterias cadastradas</span><div class="sep-line"></div></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Nome</th><th>Slug</th><th>Código</th><th>Cód. lotérico</th><th>Ativo</th><th>Ações</th></tr></thead>
-          <tbody id="tbodyLot"><tr class="empty-row"><td colspan="6">Carregando…</td></tr></tbody>
-        </table>
+      <div class="table-wrap compact">
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Nome</th><th>Slug</th><th>Código</th><th>Cód. lotérico</th><th>Ativo</th><th>Ações</th></tr></thead>
+            <tbody id="tbodyLot"><tr class="empty-row"><td colspan="6">Carregando…</td></tr></tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ══ PERMISSÕES ══ -->
-    <div class="panel" id="panel-permissoes">
+    <section class="panel" id="panel-permissoes">
       <div class="panel-header">
         <div class="panel-title">Permissões de Menu</div>
-        <div class="panel-sub">Define quais módulos cada perfil pode acessar</div>
+        <div class="panel-sub">Ocultação visual dos cards por perfil neste navegador.</div>
       </div>
+
       <div class="info-box">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Permissões salvas no localStorage deste navegador. ADMIN sempre vê tudo. O menu.html lê essas configurações para mostrar ou ocultar os cards.
+        <div>Estas permissões ficam em <span class="mono">localStorage</span>. Não substituem segurança no banco. Servem para esconder cards e limpar o menu por perfil.</div>
       </div>
+
       <div class="form-row single" style="max-width:260px;margin-bottom:20px">
         <div class="form-group">
           <label class="form-label">Perfil</label>
-          <select class="form-select" id="perm-perfil" onchange="renderPermissoes()">
+          <select class="form-select" id="perm-perfil">
             <option value="OPERADOR">Operador</option>
             <option value="GERENTE">Gerente</option>
             <option value="SOCIO">Sócio</option>
@@ -360,417 +333,16 @@
         </div>
       </div>
       <div class="perm-grid" id="permGrid"></div>
-      <div class="btn-row" style="margin-top:20px">
-        <button class="btn-primary" onclick="salvarPermissoes()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Salvar Permissões
-        </button>
-      </div>
-    </div>
-
+      <div class="btn-row" style="margin-top:20px"><button class="btn-primary" id="btnSalvarPerm"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Salvar Permissões</button></div>
+    </section>
   </main>
 </div>
 
 <div class="toast" id="toast"><div class="toast-dot green" id="toastDot"></div><span id="toastMsg"></span></div>
-
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <div class="modal-title" id="modalTitle">Confirmar</div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="fecharModal()">Cancelar</button>
-      <button class="btn-primary" id="modalConfirm">Confirmar</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-title" id="modalTitle">Confirmar</div><div class="modal-body" id="modalBody"></div><div class="modal-footer"><button class="btn-secondary" type="button" id="modalCancel">Cancelar</button><button class="btn-primary" type="button" id="modalConfirm">Confirmar</button></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="./sislot-config.js"></script>
-<script>
-const sb = supabase.createClient(window.SISLOT_CONFIG.url, window.SISLOT_CONFIG.anonKey);
-
-let todosUsr = [], todosLot = [], todosVinc = [];
-let editandoUsrId = null, editandoLotId = null;
-
-const PERFIL_LABEL = { ADMIN:'Admin', SOCIO:'Sócio', GERENTE:'Gerente', OPERADOR:'Operador' };
-const PERFIL_BADGE = { ADMIN:'badge-purple', SOCIO:'badge-blue', GERENTE:'badge-amber', OPERADOR:'badge-teal' };
-const PERM_PREFIX  = 'sislot_perm_';
-
-const MODULOS = [
-  { key:'cadastrar',   label:'Cadastrar',   desc:'Criar e gerenciar bolões' },
-  { key:'movimentar',  label:'Movimentar',  desc:'Distribuir cotas' },
-  { key:'buscar',      label:'Buscar',      desc:'Consultar saldo' },
-  { key:'fechamento',  label:'Fechamento',  desc:'Fechar caixa do dia' },
-  { key:'federal',     label:'Federal',     desc:'Bilhetes federais' },
-  { key:'produtos',    label:'Produtos',    desc:'Controle de estoque' },
-  { key:'whatsapp',    label:'WhatsApp',    desc:'Vendas por WhatsApp' },
-  { key:'marketplace', label:'Marketplace', desc:'Vendas em plataformas' },
-  { key:'caixa',       label:'Caixa',       desc:'Vendas presenciais' },
-];
-
-function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-// ── Init ──
-async function init() {
-  const { data:{ session } } = await sb.auth.getSession();
-  if (!session) { location.href='./login.html'; return; }
-
-  const { data:usr } = await sb.from('usuarios')
-    .select('id,nome,perfil,ativo,pode_logar')
-    .eq('auth_user_id', session.user.id)
-    .eq('ativo', true).maybeSingle();
-
-  if (!usr || usr.perfil !== 'ADMIN') {
-    alert('Acesso restrito a administradores.');
-    location.href='./menu.html'; return;
-  }
-
-  const iniciais = usr.nome?.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase()||'?';
-  document.getElementById('userAvatar').textContent = iniciais;
-  document.getElementById('userName').textContent   = usr.nome;
-  document.getElementById('userRole').textContent   = PERFIL_LABEL[usr.perfil]||usr.perfil;
-  document.getElementById('btnLogout').onclick = async()=>{ await sb.auth.signOut(); location.href='./login.html'; };
-
-  await Promise.all([carregarUsuarios(), carregarLoterias()]);
-  await carregarVinculos();
-  renderPermissoes();
-}
-
-// ── Tabs ──
-function showTab(btn, tab) {
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('panel-'+tab).classList.add('active');
-}
-
-// ── Toast ──
-let toastTimer;
-function toast(msg, tipo='green') {
-  document.getElementById('toastMsg').textContent = msg;
-  document.getElementById('toastDot').className   = 'toast-dot '+tipo;
-  const el = document.getElementById('toast');
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>el.classList.remove('show'), 3500);
-}
-
-// ── Modal ──
-function confirmar(titulo, corpo, cb) {
-  document.getElementById('modalTitle').textContent = titulo;
-  document.getElementById('modalBody').textContent  = corpo;
-  document.getElementById('modalConfirm').onclick   = ()=>{ fecharModal(); cb(); };
-  document.getElementById('modalOverlay').classList.add('open');
-}
-function fecharModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
-
-// ══ USUÁRIOS ══
-async function carregarUsuarios() {
-  const { data, error } = await sb.from('usuarios')
-    .select('id,nome,email,perfil,ativo,pode_logar').order('nome');
-  if (error) { toast('Erro: '+error.message,'red'); return; }
-  todosUsr = data||[];
-  renderUsr(todosUsr);
-  preencherSelectUsr();
-}
-
-function preencherSelectUsr() {
-  const sel = document.getElementById('vinc-usr');
-  const val = sel.value;
-  sel.innerHTML = '<option value="">Selecione…</option>';
-  todosUsr.forEach(u=>{
-    const op=document.createElement('option');
-    op.value=u.id; op.textContent=u.nome+' ('+( PERFIL_LABEL[u.perfil]||u.perfil)+')';
-    sel.appendChild(op);
-  });
-  sel.value=val;
-}
-
-function renderUsr(lista) {
-  const tbody = document.getElementById('tbodyUsr');
-  document.getElementById('countUsr').textContent = lista.length+' registros';
-  if (!lista.length) { tbody.innerHTML='<tr class="empty-row"><td colspan="6">Nenhum usuário encontrado</td></tr>'; return; }
-  tbody.innerHTML = lista.map(u=>`
-    <tr>
-      <td class="bright">${esc(u.nome)}</td>
-      <td>${esc(u.email)}</td>
-      <td><span class="badge ${PERFIL_BADGE[u.perfil]||'badge-teal'}">${PERFIL_LABEL[u.perfil]||u.perfil}</span></td>
-      <td><span class="badge ${u.pode_logar?'badge-green':'badge-red'}">${u.pode_logar?'Sim':'Não'}</span></td>
-      <td><span class="badge ${u.ativo?'badge-green':'badge-red'}">${u.ativo?'Ativo':'Inativo'}</span></td>
-      <td><div class="tbl-actions">
-        <button class="tbl-btn tbl-edit" onclick="editarUsr(${u.id})">Editar</button>
-        <button class="tbl-btn tbl-toggle" onclick="togglePodeLogar(${u.id},${u.pode_logar})">${u.pode_logar?'Bloquear':'Liberar'}</button>
-        <button class="tbl-btn tbl-toggle" onclick="toggleAtivoUsr(${u.id},${u.ativo})">${u.ativo?'Desativar':'Ativar'}</button>
-      </div></td>
-    </tr>`).join('');
-}
-
-function filtrarUsr(){
-  const q=document.getElementById('searchUsr').value.toLowerCase();
-  renderUsr(todosUsr.filter(u=>u.nome.toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)));
-}
-
-document.getElementById('btnSalvarUsr').onclick = async()=>{
-  const nome      = document.getElementById('usr-nome').value.trim();
-  const email     = document.getElementById('usr-email').value.trim();
-  const perfil    = document.getElementById('usr-perfil').value;
-  const podeLogar = document.getElementById('usr-pode-logar').value==='true';
-  if (!nome||!email){ toast('Nome e e-mail são obrigatórios.','red'); return; }
-
-  if (editandoUsrId) {
-    const {error} = await sb.from('usuarios').update({nome,email,perfil,pode_logar:podeLogar}).eq('id',editandoUsrId);
-    if (error){ toast('Erro: '+error.message,'red'); return; }
-    toast('Usuário atualizado!'); resetFormUsr();
-  } else {
-    const {error} = await sb.from('usuarios').insert({nome,email,perfil,pode_logar:podeLogar,ativo:true});
-    if (error){ toast('Erro: '+error.message,'red'); return; }
-    toast('Usuário cadastrado!'); resetFormUsr();
-  }
-  await carregarUsuarios();
-};
-
-document.getElementById('btnCancelarUsr').onclick = resetFormUsr;
-
-function resetFormUsr(){
-  editandoUsrId=null;
-  document.getElementById('usr-nome').value='';
-  document.getElementById('usr-email').value='';
-  document.getElementById('usr-perfil').value='OPERADOR';
-  document.getElementById('usr-pode-logar').value='true';
-  document.getElementById('btnUsrLabel').textContent='Salvar Usuário';
-  document.getElementById('btnCancelarUsr').style.display='none';
-}
-
-function editarUsr(id){
-  const u=todosUsr.find(x=>x.id==id); if(!u) return;
-  editandoUsrId=id;
-  document.getElementById('usr-nome').value=u.nome||'';
-  document.getElementById('usr-email').value=u.email||'';
-  document.getElementById('usr-perfil').value=u.perfil||'OPERADOR';
-  document.getElementById('usr-pode-logar').value=String(u.pode_logar);
-  document.getElementById('btnUsrLabel').textContent='Atualizar';
-  document.getElementById('btnCancelarUsr').style.display='';
-  document.getElementById('panel-usuarios').scrollIntoView({behavior:'smooth'});
-  document.getElementById('usr-nome').focus();
-}
-
-async function togglePodeLogar(id,atual){
-  confirmar(
-    atual?'Bloquear login':'Liberar login',
-    atual?'O usuário não conseguirá entrar no sistema.':'O usuário poderá entrar novamente.',
-    async()=>{
-      const {error}=await sb.from('usuarios').update({pode_logar:!atual}).eq('id',id);
-      if(error){toast('Erro: '+error.message,'red');return;}
-      toast(atual?'Login bloqueado.':'Login liberado.');
-      await carregarUsuarios();
-    }
-  );
-}
-
-async function toggleAtivoUsr(id,atual){
-  confirmar(
-    atual?'Desativar usuário':'Ativar usuário',
-    atual?'O usuário ficará inativo.':'O usuário voltará a aparecer nas listagens.',
-    async()=>{
-      const {error}=await sb.from('usuarios').update({ativo:!atual}).eq('id',id);
-      if(error){toast('Erro: '+error.message,'red');return;}
-      toast(atual?'Usuário desativado.':'Usuário ativado.');
-      await carregarUsuarios();
-    }
-  );
-}
-
-// ══ LOTERIAS ══
-async function carregarLoterias(){
-  const {data,error}=await sb.from('loterias')
-    .select('id,nome,slug,codigo,cod_loterico,aba_externos,cor_primaria,ativo').order('nome');
-  if(error){toast('Erro: '+error.message,'red');return;}
-  todosLot=data||[];
-  renderLot(); preencherSelectLot();
-}
-
-function preencherSelectLot(){
-  const sel=document.getElementById('vinc-lot');
-  const val=sel.value;
-  sel.innerHTML='<option value="">Selecione…</option>';
-  todosLot.forEach(l=>{
-    const op=document.createElement('option');
-    op.value=l.id; op.textContent=l.nome;
-    sel.appendChild(op);
-  });
-  sel.value=val;
-}
-
-function renderLot(){
-  const tbody=document.getElementById('tbodyLot');
-  if(!todosLot.length){tbody.innerHTML='<tr class="empty-row"><td colspan="6">Nenhuma loteria cadastrada</td></tr>';return;}
-  tbody.innerHTML=todosLot.map(l=>`
-    <tr>
-      <td class="bright">${esc(l.nome)}</td>
-      <td><code style="font-size:11px;color:var(--text-mid)">${esc(l.slug||'—')}</code></td>
-      <td>${esc(l.codigo||'—')}</td>
-      <td>${esc(l.cod_loterico||'—')}</td>
-      <td><span class="badge ${l.ativo?'badge-green':'badge-red'}">${l.ativo?'Ativa':'Inativa'}</span></td>
-      <td><div class="tbl-actions">
-        <button class="tbl-btn tbl-edit" onclick="editarLot(${l.id})">Editar</button>
-        <button class="tbl-btn tbl-toggle" onclick="toggleLot(${l.id},${l.ativo})">${l.ativo?'Desativar':'Ativar'}</button>
-      </div></td>
-    </tr>`).join('');
-}
-
-document.getElementById('btnSalvarLot').onclick=async()=>{
-  const nome        =document.getElementById('lot-nome').value.trim();
-  const slug        =document.getElementById('lot-slug').value.trim().toLowerCase().replace(/\s+/g,'-');
-  const codigo      =document.getElementById('lot-codigo').value.trim().toUpperCase();
-  const cod_loterico=document.getElementById('lot-cod-loterico').value.trim()||null;
-  const aba_externos=document.getElementById('lot-aba').value.trim()||null;
-  const cor_primaria=document.getElementById('lot-cor').value.trim()||null;
-  if(!nome||!slug||!codigo){toast('Nome, slug e código são obrigatórios.','red');return;}
-  const payload={nome,slug,codigo,cod_loterico,aba_externos,cor_primaria};
-
-  if(editandoLotId){
-    const {error}=await sb.from('loterias').update(payload).eq('id',editandoLotId);
-    if(error){toast('Erro: '+error.message,'red');return;}
-    toast('Loteria atualizada!'); resetFormLot();
-  } else {
-    const {error}=await sb.from('loterias').insert({...payload,ativo:true});
-    if(error){toast('Erro: '+error.message,'red');return;}
-    toast('Loteria cadastrada!'); resetFormLot();
-  }
-  await carregarLoterias();
-};
-
-document.getElementById('btnCancelarLot').onclick=resetFormLot;
-
-function resetFormLot(){
-  editandoLotId=null;
-  ['lot-nome','lot-slug','lot-codigo','lot-cod-loterico','lot-aba','lot-cor'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('btnLotLabel').textContent='Salvar Loteria';
-  document.getElementById('btnCancelarLot').style.display='none';
-}
-
-function editarLot(id){
-  const l=todosLot.find(x=>x.id==id); if(!l) return;
-  editandoLotId=id;
-  document.getElementById('lot-nome').value         =l.nome||'';
-  document.getElementById('lot-slug').value         =l.slug||'';
-  document.getElementById('lot-codigo').value       =l.codigo||'';
-  document.getElementById('lot-cod-loterico').value =l.cod_loterico||'';
-  document.getElementById('lot-aba').value          =l.aba_externos||'';
-  document.getElementById('lot-cor').value          =l.cor_primaria||'';
-  document.getElementById('btnLotLabel').textContent='Atualizar';
-  document.getElementById('btnCancelarLot').style.display='';
-  document.getElementById('panel-loterias').scrollIntoView({behavior:'smooth'});
-  document.getElementById('lot-nome').focus();
-}
-
-async function toggleLot(id,ativo){
-  confirmar(
-    ativo?'Desativar loteria':'Ativar loteria',
-    ativo?'A loteria ficará inativa no sistema.':'A loteria voltará a aparecer normalmente.',
-    async()=>{
-      const {error}=await sb.from('loterias').update({ativo:!ativo}).eq('id',id);
-      if(error){toast('Erro: '+error.message,'red');return;}
-      toast(ativo?'Loteria desativada.':'Loteria ativada.');
-      await carregarLoterias();
-    }
-  );
-}
-
-// Slug automático ao digitar nome (só em criação)
-document.getElementById('lot-nome').addEventListener('input',function(){
-  if(!editandoLotId){
-    document.getElementById('lot-slug').value=this.value
-      .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  }
-});
-
-// ══ VÍNCULOS ══
-async function carregarVinculos(){
-  const {data,error}=await sb.from('usuarios_loterias')
-    .select('id,usuario_id,loteria_id,papel_na_loja,principal,usuarios(nome),loterias(nome)')
-    .order('id');
-  if(error){toast('Erro: '+error.message,'red');return;}
-  todosVinc=data||[];
-  renderVinc(todosVinc);
-}
-
-function renderVinc(lista){
-  const tbody=document.getElementById('tbodyVinc');
-  document.getElementById('countVinc').textContent=lista.length+' registros';
-  if(!lista.length){tbody.innerHTML='<tr class="empty-row"><td colspan="5">Nenhum vínculo cadastrado</td></tr>';return;}
-  tbody.innerHTML=lista.map(v=>`
-    <tr>
-      <td class="bright">${esc(v.usuarios?.nome||'—')}</td>
-      <td>${esc(v.loterias?.nome||'—')}</td>
-      <td>${esc(v.papel_na_loja||'—')}</td>
-      <td><span class="badge ${v.principal?'badge-green':'badge-amber'}">${v.principal?'Sim':'Não'}</span></td>
-      <td><button class="tbl-btn tbl-del" onclick="removerVinc(${v.id})">Remover</button></td>
-    </tr>`).join('');
-}
-
-function filtrarVinc(){
-  const q=document.getElementById('searchVinc').value.toLowerCase();
-  renderVinc(todosVinc.filter(v=>
-    (v.usuarios?.nome||'').toLowerCase().includes(q)||(v.loterias?.nome||'').toLowerCase().includes(q)
-  ));
-}
-
-document.getElementById('btnSalvarVinc').onclick=async()=>{
-  const usuarioId=document.getElementById('vinc-usr').value;
-  const loteriaId=document.getElementById('vinc-lot').value;
-  const principal=document.getElementById('vinc-principal').value==='true';
-  const papel    =document.getElementById('vinc-papel').value.trim()||null;
-  if(!usuarioId||!loteriaId){toast('Selecione usuário e loteria.','red');return;}
-  const jaExiste=todosVinc.find(v=>v.usuario_id==usuarioId&&v.loteria_id==loteriaId);
-  if(jaExiste){toast('Este vínculo já existe.','red');return;}
-  const {error}=await sb.from('usuarios_loterias').insert({
-    usuario_id:parseInt(usuarioId), loteria_id:parseInt(loteriaId), principal, papel_na_loja:papel
-  });
-  if(error){toast('Erro: '+error.message,'red');return;}
-  toast('Vínculo criado!');
-  document.getElementById('vinc-usr').value='';
-  document.getElementById('vinc-lot').value='';
-  document.getElementById('vinc-papel').value='';
-  document.getElementById('vinc-principal').value='false';
-  await carregarVinculos();
-};
-
-async function removerVinc(id){
-  confirmar('Remover vínculo','O usuário perderá acesso a esta loteria.',async()=>{
-    const {error}=await sb.from('usuarios_loterias').delete().eq('id',id);
-    if(error){toast('Erro: '+error.message,'red');return;}
-    toast('Vínculo removido.');
-    await carregarVinculos();
-  });
-}
-
-// ══ PERMISSÕES ══
-function renderPermissoes(){
-  const perfil=document.getElementById('perm-perfil').value;
-  document.getElementById('permGrid').innerHTML=MODULOS.map(m=>{
-    const salvo=localStorage.getItem(PERM_PREFIX+perfil+'_'+m.key);
-    const ativo=salvo===null?true:salvo==='true';
-    return `<div class="perm-card">
-      <div><div class="perm-name">${m.label}</div><div class="perm-desc">${m.desc}</div></div>
-      <label class="toggle-wrap">
-        <input type="checkbox" class="toggle-input" data-key="${m.key}" ${ativo?'checked':''}>
-        <span class="toggle-track"></span>
-      </label>
-    </div>`;
-  }).join('');
-}
-
-function salvarPermissoes(){
-  const perfil=document.getElementById('perm-perfil').value;
-  document.querySelectorAll('#permGrid .toggle-input').forEach(inp=>{
-    localStorage.setItem(PERM_PREFIX+perfil+'_'+inp.dataset.key, inp.checked);
-  });
-  toast('Permissões salvas!');
-}
-
-init();
-</script>
+<script src="./js/configuracoes.js"></script>
 </body>
 </html>
