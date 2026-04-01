@@ -69,8 +69,7 @@ async function init(){
   const { data: { session } } = await sb.auth.getSession();
   if(!session){
     location.href = './login.html';
-    return;
-    $('fDataRef').value = hojeISO();
+   $('fDataRef').value = hojeISO();
 
 const filtrosChange = ['fDataRef', 'fDtConcDe', 'fDtConcAte', 'fModal', 'fLoja', 'fStatus'];
 filtrosChange.forEach(id => {
@@ -80,6 +79,9 @@ filtrosChange.forEach(id => {
 $('fConc').addEventListener('input', agendarExibicao);
 
 await exibir();
+    
+    return;
+   
   }
 
   const { data: usr } = await sb.from('usuarios')
