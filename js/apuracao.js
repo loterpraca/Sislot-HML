@@ -197,7 +197,7 @@ function renderBoloes(boloes) {
     grupos[b.modalidade].push(b);
   });
 
-  const mods = Object.keys(grupos).sort((a,b) => a.localeCompare(b, 'pt-BR'));
+  const mods = Object.keys(grupos).sort((a, b) => a.localeCompare(b, 'pt-BR'));
   let total = 0;
 
   mods.forEach(mod => {
@@ -222,29 +222,15 @@ function renderBoloes(boloes) {
       card.className = 'bolao-card';
       card.dataset.id = b.bolao_id;
       card.style.animationDelay = (i * 0.04) + 's';
+
       card.innerHTML = `
-      ${resumoBolaoHTML(b)}
-          <div class="bolao-select-ind">
-            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="2 6 5 9 10 3"/>
-            </svg>
-          </div>`;
-          <div class="bolao-tags">
-            <span class="btag">${b.qtd_jogos} jogos</span>
-            <span class="btag">${b.qtd_dezenas} dez.</span>
-            <span class="btag">${b.qtd_cotas_total} cotas</span>
-            <span class="btag">${fmtBRL(b.valor_cota)}/cota</span>
-          </div>
-          <div class="bolao-apu-linha">
-          <span>Marketplace: ${valorInfo(b.qtd_marketplace)}</span>
-          <span>Encalhe Físico: ${valorInfo(b.enc_fisico)}</span>
-          <span>Encalhe Virtual: ${valorInfo(b.enc_virtual)}</span>
-          <span>Prêmio_Cota: ${b.vlr_premio == null ? '' : fmtBRL(b.vlr_premio)}</span>
-        </div>
-        </div>
+        ${resumoBolaoHTML(b)}
         <div class="bolao-select-ind">
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="2 6 5 9 10 3"/>
+          </svg>
         </div>`;
+
       card.addEventListener('click', () => selecionarBolao(b));
       grid.appendChild(card);
       total++;
