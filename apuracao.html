@@ -86,13 +86,16 @@
 </div>
 
 <!-- Panel inferior -->
-<div class="venda-panel-header">
-  <div class="venda-resumo">
-    <div class="venda-resumo-title">Bolão Selecionado</div>
-    <div id="panelResumoCard"></div>
-  </div>
-  <button class="btn-fechar-panel" id="btnFecharPanel">×</button>
-</div>
+<div class="venda-panel" id="vendaPanel">
+  <div class="venda-panel-inner">
+    <div class="venda-panel-header">
+      <div class="venda-resumo">
+        <div class="venda-resumo-title">Bolão Selecionado</div>
+        <div class="venda-resumo-nome" id="panelNome">—</div>
+        <div class="venda-resumo-tags" id="panelTags"></div>
+      </div>
+      <button class="btn-fechar-panel" id="btnFecharPanel">×</button>
+    </div>
 
     <div class="status-bar" id="statusBar"></div>
 
@@ -114,7 +117,7 @@
         <input type="number" id="inputPremio" min="0" step="0.01" placeholder="vazio" oninput="renderResumoApuracao()"/>
       </div>
     </div>
-    
+
     <button class="btn-registrar btn-salvar-apu" id="btnRegistrar" onclick="salvarApuracao()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       Salvar Apuração
@@ -128,7 +131,6 @@
     </div>
   </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="./sislot-config.js"></script>
 <script src="./sislot-security.js"></script>
