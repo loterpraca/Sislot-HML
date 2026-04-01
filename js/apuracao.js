@@ -178,11 +178,11 @@ function resumoBolaoHTML(b, expandido = false) {
         <span class="btag">${fmtBRL(b.valor_cota)}/cota</span>
       </div>
 
-      <div class="bolao-apu-linha">
-        <span>Marketplace: ${valorInfo(b.qtd_marketplace)}</span>
-        <span>Encalhe Físico: ${valorInfo(b.enc_fisico)}</span>
-        <span>Encalhe Virtual: ${valorInfo(b.enc_virtual)}</span>
-        <span>Prêmio_Cota: ${b.vlr_premio == null ? '' : fmtBRL(b.vlr_premio)}</span>
+      <div class="bolao-tags bolao-tags-apu">
+        <span class="btag btag-apu">Marketplace: ${valorInfoCard(b.qtd_marketplace)}</span>
+        <span class="btag btag-apu">Encalhe Físico: ${valorInfoCard(b.enc_fisico)}</span>
+        <span class="btag btag-apu">Encalhe Virtual: ${valorInfoCard(b.enc_virtual)}</span>
+        <span class="btag btag-apu">Prêmio_Cota: ${b.vlr_premio == null ? '—' : fmtBRL(b.vlr_premio)}</span>
       </div>
     </div>
   `;
