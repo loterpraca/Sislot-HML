@@ -86,16 +86,13 @@
 </div>
 
 <!-- Panel inferior -->
-<div class="venda-panel" id="vendaPanel">
-  <div class="venda-panel-inner">
-    <div class="venda-panel-header">
-      <div class="venda-resumo">
-        <div class="venda-resumo-title">Bolão Selecionado</div>
-        <div class="venda-resumo-nome" id="panelNome">—</div>
-        <div class="venda-resumo-tags" id="panelTags"></div>
-      </div>
-      <button class="btn-fechar-panel" id="btnFecharPanel">×</button>
-    </div>
+<div class="venda-panel-header">
+  <div class="venda-resumo">
+    <div class="venda-resumo-title">Bolão Selecionado</div>
+    <div id="panelResumoCard"></div>
+  </div>
+  <button class="btn-fechar-panel" id="btnFecharPanel">×</button>
+</div>
 
     <div class="status-bar" id="statusBar"></div>
 
@@ -117,26 +114,7 @@
         <input type="number" id="inputPremio" min="0" step="0.01" placeholder="vazio" oninput="renderResumoApuracao()"/>
       </div>
     </div>
-
-    <div class="apu-stats">
-      <div class="apu-card">
-        <div class="apu-card-label">Base Origem</div>
-        <div class="apu-card-val" id="apuBaseOrigem">0</div>
-      </div>
-      <div class="apu-card">
-        <div class="apu-card-label">Vendido Operacional</div>
-        <div class="apu-card-val" id="apuVendidoOperacional">0</div>
-      </div>
-      <div class="apu-card">
-        <div class="apu-card-label">Saldo Final</div>
-        <div class="apu-card-val" id="apuSaldoFinal">0</div>
-      </div>
-      <div class="apu-card">
-        <div class="apu-card-label">Situação</div>
-        <div class="apu-card-val warn" id="apuSituacao">Pendente</div>
-      </div>
-    </div>
-
+    
     <button class="btn-registrar btn-salvar-apu" id="btnRegistrar" onclick="salvarApuracao()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       Salvar Apuração
