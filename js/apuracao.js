@@ -292,6 +292,17 @@ function renderResumoApuracao() {
   if ($('apuSaldoFinal')) $('apuSaldoFinal').textContent = '';
   if ($('apuSituacao')) $('apuSituacao').textContent = '';
 }
+
+function fecharPanel() {
+  const panel = $('vendaPanel');
+  if (panel) panel.classList.remove('open');
+
+  document.body.classList.remove('panel-open');
+  document.querySelectorAll('.bolao-card').forEach(c => c.classList.remove('selected'));
+  bolaoSel = null;
+  clearStatus();
+}
+
 async function salvarApuracao() {
   if (!bolaoSel) return;
 
