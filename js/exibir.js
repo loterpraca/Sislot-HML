@@ -19,6 +19,15 @@ const slugLabel = {
   'via-brasil': 'VIA'
 };
 
+let filtroTimer = null;
+
+function agendarExibicao(){
+  clearTimeout(filtroTimer);
+  filtroTimer = setTimeout(() => {
+    exibir();
+  }, 250);
+}
+
 function fmtBRL(v){
   return v == null || v === '' ? '—' : 'R$ ' + Number(v).toLocaleString('pt-BR', {
     minimumFractionDigits: 2,
@@ -61,6 +70,16 @@ async function init(){
   if(!session){
     location.href = './login.html';
     return;
+    $('fDataRef').value = hojeISO();
+
+const filtrosChange = ['fDataRef', 'fDtConcDe', 'fDtConcAte', 'fModal', 'fLoja', 'fStatus'];
+filtrosChange.forEach(id => {
+  $(id).addEventListener('change', agendarExibicao);
+});
+
+$('fConc').addEventListener('input', agendarExibicao);
+
+await exibir();
   }
 
   const { data: usr } = await sb.from('usuarios')
@@ -99,37 +118,38 @@ async function init(){
 }
 
 function limpar(){
+  $('fDataRef').value = hojeISO();
   ['fDtConcDe','fDtConcAte','fConc'].forEach(id => $(id).value = '');
   ['fModal','fLoja','fStatus'].forEach(id => $(id).selectedIndex = 0);
-  $('statsRow').style.display = 'none';
-  $('tableArea').innerHTML = `<div class="state-box">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"/>
-      <line x1="3" y1="9" x2="21" y2="9"/>
-      <line x1="3" y1="15" x2="21" y2="15"/>
-      <line x1="9" y1="3" x2="9" y2="21"/>
-    </svg>
-    <div class="state-title">Selecione os filtros e clique em Exibir</div>
-    <div class="state-sub">A tela mostrará dados operacionais de venda, estoque e encalhe por bolão.</div>
-  </div>`;
+  exibir();
+}
+function hojeISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 async function exibir(){
+  const dataRef = $('fDataRef').value || hojeISO();
   $('statsRow').style.display = 'none';
   $('tableArea').innerHTML = '<div class="state-box"><div class="spinner"></div><div class="state-title">Carregando…</div></div>';
-
+  
   let q = sb.from(VIEW_BOLAO)
-    .select('*')
-    .order('modalidade')
-    .order('dt_concurso')
-    .order('valor_cota');
+  .select('*')
+  .lte('dt_inicial', dataRef)
+  .gte('dt_concurso', dataRef)
+  .order('modalidade')
+  .order('dt_concurso')
+  .order('valor_cota');
 
-  if ($('fDtConcDe').value) q = q.gte('dt_concurso', $('fDtConcDe').value);
-  if ($('fDtConcAte').value) q = q.lte('dt_concurso', $('fDtConcAte').value);
-  if ($('fModal').value) q = q.eq('modalidade', $('fModal').value);
-  if ($('fConc').value) q = q.ilike('concurso', '%' + $('fConc').value + '%');
-  if ($('fLoja').value) q = q.eq('origem_loteria_id', parseInt($('fLoja').value));
-  if ($('fStatus').value) q = q.eq('status', $('fStatus').value);
+if ($('fDtConcDe').value) q = q.gte('dt_concurso', $('fDtConcDe').value);
+if ($('fDtConcAte').value) q = q.lte('dt_concurso', $('fDtConcAte').value);
+if ($('fModal').value) q = q.eq('modalidade', $('fModal').value);
+if ($('fConc').value) q = q.ilike('concurso', '%' + $('fConc').value + '%');
+if ($('fLoja').value) q = q.eq('origem_loteria_id', parseInt($('fLoja').value));
+if ($('fStatus').value) q = q.eq('status', $('fStatus').value);
 
   const { data: boloes, error } = await q;
 
