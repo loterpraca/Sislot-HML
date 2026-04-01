@@ -42,11 +42,12 @@
 </header>
 
 <div class="main">
-  <div class="filter-group">
-  <div class="filter-label">Data Referência</div>
-  <input type="date" id="fDataRef" class="filter-input" style="width:140px"/>
-</div>
   <div class="filters-bar">
+    <div class="filter-group">
+      <div class="filter-label">Data Referência</div>
+      <input type="date" id="fDataRef" class="filter-input" style="width:140px"/>
+    </div>
+
     <div class="filter-group">
       <div class="filter-label">Dt Concurso de</div>
       <input type="date" id="fDtConcDe" class="filter-input" style="width:140px"/>
@@ -98,6 +99,18 @@
         <option value="CANCELADO">Cancelado</option>
       </select>
     </div>
+
+    <div style="display:flex;gap:8px;align-items:flex-end;margin-left:auto">
+      <button class="btn-exibir" onclick="exibir()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Exibir
+      </button>
+      <button class="btn-limpar" onclick="limpar()">Limpar</button>
+    </div>
+  </div>
 
     <div style="display:flex;gap:8px;align-items:flex-end;margin-left:auto">
       <button class="btn-exibir" onclick="exibir()">
