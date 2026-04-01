@@ -3,153 +3,10 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>SISLOT — Exibir</title>
+  <title>SISLOT — Exibir Operacional</title>
+  <link rel="icon" href="data:,">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --bg:#070d1a;--bg2:#0c1528;--panel:#101f38;--panel2:#132240;
-      --border:#1a3060;--border2:#243d70;
-      --text:#dde8f8;--text2:#7a95c4;--text3:#3d5a8a;
-      --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
-      --input-bg:#0a1628;--error:#ff4f4f;--accent:#00c896;--amber:#f5a623;
-    }
-    body{font-family:var(--sans);color:var(--text);background:var(--bg);min-height:100vh;
-      display:flex;flex-direction:column;
-      background-image:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(0,200,150,0.05) 0%,transparent 60%),
-        repeating-linear-gradient(0deg,transparent,transparent 47px,rgba(26,48,96,0.18) 47px,rgba(26,48,96,0.18) 48px),
-        repeating-linear-gradient(90deg,transparent,transparent 47px,rgba(26,48,96,0.1) 47px,rgba(26,48,96,0.1) 48px)}
-
-    /* TOPBAR */
-    .topbar{display:flex;align-items:center;justify-content:space-between;
-      padding:0 24px;height:56px;background:rgba(7,13,26,0.95);
-      border-bottom:1px solid var(--border);backdrop-filter:blur(12px);
-      position:sticky;top:0;z-index:100}
-    .topbar-brand{display:flex;align-items:center;gap:10px}
-    .brand-icon{width:30px;height:30px;background:var(--accent);border-radius:7px;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;
-      font-family:var(--mono);font-size:12px;font-weight:700;color:#070d1a}
-    .brand-name{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
-    .brand-sub{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase}
-    .topbar-right{display:flex;align-items:center;gap:10px}
-    .clock{font-family:var(--mono);font-size:11px;color:var(--text2)}
-    .btn-top{display:flex;align-items:center;gap:5px;background:var(--panel);border:1px solid var(--border);
-      border-radius:7px;padding:6px 11px;cursor:pointer;font-family:var(--sans);font-size:11px;
-      font-weight:500;color:var(--text2);transition:.2s ease;white-space:nowrap}
-    .btn-top:hover{color:var(--accent);border-color:rgba(0,200,150,0.3);background:rgba(0,200,150,0.04)}
-    .btn-top-sair:hover{color:var(--error);border-color:rgba(255,79,79,0.3);background:rgba(255,79,79,0.04)}
-    .btn-top svg{width:12px;height:12px}
-
-    /* MAIN */
-    .main{flex:1;max-width:100%;padding:20px 24px 48px}
-
-    /* FILTROS */
-    .filters-bar{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;
-      background:var(--panel);border:1px solid var(--border);border-radius:12px;
-      padding:14px 16px;margin-bottom:16px}
-    .filter-group{display:flex;flex-direction:column;gap:4px}
-    .filter-label{font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.12em;
-      text-transform:uppercase;color:var(--text3)}
-    .filter-input,.filter-select{background:var(--input-bg);border:1px solid var(--border);
-      border-radius:7px;padding:7px 11px;font-family:var(--sans);font-size:12px;color:var(--text);
-      outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
-    .filter-input:focus,.filter-select:focus{border-color:var(--accent)}
-    .filter-input::placeholder{color:var(--text3)}
-    .filter-select option{background:var(--bg2)}
-    .btn-exibir{background:var(--accent);color:#070d1a;border:none;border-radius:8px;
-      padding:8px 20px;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;
-      letter-spacing:.1em;text-transform:uppercase;transition:.2s ease;white-space:nowrap;
-      display:flex;align-items:center;gap:7px;min-height:36px}
-    .btn-exibir:hover{filter:brightness(1.1);transform:translateY(-1px)}
-    .btn-exibir svg{width:13px;height:13px}
-    .btn-limpar{background:transparent;border:1px solid var(--border);border-radius:8px;
-      padding:8px 14px;cursor:pointer;font-family:var(--mono);font-size:10px;color:var(--text3);
-      transition:.2s ease;min-height:36px}
-    .btn-limpar:hover{color:var(--text);border-color:var(--border2)}
-
-    /* RESUMO STATS */
-    .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-      gap:10px;margin-bottom:16px}
-    .stat-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;
-      padding:12px 14px}
-    .stat-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
-      color:var(--text3);margin-bottom:5px}
-    .stat-value{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--text)}
-    .stat-value.green{color:var(--accent)}
-    .stat-value.amber{color:var(--amber)}
-    .stat-value.red{color:var(--error)}
-
-    /* TABLE WRAPPER */
-    .table-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;overflow-x:auto}
-    .data-table{width:100%;border-collapse:collapse;min-width:1600px}
-
-    /* GRUPOS DE COLUNAS — cabeçalho duplo */
-    .data-table thead tr.grp-row th{
-      font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.1em;
-      text-transform:uppercase;padding:8px 0 4px;text-align:center;
-      background:var(--bg2);border-bottom:1px solid var(--border2);
-      border-right:1px solid var(--border);white-space:nowrap}
-    .data-table thead tr.grp-row th:last-child{border-right:none}
-    .data-table thead tr.col-row th{
-      font-family:var(--mono);font-size:8px;font-weight:500;letter-spacing:.08em;
-      text-transform:uppercase;padding:6px 10px;text-align:right;
-      background:var(--panel);color:var(--text3);
-      border-bottom:1px solid var(--border);white-space:nowrap;
-      border-right:1px solid rgba(26,48,96,0.4)}
-    .data-table thead tr.col-row th.left{text-align:left}
-    .data-table thead tr.col-row th:last-child{border-right:none}
-
-    /* grupo cores */
-    .grp-bolao{color:var(--text2)}
-    .grp-vendas{color:#38bdf8}
-    .grp-canal{color:#a78bfa}
-    .grp-func{color:#f59e0b}
-    .grp-loja{color:#22d3ee}
-    .grp-enc{color:#f87171}
-    .grp-fin{color:var(--accent)}
-
-    /* linhas */
-    .data-table tbody tr{border-bottom:1px solid rgba(26,48,96,0.35);transition:background .1s}
-    .data-table tbody tr:last-child{border-bottom:none}
-    .data-table tbody tr:hover{background:rgba(255,255,255,0.018)}
-    .data-table td{padding:8px 10px;font-size:11px;color:var(--text2);text-align:right;
-      white-space:nowrap;border-right:1px solid rgba(26,48,96,0.25)}
-    .data-table td:last-child{border-right:none}
-    .data-table td.left{text-align:left}
-    .data-table td.bold{font-weight:600;color:var(--text)}
-    .data-table td.mono{font-family:var(--mono);font-size:11px}
-    .data-table td.green{color:var(--accent);font-family:var(--mono);font-weight:600}
-    .data-table td.amber{color:var(--amber);font-family:var(--mono)}
-    .data-table td.red{color:var(--error);font-family:var(--mono);font-weight:600}
-    .data-table td.blue{color:#38bdf8;font-family:var(--mono);font-weight:600}
-    .data-table td.purple{color:#a78bfa;font-family:var(--mono)}
-    .data-table td.dim{color:var(--text3);font-family:var(--mono)}
-
-    /* separador de grupos de colunas */
-    .sep-col{border-right:1px solid var(--border2)!important}
-
-    /* badge status */
-    .badge-status{display:inline-block;padding:2px 7px;border-radius:4px;font-family:var(--mono);
-      font-size:9px;font-weight:600;letter-spacing:.05em}
-    .bs-ativo{background:rgba(0,200,150,0.1);color:var(--accent);border:1px solid rgba(0,200,150,0.2)}
-    .bs-enc{background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.2)}
-    .bs-canc{background:rgba(255,79,79,0.1);color:var(--error);border:1px solid rgba(255,79,79,0.2)}
-
-    /* estado vazio/loading */
-    .state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:10px;padding:56px 24px;text-align:center}
-    .state-box svg{width:32px;height:32px;opacity:.2}
-    .state-title{font-size:14px;font-weight:500;color:var(--text2)}
-    .state-sub{font-size:12px;color:var(--text3);max-width:360px}
-    .spinner{width:28px;height:28px;border-radius:50%;border:2px solid rgba(0,200,150,0.15);
-      border-top-color:var(--accent);animation:spin .8s linear infinite}
-
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-    .fade-in{animation:fadeIn .25s ease both}
-
-    @media(max-width:700px){.main{padding:14px 12px 40px}.topbar{padding:0 12px}.clock{display:none}}
-  </style>
+  <link rel="stylesheet" href="./css/exibir.css"/>
 </head>
 <body>
 
@@ -158,17 +15,27 @@
     <div class="brand-icon">SL</div>
     <div>
       <div class="brand-name">SISLOT</div>
-      <div class="brand-sub">Exibir Resultados</div>
+      <div class="brand-sub">Exibir Operacional</div>
     </div>
   </div>
+
   <div class="topbar-right">
     <div class="clock" id="relogio">--:--:--</div>
+
     <button class="btn-top" onclick="location.href='./menu.html'">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
       Menu
     </button>
+
     <button class="btn-top btn-top-sair" id="btnLogout">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
       Sair
     </button>
   </div>
@@ -176,16 +43,17 @@
 
 <div class="main">
 
-  <!-- FILTROS -->
   <div class="filters-bar">
     <div class="filter-group">
       <div class="filter-label">Dt Concurso de</div>
       <input type="date" id="fDtConcDe" class="filter-input" style="width:140px"/>
     </div>
+
     <div class="filter-group">
       <div class="filter-label">até</div>
       <input type="date" id="fDtConcAte" class="filter-input" style="width:140px"/>
     </div>
+
     <div class="filter-group">
       <div class="filter-label">Modalidade</div>
       <select id="fModal" class="filter-select" style="width:140px">
@@ -205,16 +73,19 @@
         <option>Virada</option>
       </select>
     </div>
+
     <div class="filter-group">
       <div class="filter-label">Concurso</div>
       <input type="text" id="fConc" class="filter-input" placeholder="Ex: 2940" style="width:90px"/>
     </div>
+
     <div class="filter-group">
       <div class="filter-label">Loja Origem</div>
       <select id="fLoja" class="filter-select" style="width:130px">
         <option value="">Todas</option>
       </select>
     </div>
+
     <div class="filter-group">
       <div class="filter-label">Status</div>
       <select id="fStatus" class="filter-select" style="width:110px">
@@ -224,24 +95,31 @@
         <option value="CANCELADO">Cancelado</option>
       </select>
     </div>
+
     <div style="display:flex;gap:8px;align-items:flex-end;margin-left:auto">
       <button class="btn-exibir" onclick="exibir()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
         Exibir
       </button>
       <button class="btn-limpar" onclick="limpar()">Limpar</button>
     </div>
   </div>
 
-  <!-- STATS -->
   <div class="stats-row" id="statsRow" style="display:none"></div>
 
-  <!-- TABELA -->
   <div id="tableArea">
     <div class="state-box">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <line x1="3" y1="9" x2="21" y2="9"/>
+        <line x1="3" y1="15" x2="21" y2="15"/>
+        <line x1="9" y1="3" x2="9" y2="21"/>
+      </svg>
       <div class="state-title">Selecione os filtros e clique em Exibir</div>
-      <div class="state-sub">Os dados serão agrupados por bolão com todos os canais de venda e encalhes.</div>
+      <div class="state-sub">A tela mostrará dados operacionais de venda, estoque e encalhe por bolão.</div>
     </div>
   </div>
 
@@ -249,254 +127,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="./sislot-config.js"></script>
-<script>
-const sb = supabase.createClient(window.SISLOT_CONFIG.url, window.SISLOT_CONFIG.anonKey);
-
-const $ = id => document.getElementById(id);
-let usuario = null;
-let usuarios = [];   // lista de funcionários para colunas dinâmicas
-let lojas    = [];
-
-function fmtBRL(v){ return v==null||v===''?'—':'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) }
-function fmtN(v){ return v==null||v===0?'—':Number(v).toLocaleString('pt-BR') }
-function fmtDate(s){ if(!s)return'—'; const[y,m,d]=s.split('-'); return`${d}/${m}/${y}` }
-function cls(v){ return v>0?'green':v<0?'red':'dim' }
-
-// relógio
-function updateClock(){const n=new Date();$('relogio').textContent=n.toLocaleTimeString('pt-BR')+' — '+n.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}
-updateClock();setInterval(updateClock,1000);
-
-async function init(){
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){location.href='./login.html';return}
-  const{data:usr}=await sb.from('usuarios').select('id,nome,perfil,ativo,pode_logar')
-    .eq('auth_user_id',session.user.id).eq('ativo',true).eq('pode_logar',true).maybeSingle();
-  if(!usr){location.href='./login.html';return}
-  usuario=usr;
-  $('btnLogout').onclick=async()=>{await sb.auth.signOut();location.href='./login.html'};
-
-  // carrega lojas e funcionários
-  const[{data:ls},{data:us}]=await Promise.all([
-    sb.from('loterias').select('id,nome,slug').eq('ativo',true).order('nome'),
-    sb.from('usuarios').select('id,nome').eq('ativo',true).order('nome'),
-  ]);
-  lojas=ls||[];usuarios=us||[];
-  const sel=$('fLoja');
-  lojas.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=l.nome;sel.appendChild(o)});
-}
-
-function limpar(){
-  ['fDtConcDe','fDtConcAte','fConc'].forEach(id=>$(id).value='');
-  ['fModal','fLoja','fStatus'].forEach(id=>$(id).selectedIndex=0);
-  $('statsRow').style.display='none';
-  $('tableArea').innerHTML=`<div class="state-box">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-    <div class="state-title">Selecione os filtros e clique em Exibir</div>
-    <div class="state-sub">Os dados serão agrupados por bolão com todos os canais de venda e encalhes.</div></div>`;
-}
-
-async function exibir(){
-  $('statsRow').style.display='none';
-  $('tableArea').innerHTML='<div class="state-box"><div class="spinner"></div><div class="state-title">Carregando…</div></div>';
-
-  // ── 1. Busca view_resultado_bolao com filtros ──────────────────
-  let q=sb.from('view_resultado_bolao').select('*').order('modalidade').order('dt_concurso').order('valor_cota');
-  if($('fDtConcDe').value) q=q.gte('dt_concurso',$('fDtConcDe').value);
-  if($('fDtConcAte').value)q=q.lte('dt_concurso',$('fDtConcAte').value);
-  if($('fModal').value)    q=q.eq('modalidade',$('fModal').value);
-  if($('fConc').value)     q=q.ilike('concurso','%'+$('fConc').value+'%');
-  if($('fLoja').value)     q=q.eq('loteria_id',parseInt($('fLoja').value));
-  if($('fStatus').value)   q=q.eq('status',$('fStatus').value);
-  const{data:boloes,error}=await q;
-  if(error||!boloes?.length){
-    $('tableArea').innerHTML='<div class="state-box"><div class="state-title">Nenhum resultado</div><div class="state-sub">Tente ajustar os filtros.</div></div>';return;
-  }
-
-  const ids=boloes.map(b=>b.bolao_id);
-
-  // ── 2. Vendas por canal (boloes_vendas) ────────────────────────
-  const{data:vendasCanal}=await sb.from('boloes_vendas')
-    .select('bolao_id,canal,usuario_id,qtd_vendida')
-    .in('bolao_id',ids);
-
-  // ── 3. Posição por destino (encalhe por loja) ──────────────────
-  const{data:destinos}=await sb.from('view_posicao_destinos')
-    .select('bolao_id,loteria_id,loteria_nome,loteria_slug,qtd_encalhe,qtd_cotas_liquidas,qtd_vendida_apurada')
-    .in('bolao_id',ids);
-
-  // ── 4. Monta mapas de lookup ────────────────────────────────────
-  // canal por bolão: { bolao_id: { BALCAO:N, WHATSAPP:N, MARKETPLACE:N } }
-  const canalMap={};
-  // funcionário por bolão: { bolao_id: { userId: N } }
-  const funcMap={};
-  (vendasCanal||[]).forEach(v=>{
-    if(!canalMap[v.bolao_id])canalMap[v.bolao_id]={BALCAO:0,WHATSAPP:0,MARKETPLACE:0};
-    canalMap[v.bolao_id][v.canal]=(canalMap[v.bolao_id][v.canal]||0)+(v.qtd_vendida||0);
-    if(!funcMap[v.bolao_id])funcMap[v.bolao_id]={};
-    funcMap[v.bolao_id][v.usuario_id]=(funcMap[v.bolao_id][v.usuario_id]||0)+(v.qtd_vendida||0);
-  });
-
-  // destino por bolão por slug: { bolao_id: { slug: {enc, liq, vend} } }
-  const destMap={};
-  (destinos||[]).forEach(d=>{
-    if(!destMap[d.bolao_id])destMap[d.bolao_id]={};
-    destMap[d.bolao_id][d.loteria_slug]={enc:d.qtd_encalhe||0,liq:d.qtd_cotas_liquidas||0,vend:d.qtd_vendida_apurada||0};
-  });
-
-  // slugs das lojas destino que aparecem nos dados
-  const slugsDestino=['boulevard','centro','lotobel','santa-tereza','via-brasil'];
-  const slugLabel={'boulevard':'BLD','centro':'CTR','lotobel':'LTB','santa-tereza':'STZ','via-brasil':'VIA'};
-
-  // funcionários que aparecem
-  const funcIds=[...new Set((vendasCanal||[]).map(v=>v.usuario_id).filter(Boolean))];
-  const funcNomes={};
-  usuarios.forEach(u=>{if(funcIds.includes(u.id))funcNomes[u.id]=u.nome.split(' ')[0]});
-
-  // ── 5. Stats resumo ─────────────────────────────────────────────
-  const totVenda=boloes.reduce((s,b)=>s+Number(b.receita_total||0),0);
-  const totPremio=boloes.reduce((s,b)=>s+Number(b.premio_total||0),0);
-  const totResultado=boloes.reduce((s,b)=>s+Number(b.resultado_final||0),0);
-  const totEnc=boloes.reduce((s,b)=>s+Number(b.enc_geral_total||0),0);
-
-  $('statsRow').style.display='grid';
-  $('statsRow').innerHTML=`
-    <div class="stat-card"><div class="stat-label">Bolões</div><div class="stat-value">${boloes.length}</div></div>
-    <div class="stat-card"><div class="stat-label">Tot. Vendas</div><div class="stat-value green">${fmtBRL(totVenda)}</div></div>
-    <div class="stat-card"><div class="stat-label">Tot. Prêmio</div><div class="stat-value amber">${fmtBRL(totPremio)}</div></div>
-    <div class="stat-card"><div class="stat-label">Resultado</div><div class="stat-value ${totResultado>=0?'green':'red'}">${fmtBRL(totResultado)}</div></div>
-    <div class="stat-card"><div class="stat-label">Enc. Total</div><div class="stat-value amber">${fmtN(totEnc)}</div></div>`;
-
-  // ── 6. Monta tabela ─────────────────────────────────────────────
-  const wrap=document.createElement('div');wrap.className='table-wrap fade-in';
-
-  // cabeçalho duplo — linha 1: grupos
-  const nFunc=funcIds.length;
-  const nSlug=slugsDestino.length;
-  const grpRow=`<tr class="grp-row">
-    <th colspan="9" class="grp-bolao sep-col">Bolão</th>
-    <th colspan="3" class="grp-canal sep-col">Canal de Venda</th>
-    ${nFunc>0?`<th colspan="${nFunc}" class="grp-func sep-col">Por Funcionário</th>`:''}
-    <th colspan="${nSlug}" class="grp-loja sep-col">Cotas por Loja</th>
-    <th colspan="${nSlug}" class="grp-enc sep-col">Encalhe por Loja</th>
-    <th colspan="2" class="grp-enc sep-col">Enc. Origem</th>
-    <th colspan="5" class="grp-fin">Financeiro</th>
-  </tr>`;
-
-  // cabeçalho linha 2: colunas
-  const funcCols=funcIds.map(id=>`<th>${funcNomes[id]||'Func.'}</th>`).join('');
-  const lojaCols=slugsDestino.map(s=>`<th>${slugLabel[s]}</th>`).join('');
-  const encCols=slugsDestino.map(s=>`<th>E.${slugLabel[s]}</th>`).join('');
-  const colRow=`<tr class="col-row">
-    <th class="left">Modalidade</th>
-    <th class="left">Loja</th>
-    <th>Dt Ini</th>
-    <th>Dt Conc</th>
-    <th>Conc.</th>
-    <th>Jogos</th>
-    <th>Dez.</th>
-    <th>V.Cota</th>
-    <th class="sep-col">Cotas</th>
-    <th>Balcão</th>
-    <th>WPP</th>
-    <th class="sep-col">MKP</th>
-    ${nFunc>0?`${funcCols.replace(/<\/th>/,'</th>'.replace('</th>','</th>'))}<th class="sep-col" style="display:none"></th>`:''}
-    ${lojaCols.replace(/(<\/th>)(?=.*<\/th>)/,'$1').replace(/(<th>[^<]+<\/th>)(?!.*<th>)/,'$1'.replace('</th>','</th class="sep-col">'))}
-    ${encCols}
-    <th>Enc.Fis</th>
-    <th class="sep-col">Enc.Virt</th>
-    <th>Qtd Venda</th>
-    <th>Tot Venda</th>
-    <th>Preço Jogo</th>
-    <th>Tot Prêmio</th>
-    <th>Resultado</th>
-  </tr>`;
-
-  // linhas
-  const rows=boloes.map(b=>{
-    const cm=canalMap[b.bolao_id]||{};
-    const dm=destMap[b.bolao_id]||{};
-    const fm=funcMap[b.bolao_id]||{};
-    const res=Number(b.resultado_final||0);
-    const statusBadge=b.status==='ATIVO'?'bs-ativo':b.status==='CANCELADO'?'bs-canc':'bs-enc';
-
-    const funcTds=funcIds.map(id=>`<td class="purple">${fmtN(fm[id]||0)}</td>`).join('');
-    const lojaTds=slugsDestino.map(s=>`<td class="blue">${fmtN(dm[s]?.liq||0)}</td>`).join('');
-    const encTds=slugsDestino.map(s=>`<td class="amber">${fmtN(dm[s]?.enc||0)}</td>`).join('');
-
-    return`<tr>
-      <td class="left bold">${b.modalidade}</td>
-      <td class="left">${b.loteria_origem||'—'}</td>
-      <td class="mono dim">${fmtDate(b.dt_inicial)}</td>
-      <td class="mono dim">${fmtDate(b.dt_concurso)}</td>
-      <td class="mono">#${b.concurso}</td>
-      <td class="mono">${b.qtd_jogos||'—'}</td>
-      <td class="mono">${b.qtd_dezenas||'—'}</td>
-      <td class="amber">${fmtBRL(b.valor_cota)}</td>
-      <td class="mono sep-col">${fmtN(b.qtd_cotas_total)}</td>
-      <td class="blue">${fmtN(cm.BALCAO||0)}</td>
-      <td class="blue">${fmtN(cm.WHATSAPP||0)}</td>
-      <td class="blue sep-col">${fmtN(cm.MARKETPLACE||0)}</td>
-      ${nFunc>0?funcTds+'<td class="sep-col" style="display:none"></td>':''}
-      ${lojaTds}
-      ${encTds}
-      <td class="amber">${fmtN(b.enc_fisico||0)}</td>
-      <td class="amber sep-col">${fmtN(b.enc_virtual||0)}</td>
-      <td class="${(()=>{const soma=(b.qtd_vendida_total||0)+(b.enc_geral_total||0);const tot=b.qtd_cotas_total||0;return soma===tot?'green':soma>tot?'blue':'red'})()} bold">${fmtN(b.qtd_vendida_total||0)}</td>
-      <td class="green">${fmtBRL(b.receita_total)}</td>
-      <td class="amber">${fmtBRL(b.custo_jogo)}</td>
-      <td class="amber">${fmtBRL(b.premio_total)}</td>
-      <td class="${cls(res)}">${fmtBRL(res)}</td>
-    </tr>`;
-  }).join('');
-
-  // linha de totais
-  const totQtdVenda=boloes.reduce((s,b)=>s+(b.qtd_vendida_total||0),0);
-  const totCusto=boloes.reduce((s,b)=>s+Number(b.custo_jogo||0),0);
-  const totCanal={BALCAO:0,WHATSAPP:0,MARKETPLACE:0};
-  Object.values(canalMap).forEach(cm=>{['BALCAO','WHATSAPP','MARKETPLACE'].forEach(c=>totCanal[c]+=(cm[c]||0))});
-  const totFuncTds=funcIds.map(id=>{
-    const t=Object.values(funcMap).reduce((s,fm)=>s+(fm[id]||0),0);
-    return`<td class="purple bold">${fmtN(t)}</td>`;
-  }).join('');
-  const totLojaTds=slugsDestino.map(s=>{
-    const t=Object.values(destMap).reduce((sum,dm)=>sum+(dm[s]?.liq||0),0);
-    return`<td class="blue bold">${fmtN(t)}</td>`;
-  }).join('');
-  const totEncTds=slugsDestino.map(s=>{
-    const t=Object.values(destMap).reduce((sum,dm)=>sum+(dm[s]?.enc||0),0);
-    return`<td class="amber bold">${fmtN(t)}</td>`;
-  }).join('');
-  const totEncFis=boloes.reduce((s,b)=>s+(b.enc_fisico||0),0);
-  const totEncVirt=boloes.reduce((s,b)=>s+(b.enc_virtual||0),0);
-
-  const totalRow=`<tr style="background:rgba(0,200,150,0.04);border-top:1px solid var(--border2)">
-    <td class="left bold" style="color:var(--accent);font-family:var(--mono);font-size:10px;letter-spacing:.1em">TOTAL</td>
-    <td colspan="7" class="sep-col"></td>
-    <td class="sep-col"></td>
-    <td class="blue bold">${fmtN(totCanal.BALCAO)}</td>
-    <td class="blue bold">${fmtN(totCanal.WHATSAPP)}</td>
-    <td class="blue bold sep-col">${fmtN(totCanal.MARKETPLACE)}</td>
-    ${nFunc>0?totFuncTds+'<td class="sep-col" style="display:none"></td>':''}
-    ${totLojaTds}
-    ${totEncTds}
-    <td class="amber bold">${fmtN(totEncFis)}</td>
-    <td class="amber bold sep-col">${fmtN(totEncVirt)}</td>
-    <td class="bold">${fmtN(totQtdVenda)}</td>
-    <td class="green bold">${fmtBRL(totVenda)}</td>
-    <td class="amber bold">${fmtBRL(totCusto)}</td>
-    <td class="amber bold">${fmtBRL(totPremio)}</td>
-    <td class="${cls(totResultado)} bold">${fmtBRL(totResultado)}</td>
-  </tr>`;
-
-  wrap.innerHTML=`<table class="data-table">
-    <thead>${grpRow}${colRow}</thead>
-    <tbody>${rows}${totalRow}</tbody>
-  </table>`;
-
-  $('tableArea').innerHTML='';$('tableArea').appendChild(wrap);
-}
-
-document.addEventListener('DOMContentLoaded',init);
-</script>
+<script src="./js/exibir.js"></script>
 </body>
 </html>
