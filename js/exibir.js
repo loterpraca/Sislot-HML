@@ -67,21 +67,10 @@ setInterval(updateClock, 1000);
 
 async function init(){
   const { data: { session } } = await sb.auth.getSession();
+
   if(!session){
     location.href = './login.html';
-   $('fDataRef').value = hojeISO();
-
-const filtrosChange = ['fDataRef', 'fDtConcDe', 'fDtConcAte', 'fModal', 'fLoja', 'fStatus'];
-filtrosChange.forEach(id => {
-  $(id).addEventListener('change', agendarExibicao);
-});
-
-$('fConc').addEventListener('input', agendarExibicao);
-
-await exibir();
-    
     return;
-   
   }
 
   const { data: usr } = await sb.from('usuarios')
@@ -97,6 +86,7 @@ await exibir();
   }
 
   usuario = usr;
+
   $('btnLogout').onclick = async () => {
     await sb.auth.signOut();
     location.href = './login.html';
@@ -111,12 +101,23 @@ await exibir();
   usuarios = us || [];
 
   const sel = $('fLoja');
+  sel.innerHTML = '<option value="">Todas</option>';
   lojas.forEach(l => {
     const o = document.createElement('option');
     o.value = l.id;
     o.textContent = l.nome;
     sel.appendChild(o);
   });
+
+  $('fDataRef').value = hojeISO();
+
+  ['fDataRef', 'fDtConcDe', 'fDtConcAte', 'fModal', 'fLoja', 'fStatus'].forEach(id => {
+    $(id).addEventListener('change', agendarExibicao);
+  });
+
+  $('fConc').addEventListener('input', agendarExibicao);
+
+  await exibir();
 }
 
 function limpar(){
