@@ -27,7 +27,20 @@
     }
 
     /* ── Topbar ── */
+.bolao-tags-apu {
+  margin-top: 8px;
+  gap: 6px;
+}
 
+.btag-apu {
+  font-size: 10px;
+  padding: 5px 8px;
+  line-height: 1.2;
+}
+
+.bolao-main-expandido .btag-apu {
+  font-size: 11px;
+}
     .bolao-main-expandido {
   background: var(--panel);
   border: 1px solid var(--border);
