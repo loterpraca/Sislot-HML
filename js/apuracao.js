@@ -242,7 +242,6 @@ function renderBoloes(boloes) {
   $('stLista').style.display = 'block';
   $('boloesCount').innerHTML = `<span>${total}</span> bolões encontrados`;
 }
-
 async function selecionarBolao(b) {
   document.querySelectorAll('.bolao-card').forEach(c => c.classList.remove('selected'));
   document.querySelector(`.bolao-card[data-id="${b.bolao_id}"]`)?.classList.add('selected');
@@ -252,6 +251,7 @@ async function selecionarBolao(b) {
 
   $('panelNome').innerHTML = resumoBolaoHTML(b, true);
   $('panelTags').innerHTML = '';
+
   $('inputMarketplace').value = b.qtd_marketplace ?? '';
   $('inputEncFisico').value = b.enc_fisico ?? '';
   $('inputEncVirtual').value = b.enc_virtual ?? '';
