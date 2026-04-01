@@ -161,7 +161,32 @@ function pendBadge(b) {
 function valorInfo(v) {
   return v === null || v === undefined ? '—' : v;
 }
+function resumoBolaoHTML(b, expandido = false) {
+  return `
+    <div class="bolao-main ${expandido ? 'bolao-main-expandido' : ''}">
+      <div class="bolao-header">
+        ${expandido ? '' : pendBadge(b)}
+        <span class="bolao-modal">${b.modalidade}</span>
+        <span class="bolao-concurso">#${b.concurso}</span>
+        <span class="bolao-origem">${b.origem_nome || '—'}</span>
+      </div>
 
+      <div class="bolao-tags">
+        <span class="btag">${b.qtd_jogos} jogos</span>
+        <span class="btag">${b.qtd_dezenas} dez.</span>
+        <span class="btag">${b.qtd_cotas_total} cotas</span>
+        <span class="btag">${fmtBRL(b.valor_cota)}/cota</span>
+      </div>
+
+      <div class="bolao-apu-linha">
+        <span>Marketplace: ${valorInfo(b.qtd_marketplace)}</span>
+        <span>Encalhe Físico: ${valorInfo(b.enc_fisico)}</span>
+        <span>Encalhe Virtual: ${valorInfo(b.enc_virtual)}</span>
+        <span>Prêmio_Cota: ${b.vlr_premio == null ? '' : fmtBRL(b.vlr_premio)}</span>
+      </div>
+    </div>
+  `;
+}
 function renderBoloes(boloes) {
   const lista = $('stLista');
   lista.innerHTML = '';
@@ -198,13 +223,12 @@ function renderBoloes(boloes) {
       card.dataset.id = b.bolao_id;
       card.style.animationDelay = (i * 0.04) + 's';
       card.innerHTML = `
-        <div class="bolao-main">
-          <div class="bolao-header">
-            ${pendBadge(b)}
-            <span class="bolao-modal">${b.modalidade}</span>
-            <span class="bolao-concurso">#${b.concurso}</span>
-            <span class="bolao-origem">${b.origem_nome || '—'}</span>
-          </div>
+      ${resumoBolaoHTML(b)}
+          <div class="bolao-select-ind">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="2 6 5 9 10 3"/>
+            </svg>
+          </div>`;
           <div class="bolao-tags">
             <span class="btag">${b.qtd_jogos} jogos</span>
             <span class="btag">${b.qtd_dezenas} dez.</span>
@@ -212,13 +236,11 @@ function renderBoloes(boloes) {
             <span class="btag">${fmtBRL(b.valor_cota)}/cota</span>
           </div>
           <div class="bolao-apu-linha">
-            <span>Origem: ${b.saldo_base_origem}</span>
-            <span>Operacional: ${b.qtd_vendida_operacional_total}</span>
-            <span>MP: ${valorInfo(b.qtd_marketplace)}</span>
-            <span>EF: ${valorInfo(b.enc_fisico)}</span>
-            <span>EV: ${valorInfo(b.enc_virtual)}</span>
-            <span>Saldo: ${b.saldo_final_apurado_bruto}</span>
-          </div>
+          <span>Marketplace: ${valorInfo(b.qtd_marketplace)}</span>
+          <span>Encalhe Físico: ${valorInfo(b.enc_fisico)}</span>
+          <span>Encalhe Virtual: ${valorInfo(b.enc_virtual)}</span>
+          <span>Prêmio_Cota: ${b.vlr_premio == null ? '' : fmtBRL(b.vlr_premio)}</span>
+        </div>
         </div>
         <div class="bolao-select-ind">
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>
@@ -242,15 +264,8 @@ async function selecionarBolao(b) {
   bolaoSel = b;
   clearStatus();
 
-  $('panelNome').textContent = `${b.modalidade} — Concurso ${b.concurso}`;
-  $('panelTags').innerHTML = `
-    <span class="rtag rtag-blue">${b.origem_nome || '—'}</span>
-    <span class="rtag">${b.origem_cod_loterico || '—'}</span>
-    <span class="rtag rtag-accent">${fmtBRL(b.valor_cota)}/cota</span>
-    <span class="rtag">Base origem ${b.saldo_base_origem}</span>
-    <span class="rtag">Origem ${b.qtd_vendida_origem}</span>
-    <span class="rtag">Destinos ${b.qtd_vendida_destinos}</span>`;
-
+  $('panelNome').innerHTML = resumoBolaoHTML(b, true);
+  $('panelTags').innerHTML = '';
   $('inputMarketplace').value = b.qtd_marketplace ?? '';
   $('inputEncFisico').value = b.enc_fisico ?? '';
   $('inputEncVirtual').value = b.enc_virtual ?? '';
@@ -279,41 +294,18 @@ function renderResumoApuracao() {
   const ev = intOrNull($('inputEncVirtual').value);
   const premio = numOrNull($('inputPremio').value);
 
-  const bruto =
-    Number(bolaoSel.qtd_cotas_total || 0) -
-    Number(bolaoSel.qtd_vendida_operacional_total || 0) -
-    Number(mp || 0) -
-    Number(ef || 0) -
-    Number(ev || 0);
-
-  const pendente = [mp, ef, ev, premio].some(v => v === null);
-
-  $('apuBaseOrigem').textContent = String(bolaoSel.saldo_base_origem ?? 0);
-  $('apuVendidoOperacional').textContent = String(bolaoSel.qtd_vendida_operacional_total ?? 0);
-  $('apuSaldoFinal').textContent = String(bruto);
-
-  const situ = $('apuSituacao');
-  if (pendente) {
-    situ.textContent = 'Pendente';
-    situ.className = 'apu-card-val warn';
-  } else if (bruto === 0) {
-    situ.textContent = 'Fechado';
-    situ.className = 'apu-card-val ok';
-  } else {
-    situ.textContent = 'Diferença';
-    situ.className = 'apu-card-val err';
-  }
-
   $('apuracaoResumo').innerHTML = `
-    <strong>Marketplace:</strong> ${mp === null ? 'não lançado' : mp} ·
-    <strong>Encalhe físico:</strong> ${ef === null ? 'não lançado' : ef} ·
-    <strong>Encalhe virtual:</strong> ${ev === null ? 'não lançado' : ev} ·
-    <strong>Prêmio/cota:</strong> ${premio === null ? 'não lançado' : fmtBRL(premio)}<br>
-    <strong>Saldo final bruto:</strong> ${bruto} cotas.
-    ${bruto === 0 ? ' Fechamento coerente.' : ' Ainda existe divergência a conferir.'}
+    <strong>Marketplace:</strong> ${mp === null ? '' : mp} ·
+    <strong>Encalhe Físico:</strong> ${ef === null ? '' : ef} ·
+    <strong>Encalhe Virtual:</strong> ${ev === null ? '' : ev} ·
+    <strong>Prêmio_Cota:</strong> ${premio === null ? '' : fmtBRL(premio)}
   `;
-}
 
+  if ($('apuBaseOrigem')) $('apuBaseOrigem').textContent = '';
+  if ($('apuVendidoOperacional')) $('apuVendidoOperacional').textContent = '';
+  if ($('apuSaldoFinal')) $('apuSaldoFinal').textContent = '';
+  if ($('apuSituacao')) $('apuSituacao').textContent = '';
+}
 async function salvarApuracao() {
   if (!bolaoSel) return;
 
