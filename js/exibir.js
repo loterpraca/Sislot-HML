@@ -225,7 +225,7 @@ if ($('fStatus').value) q = q.eq('status', $('fStatus').value);
     <th colspan="9" class="grp-bolao sep-col">Bolão</th>
     <th colspan="3" class="grp-canal sep-col">Canal de Venda</th>
     ${nFunc > 0 ? `<th colspan="${nFunc}" class="grp-func sep-col">Venda por Funcionário</th>` : ''}
-    <th colspan="${nSlug}" class="grp-loja sep-col">Venda por Loja</th>
+    <th colspan="${nSlug}" class="grp-loja sep-col">Qtd Mov. / Vend. por Loja</th>
     <th colspan="2" class="grp-enc sep-col">Encalhe na Origem</th>
     <th colspan="4" class="grp-sint">Síntese Geral</th>
   </tr>`;
@@ -255,7 +255,7 @@ if ($('fStatus').value) q = q.eq('status', $('fStatus').value);
     <th>Enc.Físico</th>
     <th class="sep-col">Enc.Virtual</th>
 
-    <th>Total Cotas/V.Real</th>
+     <th>Total Cotas / Venda Real</th>
     <th>Encalhe Total</th>
     <th>Est. Líquido</th>
     <th>V.Contábil</th>
