@@ -69,8 +69,28 @@ function esconder(seletor) {
     });
 }
 
+function setAdminWrapVisible(visible) {
+    const adminWrap = $('adminWrap');
+    if (!adminWrap) return;
+
+    adminWrap.classList.toggle('is-hidden', !visible);
+    adminWrap.style.display = visible ? '' : 'none';
+}
+
+function showSelector(seletor) {
+    document.querySelectorAll(seletor).forEach((el) => {
+        el.style.display = '';
+    });
+}
+
 function aplicarPermissoesMenu(perfil) {
-    if (perfil === 'GERENTE' || perfil === 'OPERADOR') {
+    const p = String(perfil || '').trim().toUpperCase();
+
+    // estado base
+    setAdminWrapVisible(false);
+    esconder('.card-config');
+
+    if (p === 'GERENTE' || p === 'OPERADOR') {
         esconder('.card-cadastro');
         esconder('.card-movimentacao');
         esconder('.card-exibir');
@@ -82,24 +102,20 @@ function aplicarPermissoesMenu(perfil) {
         esconder('.card-config');
         esconder('.card-controle-fechamento');
         esconder('.card-pendencias');
-        const adminWrap = $('adminWrap');
-        if (adminWrap) adminWrap.style.display = 'none';
         return;
     }
 
-    if (perfil === 'SOCIO') {
+    if (p === 'SOCIO') {
         esconder('.card-config');
-        const adminWrap = $('adminWrap');
-        if (adminWrap) adminWrap.style.display = 'none';
         return;
     }
 
-    if (perfil === 'ADMIN') {
-        const adminWrap = $('adminWrap');
-        if (adminWrap) adminWrap.style.display = '';
+    if (p === 'ADMIN') {
+        showSelector('.card-config');
+        setAdminWrapVisible(true);
+        return;
     }
 }
-
 function hojeIso() {
     return new Date().toISOString().slice(0, 10);
 }
