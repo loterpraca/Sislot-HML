@@ -1,1 +1,138 @@
-a
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>SISLOT — Federal</title>
+
+  <link rel="icon" href="data:," />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./federal.css" />
+</head>
+<body>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">FD</div>
+      <div>
+        <div class="brand-name">Federal</div>
+        <div class="brand-sub">SISLOT • Gestão de Bilhetes</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <div id="relogio"></div>
+      <button id="btn-voltar-menu" class="btn-topbar" type="button">Menu Principal</button>
+    </div>
+  </header>
+
+  <!-- MENU FIXO -->
+  <nav class="tabs-bar" id="federal-tabs">
+    <button class="tab-btn active" data-tab="catalogo" type="button">
+      <span class="tab-dot" style="background:var(--sky)"></span>
+      Catálogo
+    </button>
+
+    <button class="tab-btn" data-tab="cadastro" type="button">
+      <span class="tab-dot" style="background:var(--accent)"></span>
+      Cadastro
+    </button>
+
+    <button class="tab-btn" data-tab="movimentacao" type="button">
+      <span class="tab-dot" style="background:var(--amber)"></span>
+      Movimentação
+    </button>
+
+    <button class="tab-btn" data-tab="resultado" type="button" id="tab-resultado">
+      <span class="tab-dot" style="background:var(--purple)"></span>
+      Resultado
+    </button>
+  </nav>
+
+  <main class="main federal-shell">
+    <!-- STATUS GLOBAL -->
+    <div id="st-federal-global" class="status-bar"></div>
+
+    <!-- KPI HEADER DINÂMICO -->
+    <section id="federal-kpis-shell" class="kpis"></section>
+
+    <!-- CATÁLOGO -->
+    <section
+      id="panel-catalogo"
+      class="tab-panel active federal-catalogo-page"
+      data-panel="catalogo"
+    >
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Catálogo</h1>
+          <div class="page-sub">Concursos correntes, situação por loteria e operação externa.</div>
+        </div>
+      </div>
+
+      <div id="federal-catalogo-root"></div>
+    </section>
+
+    <!-- CADASTRO -->
+    <section
+      id="panel-cadastro"
+      class="tab-panel federal-cadastro-page"
+      data-panel="cadastro"
+    >
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Cadastro</h1>
+          <div class="page-sub">Cadastro e manutenção de concursos da Federal.</div>
+        </div>
+      </div>
+
+      <div id="federal-cadastro-root"></div>
+    </section>
+
+    <!-- MOVIMENTAÇÃO -->
+    <section
+      id="panel-movimentacao"
+      class="tab-panel federal-mov-page"
+      data-panel="movimentacao"
+    >
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Movimentação</h1>
+          <div class="page-sub">Transferências, acertos e desfecho operacional dos concursos.</div>
+        </div>
+      </div>
+
+      <div id="federal-movimentacao-root"></div>
+    </section>
+
+    <!-- RESULTADO -->
+    <section
+      id="panel-resultado"
+      class="tab-panel federal-resultado-page"
+      data-panel="resultado"
+    >
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Resultado</h1>
+          <div class="page-sub">Resultado financeiro por concurso e agrupamentos por período.</div>
+        </div>
+      </div>
+
+      <div id="federal-resultado-root"></div>
+    </section>
+  </main>
+
+  <!-- OVERLAY GLOBAL -->
+  <div id="overlay-global" class="overlay"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <script src="./seguranca.js"></script>
+
+  <script src="./federal_api.js"></script>
+  <script src="./federal_catalogo.js"></script>
+  <script src="./federal_cadastro.js"></script>
+  <script src="./federal_movimentacao.js"></script>
+  <script src="./federal_resultado.js"></script>
+  <script src="./federal_shell.js"></script>
+</body>
+</html>
