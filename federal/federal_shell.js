@@ -358,12 +358,12 @@
     });
 
     $('btn-voltar-menu')?.addEventListener('click', () => {
-      if (window.SISLOT_ROUTES?.menuPrincipal) {
-        window.location.href = window.SISLOT_ROUTES.menuPrincipal;
-        return;
-      }
-      history.back();
-    });
+  if (window.SISLOT_SECURITY?.irParaInicio) {
+    window.SISLOT_SECURITY.irParaInicio();
+    return;
+  }
+  history.back();
+});
 
     window.addEventListener('hashchange', async () => {
       const hash = String(window.location.hash || '').replace('#', '').trim();
