@@ -52,7 +52,35 @@
   <main class="main federal-shell">
     <!-- STATUS GLOBAL -->
     <div id="st-federal-global" class="status-bar"></div>
-
+    
+    <!-- FILTROS GLOBAIS -->
+    <section class="card federal-global-filters">
+      <div class="grid-4">
+        <div class="field">
+          <label class="field-label">Loja</label>
+          <select id="fed-filtro-loja"></select>
+        </div>
+    
+        <div class="field">
+          <label class="field-label">Concurso</label>
+          <select id="fed-filtro-concurso"></select>
+        </div>
+    
+        <div class="field">
+          <label class="field-label">Data de referência</label>
+          <input id="fed-data-ref" type="date" />
+        </div>
+    
+        <div class="field">
+          <label class="field-label">Ações</label>
+          <div class="flex">
+            <button id="fed-btn-hoje" class="btn-secondary" type="button">Hoje</button>
+            <button id="fed-btn-refresh" class="btn-primary" type="button">Recarregar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
     <!-- KPI HEADER DINÂMICO -->
     <section id="federal-kpis-shell" class="kpis"></section>
 
@@ -126,16 +154,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="./sislot-config.js"></script>
-<script src="./js/sislot-utils.js"></script>
-<script src="./sislot-security.js"></script>
+<script src="../sislot-config.js"></script>
+<script src="../js/sislot-utils.js"></script>
+<script src="../sislot-security.js"></script>
 
-<script src="./federal/federal_base.js"></script>
-<script src="./federal/federal_api.js"></script>
-<script src="./federal/federal_catalogo.js"></script>
-<script src="./federal/federal_cadastro.js"></script>
-<script src="./federal/federal_movimentacao.js"></script>
-<script src="./federal/federal_resultado.js"></script>
-<script src="./federal/federal_shell.js"></script>
+<script src="./federal_base.js"></script>
+<script src="./federal_api.js"></script>
+<script src="./federal_catalogo.js"></script>
+<script src="./federal_cadastro.js"></script>
+<script src="./federal_movimentacao.js"></script>
+<script src="./federal_resultado.js"></script>
+<script src="./federal_shell.js"></script>
 </body>
 </html>
