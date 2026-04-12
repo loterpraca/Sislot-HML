@@ -37,17 +37,6 @@
     return (rows || []).reduce((acc, row) => acc + Number(row?.[key] || 0), 0);
   }
 
-  function percent(part, total) {
-    const p = Number(part || 0);
-    const t = Number(total || 0);
-    if (!t) return '0,0%';
-    return `${((p / t) * 100).toFixed(1).replace('.', ',')}%`;
-  }
-
-  function pad2(n) {
-    return String(n).padStart(2, '0');
-  }
-
   function parseDate(dateStr) {
     if (!dateStr) return null;
     const [y, m, d] = String(dateStr).split('-').map(Number);
@@ -63,20 +52,20 @@
     const dayNum = tmp.getUTCDay() || 7;
     tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
 
-    const yearStart = new const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+    const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
     const weekNo = Math.ceil((((tmp - yearStart) / 86400000) + 1) / 7);
 
     return {
       year: tmp.getUTCFullYear(),
       week: weekNo,
-      label: `Semana ${pad2(weekNo)}/${tmp.getUTCFullYear()}`
+      label: `Semana ${String(weekNo).padStart(2, '0')}/${tmp.getUTCFullYear()}`
     };
   }
 
   function getMonthLabel(dateStr) {
     if (!dateStr) return 'Mês —';
     const [y, m] = String(dateStr).split('-');
-    return `${pad2(m)}\/${y}`;
+    return `${String(m).padStart(2, '0')}/${y}`;
   }
 
   function getYearLabel(dateStr) {
@@ -115,31 +104,11 @@
     const margemMedia = custoTotal ? (resultadoTotal / custoTotal) * 100 : 0;
 
     state.ctx.setKpis([
-      {
-        label: 'Resultado Total',
-        value: fmtMoney(resultadoTotal),
-        sub: 'Período filtrado'
-      },
-      {
-        label: 'Concursos',
-        value: qtdConcursos,
-        sub: 'Quantidade apurada'
-      },
-      {
-        label: 'Resultado Médio',
-        value: fmtMoney(ticketMedio),
-        sub: 'Por concurso'
-      },
-      {
-        label: 'Carga Total',
-        value: qtdInicial,
-        sub: 'Qtd inicial somada'
-      },
-      {
-        label: 'Margem Média',
-        value: `${margemMedia.toFixed(1).replace('.', ',')}%`,
-        sub: 'Sobre o custo total'
-      },
+      { label: 'Resultado Total', value: fmtMoney(resultadoTotal), sub: 'Período filtrado' },
+      { label: 'Concursos', value: qtdConcursos, sub: 'Quantidade apurada' },
+      { label: 'Resultado Médio', value: fmtMoney(ticketMedio), sub: 'Por concurso' },
+      { label: 'Carga Total', value: qtdInicial, sub: 'Qtd inicial somada' },
+      { label: 'Margem Média', value: `${margemMedia.toFixed(1).replace('.', ',')}%`, sub: 'Sobre o custo total' },
       {
         label: 'Loja',
         value: lookupLoteriaName(state.ctx.loterias || [], state.ctx.lojaSelecionada),
@@ -227,7 +196,7 @@
   }
 
   function renderEmpty(message) {
-    state.root.querySelector('#fr-content').innerHTML = `
+    q('#fr-content').innerHTML = `
       <div class="empty">
         <div class="empty-title">Sem resultado</div>
         <div class="empty-sub">${message || 'Nenhum dado encontrado para os filtros atuais.'}</div>
@@ -404,7 +373,6 @@
 
   function bindEvents() {
     q('#fr-agrupamento')?.addEventListener('change', render);
-
     q('#fr-dt-ini')?.addEventListener('change', render);
     q('#fr-dt-fim')?.addEventListener('change', render);
 
@@ -498,10 +466,25 @@
       await loadData(ctx);
       render();
     } catch (e) {
-      console.error('[FEDERAL_RESULTADO.refresh]', e);
+      const msg =
+        e?.message ||
+        e?.details ||
+        e?.hint ||
+        e?.error_description ||
+        JSON.stringify(e) ||
+        'Erro ao carregar resultado da Federal.';
+
+      console.error('[FEDERAL_RESULTADO.refresh]', {
+        raw: e,
+        message: e?.message,
+        details: e?.details,
+        hint: e?.hint,
+        code: e?.code
+      });
+
       ctx.setKpis([]);
-      showLocalStatus(e?.message || 'Erro ao carregar resultado da Federal.', 'err');
-      renderEmpty('Erro ao carregar os dados financeiros.');
+      showLocalStatus(msg, 'err');
+      renderEmpty(msg);
     }
   }
 
