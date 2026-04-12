@@ -132,19 +132,17 @@
     let query = sb
       .from('federal_movimentacoes')
       .select(`
-        *,
-        federais!inner(
-          id,
-          concurso,
-          dt_sorteio,
-          modalidade,
-          valor_fracao,
-          valor_custo,
-          loteria_id
-        ),
-        usuarios(nome)
-      `);
-
+  *,
+  federais!inner(
+    id,
+    concurso,
+    dt_sorteio,
+    modalidade,
+    valor_fracao,
+    valor_custo,
+    loteria_id
+  )
+`)
     if (filters.federalId) {
       query = query.eq('federal_id', filters.federalId);
     }
