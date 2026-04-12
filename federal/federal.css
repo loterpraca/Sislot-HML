@@ -761,6 +761,34 @@ input[readonly] {
   font-size: 12px;
 }
 
+.federal-global-filters {
+  margin-bottom: 14px;
+}
+
+.federal-global-filters .flex {
+  height: 100%;
+  align-items: center;
+}
+
+/* =========================================================
+  Federal Shell
+   <div class="federal-shell-page">...</div>
+========================================================= */
+.federal-shell {
+  display: block;
+}
+
+#federal-kpis-shell:empty {
+  display: none;
+}
+
+.federal-resultado-page[hidden],
+.federal-cadastro-page[hidden],
+.federal-mov-page[hidden],
+.federal-catalogo-page[hidden] {
+  display: none !important;
+}
+
 /* =========================================================
    MOVIMENTAÇÃO - CARDS CLICÁVEIS
    Use no wrapper da página:
