@@ -965,13 +965,28 @@
       renderMovCards();
       buildKpis();
     } catch (e) {
-      console.error('[FEDERAL_MOVIMENTACAO.refresh]', e);
+      const msg =
+        e?.message ||
+        e?.details ||
+        e?.hint ||
+        e?.error_description ||
+        JSON.stringify(e) ||
+        'Erro ao carregar movimentações da Federal.';
+    
+      console.error('[FEDERAL_MOVIMENTACAO.refresh]', {
+        raw: e,
+        message: e?.message,
+        details: e?.details,
+        hint: e?.hint,
+        code: e?.code
+      });
+    
       state.ctx.setKpis([]);
-      showLocalStatus(e?.message || 'Erro ao carregar movimentações da Federal.', 'err');
+      showLocalStatus(msg, 'err');
       q('#lista-mov-cards').innerHTML = `
         <div class="mov-empty">
           <div class="empty-title">Erro ao carregar</div>
-          <div class="empty-sub">Não foi possível carregar as movimentações.</div>
+          <div class="empty-sub">${msg}</div>
         </div>
       `;
     }
