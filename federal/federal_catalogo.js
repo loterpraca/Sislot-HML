@@ -356,10 +356,25 @@
       await loadData(ctx);
       render();
     } catch (e) {
-      console.error('[FEDERAL_CATALOGO.refresh]', e);
+      const msg =
+        e?.message ||
+        e?.details ||
+        e?.hint ||
+        e?.error_description ||
+        JSON.stringify(e) ||
+        'Erro ao carregar catálogo da Federal.';
+    
+      console.error('[FEDERAL_CATALOGO.refresh]', {
+        raw: e,
+        message: e?.message,
+        details: e?.details,
+        hint: e?.hint,
+        code: e?.code
+      });
+    
       ctx.setKpis([]);
-      ctx.showStatus(e?.message || 'Erro ao carregar catálogo da Federal.', 'err');
-      renderEmpty('Erro ao carregar os dados do catálogo.');
+      ctx.showStatus(msg, 'err');
+      renderEmpty(msg);
     }
   }
 
